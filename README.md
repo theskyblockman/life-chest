@@ -16,3 +16,5 @@ An app to securely store your data for Android and iOS.
 - Chaining file players with a ``PageView``
 - Remaking file cards in the ``GridView``
 - File renaming
+
+:copyright: Haroun El Omri, 2023
