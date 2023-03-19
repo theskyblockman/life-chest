@@ -144,9 +144,6 @@ class MultithreadedRecovery {
     SendPort port = args[3];
     int blocksAmount = args[4];
 
-
-    DataSource
-
     for(File createdFile in pickedFiles) {
       String fileName = md5RandomFileName();
       File fileToCreate = File(join(vaultPath, fileName));
