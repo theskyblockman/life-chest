@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:life_chest/file_viewers/documents.dart';
 import 'package:life_chest/file_viewers/image.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
@@ -47,10 +48,11 @@ class FileReaderState extends State<FileReader> {
   Widget readFile() {
     switch(widget.originalThumbnail.placeholder) {
       case FileThumbnailsPlaceholder.documents:
-      case FileThumbnailsPlaceholder.videos:
-      case FileThumbnailsPlaceholder.archive:
       case FileThumbnailsPlaceholder.audio:
+      case FileThumbnailsPlaceholder.archive:
       case FileThumbnailsPlaceholder.unknown:
+        return DocumentViewer(fileVault: widget.fileVault, fileToRead: widget.originalThumbnail.file, fileName: widget.originalThumbnail.name);
+      case FileThumbnailsPlaceholder.videos:
       case FileThumbnailsPlaceholder.image:
         return ImageViewer(fileVault: widget.fileVault, fileToRead: widget.originalThumbnail.file);
     }
@@ -127,7 +129,7 @@ class FileExplorerState extends State<FileExplorer> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.watch_later, size: 120),
+                    CircularProgressIndicator(),
                     Text(
                       'Loading elements...',
                       textScaleFactor: 2.5,
@@ -180,7 +182,8 @@ enum FileThumbnailsPlaceholder {
   documents(Icon(Icons.description, color: Colors.redAccent, size: 128), [
     'txt', // RAW TEXT
     'md', // MARKDOWN
-    'pdf' // PORTABLE DOCUMENT FORMAT
+    'pdf', // PORTABLE DOCUMENT FORMAT
+    'json', 'dart', 'py', 'python', 'html', 'css', 'scss', '.gitignore', 'yml', 'yaml' // Other file formats
   ]),
   videos(Icon(Icons.video_file, color: Colors.blueAccent, size: 128), [
     'webm', // WEBM
