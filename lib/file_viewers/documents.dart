@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:life_chest/file_recovery/multithreaded_recovery.dart';
 import 'package:path/path.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../vault.dart';
 
@@ -39,15 +40,15 @@ class DocumentViewerState extends State<DocumentViewer> {
       if(snapshot.hasData) {
         return Container(child: documentType == DocumentType.pdf ? SfPdfViewer.memory(loadedDocument!) : SingleChildScrollView(child: Text(String.fromCharCodes(loadedDocument!))),);
       } else {
-        return const Center(
+        return Center(
             child: Opacity(
                 opacity: 0.25,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
                     Text(
-                      'Loading document...',
+                      AppLocalizations.of(context)!.loadingDocuments,
                       textScaleFactor: 2.5,
                       textAlign: TextAlign.center,
                     )

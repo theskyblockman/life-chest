@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:life_chest/file_recovery/multithreaded_recovery.dart';
 import 'package:life_chest/vault.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ImageViewer extends StatefulWidget {
   final Vault fileVault;
@@ -23,15 +24,15 @@ class ImageViewerState extends State<ImageViewer> {
       if(snapshot.hasData) {
         return Center(child: InteractiveViewer(clipBehavior: Clip.none, child: Image.memory(loadedImage!)));
       } else {
-        return const Center(
+        return Center(
             child: Opacity(
                 opacity: 0.25,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
                     Text(
-                      'Loading image...',
+                      AppLocalizations.of(context)!.loadingImage,
                       textScaleFactor: 2.5,
                       textAlign: TextAlign.center,
                     )

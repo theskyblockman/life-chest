@@ -9,9 +9,12 @@ import 'package:life_chest/file_explorer.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:encrypt/encrypt.dart' as e;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   Directory appDocuments = await getApplicationDocumentsDirectory();
   VaultsManager.appFolder = appDocuments.path;
   VaultsManager.mainConfigFile = File('${VaultsManager.appFolder}/.config');
@@ -34,6 +37,11 @@ class LifeChestApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Life Chest',
+      localizationsDelegates: const [
+        ...AppLocalizations.localizationsDelegates,
+        SfGlobalLocalizations.delegate
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
           useMaterial3: true,
           colorScheme: lightColorScheme),
@@ -53,60 +61,64 @@ class WelcomePage extends StatefulWidget {
 }
 
 class WelcomePageState extends State<WelcomePage> {
-  final List<List<Widget>> welcomePages = [
-    [
-      const Text('Hello there!',
-          style: TextStyle(fontWeight: FontWeight.w900),
-          textScaleFactor: 3,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.fade),
-      const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
-      const Text(
-          'Welcome to your life chest ! Here you will be able to create chests to store your data privately without compromising over usability.',
-          style: TextStyle(fontWeight: FontWeight.w600),
-          textScaleFactor: 1.5,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.fade)
-    ],
-    [
-      const Text('Here, our main priority is your security',
-          style: TextStyle(fontWeight: FontWeight.w900),
-          textScaleFactor: 1.75,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.fade),
-      const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
-      const Text(
-          'We use an encryption system called AES-256, so trying to access your files without your password will take about 1370 times the age of the universe! And to prove we aren\'t lying about our security, we are 100% open-source and free!',
-          style: TextStyle(fontWeight: FontWeight.w600),
-          textScaleFactor: 1.5,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.fade)
-    ],
-    [
-      const Text("Let's create your first chest!",
-          style: TextStyle(fontWeight: FontWeight.w900),
-          textScaleFactor: 2.25,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.fade),
-      const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
-      const Text(
-        "You'll see, it's fast, easy and secure!",
-        style: TextStyle(fontWeight: FontWeight.w600),
-        textScaleFactor: 1.5,
-        textAlign: TextAlign.center,
-        overflow: TextOverflow.fade,
-      )
-    ]
-  ];
+  late List<List<Widget>> welcomePages;
 
   PageController controller = PageController();
   int previousPage = 0;
   @override
   Widget build(BuildContext context) {
+    AppLocalizations currentLocal = AppLocalizations.of(context)!;
+
+    welcomePages = [
+      [
+        Text(currentLocal.welcomePage1Title,
+            style: const TextStyle(fontWeight: FontWeight.w900),
+            textScaleFactor: 3,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.fade),
+        const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+        Text(
+            currentLocal.welcomePage1Content,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+            textScaleFactor: 1.5,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.fade)
+      ],
+      [
+        Text(currentLocal.welcomePage2Title,
+            style: const TextStyle(fontWeight: FontWeight.w900),
+            textScaleFactor: 1.75,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.fade),
+        const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+        Text(
+            currentLocal.welcomePage2Content,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+            textScaleFactor: 1.5,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.fade)
+      ],
+      [
+        Text(currentLocal.welcomePage3Title,
+            style: const TextStyle(fontWeight: FontWeight.w900),
+            textScaleFactor: 2.25,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.fade),
+        const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+        Text(
+          currentLocal.welcomePage3Content,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+          textScaleFactor: 1.5,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.fade,
+        )
+      ]
+    ];
+
     bool isLastPage = controller.hasClients
         ? (controller.page!.round() == welcomePages.length - 1 ? true : false)
         : false;
-    String textToDisplay = isLastPage ? 'Create a new chest' : 'Next';
+    String textToDisplay = isLastPage ? currentLocal.createANewChest : currentLocal.welcomeNext;
     controller.addListener(
       () {
         int currentPage = controller.page!.round();
@@ -131,7 +143,7 @@ class WelcomePageState extends State<WelcomePage> {
                   }
                 },
                 icon: const Icon(Icons.keyboard_double_arrow_right),
-                label: const Text('Skip')))
+                label: Text(currentLocal.welcomeSkip)))
       ]),
       body: Center(
         child: Stack(children: [
@@ -206,7 +218,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Create a new chest')),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.createANewChest)),
         body: SingleChildScrollView(
             child: Form(
           key: formState,
@@ -219,11 +231,11 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                   policy.vaultName = value;
                 },
                 onEditingComplete: () => passwordNode.requestFocus(),
-                decoration: const InputDecoration(
-                    border: OutlineInputBorder(), labelText: 'Chest name'),
+                decoration: InputDecoration(
+                    border: const OutlineInputBorder(), labelText: AppLocalizations.of(context)!.chestName),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'The chest name must not be empty';
+                    return AppLocalizations.of(context)!.errorChestNameShouldNotBeEmpty;
                   }
 
                   return null;
@@ -238,25 +250,25 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                 onChanged: (value) {
                   policy.vaultPassword = value;
                 },
-                decoration: const InputDecoration(
-                    border: OutlineInputBorder(), labelText: 'Chest password'),
+                decoration: InputDecoration(
+                    border: const OutlineInputBorder(), labelText: AppLocalizations.of(context)!.chestPassword),
                 obscureText: true,
                 focusNode: passwordNode,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'The password must not be empty';
+                    return AppLocalizations.of(context)!.errorChestPasswordShouldNotBeEmpty;
                   }
                   if(value.length < 8) {
-                    return 'The password must be 8 characters or more';
+                    return AppLocalizations.of(context)!.errorChestPasswordMoreCharacters;
                   }
                   if(!value.contains(RegExp(r'[A-Z]'))) {
-                    return 'The password must contain at least one uppercase character';
+                    return AppLocalizations.of(context)!.errorChestPasswordMoreUppercaseLetter;
                   }
                   if(!value.contains(RegExp(r'[a-z]'))) {
-                    return 'The password must contain at least one lowercase character';
+                    return AppLocalizations.of(context)!.errorChestPasswordMoreLowercaseLetter;
                   }
                   if(!value.contains(RegExp(r'\d'))) {
-                    return 'The password must contain at least one digit';
+                    return AppLocalizations.of(context)!.errorChestPasswordMoreDigits;
                   }
 
                   return null;
@@ -271,18 +283,18 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                         policy.shouldDisconnectWhenVaultOpened = value;
                       }),
                   value: policy.shouldDisconnectWhenVaultOpened),
-              title: const Text(
-                  'Enter airplane mode when the vault opens'),
+              title: Text(
+                  AppLocalizations.of(context)!.shouldEnterAirplaneMode),
             ),
             const Divider(),
-            const ListTile(
-                title: Text('What should we do when the timeout exceeds')),
+            ListTile(
+                title: Text(AppLocalizations.of(context)!.whatShouldBeDoneAfterTimeout)),
             ListTile(
               title: SegmentedButton<int>(
-                  segments: const [
-                    ButtonSegment(value: 0, label: Text('Do nothing')),
-                    ButtonSegment(value: 1, label: Text('Notify you')),
-                    ButtonSegment(value: 2, label: Text('Close the chest')),
+                  segments: [
+                    ButtonSegment(value: 0, label: Text(AppLocalizations.of(context)!.doNothing)),
+                    ButtonSegment(value: 1, label: Text(AppLocalizations.of(context)!.notify)),
+                    ButtonSegment(value: 2, label: Text(AppLocalizations.of(context)!.closeChest)),
                   ],
                   selected: {
                     timeoutLevel
@@ -308,13 +320,10 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                       if(timeoutLevel < 1) return null;
 
                       if (value == null || value.trim().isEmpty) {
-                        return 'This entry must not be empty';
+                        return AppLocalizations.of(context)!.errorDurationMustNotBeEmpty;
                       }
-                      if (!value.contains(':')) {
-                        return 'This entry must be in the HH:mm format';
-                      }
-                      if (value.length != 5) {
-                        return 'This entry must be 5 characters long';
+                      if (!value.contains(':') || value.length != 5) {
+                        return AppLocalizations.of(context)!.errorDurationMustBeFormatted;
                       }
 
                       return null;
@@ -334,7 +343,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
             VaultsManager.saveVaults();
             if(context.mounted) Navigator.pop(context);
           }
-        }, label: const Text('Create the chest'), icon: const Icon(Icons.add),), floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,);
+        }, label: Text(AppLocalizations.of(context)!.createTheNewChest), icon: const Icon(Icons.add),), floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,);
   }
 
   @override
@@ -439,11 +448,11 @@ class ChestMainPageState extends State<ChestMainPage> {
                           applicationIcon:
                               Image.asset('logo.png', height: 64, width: 64),
                           applicationLegalese:
-                              'The application "Life Chest" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT License, ©️ 2023 Haroun El Omri',
+                          AppLocalizations.of(context)!.appLegalese,
                         );
                       });
                     },
-                    child: const Text('About'),
+                    child: Text(AppLocalizations.of(context)!.about),
                   )
                 ];
               })
@@ -457,15 +466,15 @@ class ChestMainPageState extends State<ChestMainPage> {
                     builder: (context) => const CreateNewChestPage())).then((_) => setState(() => {}));
           },
           child: const Icon(Icons.add)),
-      body: VaultsManager.storedVaults.isEmpty ? const Center(
+      body: VaultsManager.storedVaults.isEmpty ? Center(
           child: Opacity(
               opacity: 0.25,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.lock_outline, size: 128),
+                  const Icon(Icons.lock_outline, size: 128),
                   Text(
-                    'No chests created yet',
+                    AppLocalizations.of(context)!.noChestsCreatedYet,
                     textScaleFactor: 2.5,
                     textAlign: TextAlign.center,
                   )
@@ -490,13 +499,13 @@ class ChestMainPageState extends State<ChestMainPage> {
                                       });
                                     });
                                   },
-                                  child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+                                  child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.redAccent)),
                                 )
                               ];
                             }), onTap: () {
                       showDialog(context: context, builder: (context) {
                         passwordField = TextEditingController();
-                        return AlertDialog(title: const Text('Please enter the password of this vault'), content: TextField(autofocus: true, controller: passwordField, obscureText: true, decoration: const InputDecoration(border: OutlineInputBorder())), actions: [
+                        return AlertDialog(title: Text(AppLocalizations.of(context)!.enterTheChestPassword), content: TextField(autofocus: true, controller: passwordField, obscureText: true, decoration: const InputDecoration(border: OutlineInputBorder())), actions: [
                           TextButton(onPressed: () async {
                             chest.encryptionKey = e.Key.fromUtf8(passwordToCryptKey(passwordField.text));
                             chest.locked = !(await VaultsManager.testVaultKey(chest));
@@ -504,7 +513,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                             if(!chest.locked && context.mounted) {
                               Navigator.push(context, MaterialPageRoute(builder: (context) => FileExplorer(chest))).then((_) => setState(() => {}));
                             }
-                          }, child: const Text('Validate'))
+                          }, child: Text(AppLocalizations.of(context)!.validate))
                         ],);
                       });
                     }

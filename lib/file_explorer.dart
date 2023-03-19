@@ -5,6 +5,7 @@ import 'package:life_chest/file_viewers/image.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
 import 'package:life_chest/file_recovery/multithreaded_recovery.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FileThumbnail extends StatefulWidget {
   final String name;
@@ -91,7 +92,7 @@ class FileExplorerState extends State<FileExplorer> {
       File mapFile = File(join(widget.vault.path, '.map'));
       mapFile.createSync(recursive: true);
 
-      map = VaultsManager.constructMap(widget.vault, oldMap: map, additionalFiles: await MultithreadedRecovery.saveFilesForMultithreadedDecryption(widget.vault.encryptionKey!, widget.vault.path));
+      map = VaultsManager.constructMap(widget.vault, oldMap: map, additionalFiles: await MultithreadedRecovery.saveFilesForMultithreadedDecryption(widget.vault.encryptionKey!, widget.vault.path, dialogTitle: AppLocalizations.of(context)!.pickFilesDialogTitle));
       mapFile.writeAsStringSync(VaultsManager.encryptMap(widget.vault, map)!);
 
       setState(() {
@@ -103,8 +104,8 @@ class FileExplorerState extends State<FileExplorer> {
             child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Opacity(opacity: 0.45, child: Text(
-                      'No files added yet',
+                    Opacity(opacity: 0.45, child: Text(
+                      AppLocalizations.of(context)!.noFilesCreatedYet,
                       textScaleFactor: 2.5,
                       textAlign: TextAlign.center,
                     )),
@@ -112,26 +113,26 @@ class FileExplorerState extends State<FileExplorer> {
                       File mapFile = File(join(widget.vault.path, '.map'));
                       mapFile.createSync(recursive: true);
 
-                      map = VaultsManager.constructMap(widget.vault, oldMap: map, additionalFiles: await MultithreadedRecovery.saveFilesForMultithreadedDecryption(widget.vault.encryptionKey!, widget.vault.path));
+                      map = VaultsManager.constructMap(widget.vault, oldMap: map, additionalFiles: await MultithreadedRecovery.saveFilesForMultithreadedDecryption(widget.vault.encryptionKey!, widget.vault.path, dialogTitle: AppLocalizations.of(context)!.pickFilesDialogTitle));
                       mapFile.writeAsStringSync(VaultsManager.encryptMap(widget.vault, map)!);
 
                       setState(() {
                         thumbnailCollector = reloadThumbnails();
                       });
-                    } , child: const Text('Add files'))
+                    } , child: Text(AppLocalizations.of(context)!.addFiles))
                   ],
                 )
         );
       } else {
-        return const Center(
+        return Center(
             child: Opacity(
                 opacity: 0.25,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
                     Text(
-                      'Loading elements...',
+                      AppLocalizations.of(context)!.loadingElements,
                       textScaleFactor: 2.5,
                       textAlign: TextAlign.center,
                     )

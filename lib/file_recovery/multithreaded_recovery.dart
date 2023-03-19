@@ -80,7 +80,7 @@ class MultithreadedRecovery {
     return sublists;
   }
   
-  static Future<Map<String, String>?> saveFilesForMultithreadedDecryption(Key encryptionKey, String vaultPath, [List<File> filesToSave = const [], String dialogTitle = 'Pick the files you want to add', int threadCount = 3, int blocksCount = 3]) async {
+  static Future<Map<String, String>?> saveFilesForMultithreadedDecryption(Key encryptionKey, String vaultPath, {List<File> filesToSave = const [], String dialogTitle = 'Pick the files you want to add', int threadCount = 3, int blocksCount = 3}) async {
     if(filesToSave.isEmpty) {
       FilePickerResult? pickedFiles = await FilePicker.platform.pickFiles(allowMultiple: true, dialogTitle: dialogTitle);
       if(pickedFiles != null) {
