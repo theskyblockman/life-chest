@@ -1,6 +1,6 @@
-# life_chest
+# Life chest
 
-An app to securely store your data.
+An app to securely store your data for Android and iOS.
 
 ## Features
 - Multithreaded AES file encryption/decryption
