@@ -1,16 +1,18 @@
 # life_chest
 
-A new Flutter project.
+An app to securely store your data.
 
-## Getting Started
+## Features
+- Multithreaded AES file encryption/decryption
+- Chest/Vault system (name to determine)
+- See images
+- Onboarding
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## WIP
+- Video playing
+- Audio playing
+- Documents playing
+- Lazy loading
+- Chaining file players with a ``PageView``
+- Remaking file cards in the ``GridView``
+- File renaming
