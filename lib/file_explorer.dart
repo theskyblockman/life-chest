@@ -24,12 +24,15 @@ class FileThumbnailState extends State<FileThumbnail> {
   @override
   Widget build(BuildContext context) {
 
-    return GestureDetector(onTap: () {
+    return InkWell(onTap: () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => FileReader(originalThumbnail: widget, fileVault: widget.vault)));
-    }, child: Container(margin: EdgeInsets.zero, padding: const EdgeInsets.symmetric(horizontal: 2.5), constraints: BoxConstraints(minHeight: widget.thumbnailSize, maxWidth: widget.thumbnailSize), decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer, border: Border.all(color: Theme.of(context).colorScheme.outline, width: 0.5)), child: Column(children: [
-      widget.placeholder.icon,
-      Text(widget.name, overflow: TextOverflow.ellipsis)
-    ])));
+    }, child: GridTile(child: Container(
+      decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: 0.5)),
+      child: Column(children: [
+        widget.placeholder.icon,
+        Text(widget.name, overflow: TextOverflow.ellipsis)
+      ]),
+    )));
   }
 }
 
