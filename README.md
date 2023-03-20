@@ -8,6 +8,7 @@ An app to securely store your data for Android and iOS.
 - See images
 - View documents
 - On-boarding
+- Localization
 
 ## WIP
 - Video playing
@@ -16,6 +17,5 @@ An app to securely store your data for Android and iOS.
 - Chaining file players with a ``PageView``
 - Remaking file cards in the ``GridView``
 - File renaming
-- Localization
 
 :copyright: Haroun El Omri, 2023
