@@ -50,5 +50,15 @@
     "loadingDocuments": "Loading document",
     "loadingImage": "Loading image",
 
-    "pickFilesDialogTitle": "Pick the files you want to add"
+    "pickFilesDialogTitle": "Pick the files you want to add",
+
+    "selected": "{count} {count, plural, =0{selected} other{selected}}",
+    "@selected": {
+        "placeholders": {
+            "count": {
+                "type": "num",
+                "format": "compact"
+            }
+        }
+    }
 }

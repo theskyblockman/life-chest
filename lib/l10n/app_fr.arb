@@ -50,5 +50,7 @@
     "loadingDocuments": "Chargement du document",
     "loadingImage": "Chargement de l'image",
 
-    "pickFilesDialogTitle": "Choisissez les fichiers que vous voulez ajouter"
+    "pickFilesDialogTitle": "Choisissez les fichiers que vous voulez ajouter",
+
+    "selected": "{count} {count, plural, =1{fichier sélectionné} other{fichiers sélectionnés}}"
 }

@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:life_chest/color_schemes.g.dart';
 import 'package:life_chest/file_explorer.dart';
 import 'package:life_chest/vault.dart';
@@ -11,9 +12,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:encrypt/encrypt.dart' as e;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('fonts/LICENSE.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
 
   Directory appDocuments = await getApplicationDocumentsDirectory();
   VaultsManager.appFolder = appDocuments.path;
@@ -35,6 +40,15 @@ class LifeChestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    ThemeData lightTheme = ThemeData(
+        useMaterial3: true,
+        colorScheme: lightColorScheme,
+    );
+    ThemeData darkTheme = ThemeData(
+        useMaterial3: true,
+        colorScheme: darkColorScheme,
+    );
+
     return MaterialApp(
       title: 'Life Chest',
       localizationsDelegates: const [
@@ -42,12 +56,8 @@ class LifeChestApp extends StatelessWidget {
         SfGlobalLocalizations.delegate
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: lightColorScheme),
-      darkTheme: ThemeData(
-          useMaterial3: true,
-          colorScheme: darkColorScheme),
+      theme: lightTheme.copyWith(textTheme: GoogleFonts.robotoTextTheme(lightTheme.textTheme)),
+      darkTheme: darkTheme.copyWith(textTheme: GoogleFonts.robotoTextTheme(darkTheme.textTheme)),
       home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
     );
   }

@@ -7,30 +7,28 @@ import 'package:path/path.dart';
 import 'package:life_chest/file_recovery/multithreaded_recovery.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class FileThumbnail extends StatefulWidget {
+class FileThumbnail extends StatelessWidget {
   final String name;
   final String localPath;
   final FileThumbnailsPlaceholder placeholder;
-  final double thumbnailSize;
   final File file;
   final Vault vault;
-  const FileThumbnail({super.key, required this.localPath, required this.name, required this.placeholder, required this.thumbnailSize, required this.file, required this.vault});
+  final bool Function(FileThumbnail state) onPress;
+  final void Function(FileThumbnail state) onLongPress;
+  final bool isSelected;
+  const FileThumbnail({super.key, required this.localPath, required this.name, required this.placeholder, required this.file, required this.vault, required this.onPress, required this.onLongPress, required this.isSelected});
 
-  @override
-  State<StatefulWidget> createState() => FileThumbnailState();
-}
-
-class FileThumbnailState extends State<FileThumbnail> {
   @override
   Widget build(BuildContext context) {
-
-    return InkWell(onTap: () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => FileReader(originalThumbnail: widget, fileVault: widget.vault)));
+    return InkWell(onLongPress: () => onLongPress(this), onTap: () {
+      if(onPress(this)) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => FileReader(originalThumbnail: this, fileVault: vault)));
+      }
     }, child: GridTile(child: Container(
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: 0.5)),
+      decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: 0.5), color: isSelected ? Theme.of(context).colorScheme.tertiary.withOpacity(.3) : null),
       child: Column(children: [
-        widget.placeholder.icon,
-        Text(widget.name, overflow: TextOverflow.ellipsis)
+        placeholder.icon,
+        Text(name, overflow: TextOverflow.ellipsis)
       ]),
     )));
   }
@@ -46,9 +44,6 @@ class FileReader extends StatefulWidget {
 }
 
 class FileReaderState extends State<FileReader> {
-
-
-
   Widget readFile() {
     switch(widget.originalThumbnail.placeholder) {
       case FileThumbnailsPlaceholder.documents:
@@ -85,13 +80,38 @@ class FileExplorerState extends State<FileExplorer> {
   Future<void>? thumbnailCollector;
   double? thumbnailSize;
   late Map<String, dynamic> map;
+  bool isSelectionMode = false;
+  int amountOfFilesSelected = 0;
 
   @override
   Widget build(BuildContext context) {
     thumbnailSize ??= MediaQuery.of(context).size.width / (MediaQuery.of(context).size.width > MediaQuery.of(context).size.height ? 4 : 2);
     thumbnailCollector ??= reloadThumbnails();
 
-    return Scaffold(appBar: AppBar(title: Text(widget.vault.name), bottom: const PreferredSize(preferredSize: Size.fromHeight(3), child: LinearProgressIndicator(value: 0.5,))), floatingActionButton: FloatingActionButton.large(onPressed: () async {
+    return Scaffold(appBar: AppBar(leading: IconButton(onPressed: () {
+      if(isSelectionMode) {
+        setState(() {
+          isSelectionMode = false;
+
+          for(FileThumbnail thumbnail in List.from(thumbnails)) {
+            if(thumbnail.isSelected) {
+              thumbnails[thumbnails.indexOf(thumbnail)] = FileThumbnail(
+                  localPath: thumbnail.localPath,
+                  name: thumbnail.name,
+                  placeholder: thumbnail.placeholder,
+                  file: thumbnail.file,
+                  vault: thumbnail.vault,
+                  onPress: thumbnail.onPress,
+                  onLongPress: thumbnail.onLongPress,
+                  isSelected: false
+              );
+            }
+          }
+        });
+      } else {
+        Navigator.pop(context);
+      }
+    }, icon: const Icon(Icons.arrow_back)), title: Text(isSelectionMode ? AppLocalizations.of(context)!.selected(amountOfFilesSelected) : widget.vault.name), bottom: const PreferredSize(preferredSize: Size.fromHeight(3), child: LinearProgressIndicator(value: 0.5)), backgroundColor: isSelectionMode ? Theme.of(context).colorScheme.tertiary.withOpacity(.7) : null), floatingActionButton: FloatingActionButton.large(onPressed: () async {
       File mapFile = File(join(widget.vault.path, '.map'));
       mapFile.createSync(recursive: true);
 
@@ -103,7 +123,7 @@ class FileExplorerState extends State<FileExplorer> {
       });
     }, child: const Icon(Icons.add)), body: FutureBuilder(future: thumbnailCollector, builder: (context, snapshot) {
       if(snapshot.hasData) {
-        return thumbnails.isNotEmpty ? GridView.count(crossAxisCount: MediaQuery.of(context).size.width > MediaQuery.of(context).size.height ? 4 : 2, children: thumbnails) : Center(
+        return thumbnails.isNotEmpty ? GridView.count(crossAxisCount: MediaQuery.of(context).size.width > MediaQuery.of(context).size.height ? 4 : 2, children: List.from(thumbnails)) : Center(
             child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -159,12 +179,56 @@ class FileExplorerState extends State<FileExplorer> {
     Map<String, FileThumbnailsPlaceholder> fileTypes = FileThumbnailsPlaceholder.getPlaceholderFromFileName(List.from(map.values));
 
     for(MapEntry<String, dynamic> mappedFile in map.entries) {
-      createdThumbnails.add(FileThumbnail(localPath: mappedFile.key, name: mappedFile.value, placeholder: fileTypes[mappedFile.value]!, thumbnailSize: thumbnailSize!, file: File(join(widget.vault.path, mappedFile.key)), vault: widget.vault,));
+      ValueKey<String> thumbnailKey = ValueKey(mappedFile.key);
+      createdThumbnails.add(FileThumbnail(key: thumbnailKey, localPath: mappedFile.key, name: mappedFile.value, placeholder: fileTypes[mappedFile.value]!, file: File(join(widget.vault.path, mappedFile.key)), vault: widget.vault, onPress: thumbnailTap, onLongPress: thumbnailLongTap, isSelected: false));
     }
 
     thumbnails = createdThumbnails;
 
     return true;
+  }
+
+  bool thumbnailTap(FileThumbnail thumbnail) {
+    if(!isSelectionMode) return true;
+    setState(() {
+      thumbnails[thumbnails.indexOf(thumbnail)] = FileThumbnail(
+          localPath: thumbnail.localPath,
+          name: thumbnail.name,
+          placeholder: thumbnail.placeholder,
+          file: thumbnail.file,
+          vault: thumbnail.vault,
+          onPress: thumbnail.onPress,
+          onLongPress: thumbnail.onLongPress,
+          isSelected: !thumbnail.isSelected
+      );
+      if(!thumbnail.isSelected) {
+        amountOfFilesSelected++;
+      } else {
+        amountOfFilesSelected--;
+        if(amountOfFilesSelected == 0) {
+          isSelectionMode = false;
+        }
+      }
+    });
+
+    return false;
+  }
+
+  void thumbnailLongTap(FileThumbnail thumbnail) {
+    setState(() {
+      isSelectionMode = true;
+      amountOfFilesSelected = 1;
+      thumbnails[thumbnails.indexOf(thumbnail)] = FileThumbnail(
+          localPath: thumbnail.localPath,
+          name: thumbnail.name,
+          placeholder: thumbnail.placeholder,
+          file: thumbnail.file,
+          vault: thumbnail.vault,
+          onPress: thumbnail.onPress,
+          onLongPress: thumbnail.onLongPress,
+          isSelected: true
+      );
+    });
   }
 }
 
