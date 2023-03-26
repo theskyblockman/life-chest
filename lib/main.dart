@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +15,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await AudioPlayer.global.changeLogLevel(LogLevel.error);
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('fonts/LICENSE.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
@@ -437,6 +438,7 @@ class ChestMainPageState extends State<ChestMainPage> {
   GlobalKey<AnimatedListState> animatedListState = GlobalKey();
   int currentlySelectedChestID = -1;
   TextEditingController passwordField = TextEditingController();
+  bool failedPasswordForVault = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -515,17 +517,23 @@ class ChestMainPageState extends State<ChestMainPage> {
                             }), onTap: () {
                       showDialog(context: context, builder: (context) {
                         passwordField = TextEditingController();
-                        return AlertDialog(title: Text(AppLocalizations.of(context)!.enterTheChestPassword), content: TextField(autofocus: true, controller: passwordField, obscureText: true, decoration: const InputDecoration(border: OutlineInputBorder())), actions: [
-                          TextButton(onPressed: () async {
-                            chest.encryptionKey = e.Key.fromUtf8(passwordToCryptKey(passwordField.text));
-                            chest.locked = !(await VaultsManager.testVaultKey(chest));
-                            if(!kDebugMode) passwordField.text = '';
-                            if(!chest.locked && context.mounted) {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => FileExplorer(chest))).then((_) => setState(() => {}));
-                            }
-                          }, child: Text(AppLocalizations.of(context)!.validate))
-                        ],);
-                      });
+                        return StatefulBuilder(builder: (context, setState) {
+                          return AlertDialog(title: Text(AppLocalizations.of(context)!.enterTheChestPassword), content: TextField(autofocus: true, controller: passwordField, obscureText: true, decoration: InputDecoration(border: const OutlineInputBorder(), errorText: failedPasswordForVault ? AppLocalizations.of(context)!.wrongPassword : null)), actions: [
+                            TextButton(onPressed: () async {
+                              chest.encryptionKey = e.Key.fromUtf8(passwordToCryptKey(passwordField.text));
+                              chest.locked = !(await VaultsManager.testVaultKey(chest));
+                              if(!kDebugMode) passwordField.text = '';
+                              if(!chest.locked && context.mounted) {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => FileExplorer(chest))).then((_) => setState(() => {}));
+                              } else {
+                                setState(() {
+                                  failedPasswordForVault = true;
+                                });
+                              }
+                            }, child: Text(AppLocalizations.of(context)!.validate))
+                          ]);
+                        },);
+                      }).then((value) => failedPasswordForVault = false);
                     }
                     )
                 );

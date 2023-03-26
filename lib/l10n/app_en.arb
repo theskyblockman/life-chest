@@ -43,16 +43,18 @@
 
     "validate": "Validate",
     "delete": "Delete",
+    "rename": "Rename",
     "about": "About...",
 
     "addFiles": "Add files",
     "loadingElements": "Loading elements",
     "loadingDocuments": "Loading document",
     "loadingImage": "Loading image",
+    "loadingAudioTrack": "Loading audio track",
 
     "pickFilesDialogTitle": "Pick the files you want to add",
 
-    "selected": "{count} selected",
+    "selected": "{count} {count, plural, =1{selected} other{selected}}",
     "@selected": {
         "placeholders": {
             "count": {
@@ -60,5 +62,9 @@
                 "format": "compact"
             }
         }
-    }
+    },
+
+    "selectAll": "Select all",
+
+    "wrongPassword": "Wrong password"
 }

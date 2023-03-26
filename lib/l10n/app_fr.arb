@@ -43,14 +43,19 @@
 
     "validate": "Valider",
     "delete": "Supprimer",
+    "rename": "Renommer",
     "about": "A propos...",
 
     "addFiles": "Ajouter des fichiers",
     "loadingElements": "Chargement des éléments",
     "loadingDocuments": "Chargement du document",
     "loadingImage": "Chargement de l'image",
+    "loadingAudioTrack": "Chargement de la piste audio",
 
     "pickFilesDialogTitle": "Choisissez les fichiers que vous voulez ajouter",
 
-    "selected": "{count} {count, plural, =1{fichier sélectionné} other{fichiers sélectionnés}}"
+    "selected": "{count} {count, plural, =1{fichier sélectionné} other{fichiers sélectionnés}}",
+    "selectAll": "Tout sélectionner",
+
+    "wrongPassword": "Mauvais mot de passe"
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -38,7 +39,7 @@ class DocumentViewerState extends State<DocumentViewer> {
   Widget build(BuildContext context) {
     return FutureBuilder(builder: (context, snapshot) {
       if(snapshot.hasData) {
-        return Container(child: documentType == DocumentType.pdf ? SfPdfViewer.memory(loadedDocument!) : SingleChildScrollView(child: Text(String.fromCharCodes(loadedDocument!))),);
+        return Container(child: documentType == DocumentType.pdf ? SfPdfViewer.memory(loadedDocument!) : SingleChildScrollView(child: Text(utf8.decode(loadedDocument!))),);
       } else {
         return Center(
             child: Opacity(

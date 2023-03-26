@@ -141,7 +141,7 @@ class VaultsManager {
 
     e.Encrypter cipher = e.Encrypter(e.AES(vault.encryptionKey!, mode: e.AESMode.cbc));
     Map<String, dynamic> decryptedMap = jsonDecode(cipher.decrypt64(encryptedMap, iv: e.IV.fromLength(16)));
-    debugPrint(decryptedMap.toString());
+
     return decryptedMap;
   }
 }
