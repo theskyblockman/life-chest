@@ -5,7 +5,7 @@ import 'package:life_chest/file_viewers/documents.dart';
 import 'package:life_chest/file_viewers/image.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
-import 'package:life_chest/file_recovery/multithreaded_recovery.dart';
+import 'package:life_chest/file_recovery/splitted_recovery.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FileThumbnail extends StatelessWidget {

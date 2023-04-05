@@ -10,7 +10,8 @@ environment:
 dependencies:
   audioplayers: ^3.0.1
   crypto: ^3.0.2
-  encrypt: ^5.0.1
+  cryptography: ^2.5.0
+  cryptography_flutter: ^2.3.0
   file_picker: ^5.2.5
   flutter:
     sdk: flutter
@@ -20,9 +21,10 @@ dependencies:
   intl: any
   path: ^1.8.3
   path_provider: ^2.0.13
-  syncfusion_flutter_pdfviewer: ^20.4.54
-  syncfusion_localizations: ^20.4.54
+  syncfusion_flutter_pdfviewer: ^21.1.38
+  syncfusion_localizations: ^21.1.38
   video_player: ^2.6.0
+  encrypt: ^5.0.1
 
 dev_dependencies:
   flutter_test:

@@ -1,9 +1,8 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:life_chest/file_recovery/multithreaded_recovery.dart';
+import 'package:life_chest/file_recovery/splitted_recovery.dart';
 import 'package:life_chest/vault.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -25,7 +24,7 @@ class AudioViewerState extends State<AudioViewer> {
   Widget build(BuildContext context) {
     return FutureBuilder(builder: (context, snapshot) {
       if(snapshot.hasData) {
-        return Center(child: FilledButton(child: Text('send notification'), onPressed: () {
+        return Center(child: FilledButton(child: const Text('send notification'), onPressed: () {
           const MethodChannel('theskyblockman.fr/channel').invokeMethod('createMediaNotification');
         },));
       } else {

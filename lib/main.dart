@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:encrypt/encrypt.dart' as e;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +11,6 @@ import 'package:life_chest/color_schemes.g.dart';
 import 'package:life_chest/file_explorer.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:encrypt/encrypt.dart' as e;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 void main() async {
@@ -465,7 +465,11 @@ class ChestMainPageState extends State<ChestMainPage> {
                       });
                     },
                     child: Text(AppLocalizations.of(context)!.about),
-                  )
+                  ),
+                  if(kDebugMode)
+                    PopupMenuItem(child: const Text('Debug button'), onTap: () {
+                      
+                    },)
                 ];
               })
         ],
