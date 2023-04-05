@@ -10,12 +10,12 @@ An app to securely store your data for Android and iOS.
 - On-boarding
 - Localization
 - Remaking file cards in the ``GridView``
+- Chaining file players with a ``PageView``
 
 ## WIP
 - Video playing
 - Audio playing
 - Lazy loading
-- Chaining file players with a ``PageView``
 - File renaming
 - Export files/vautls to their original file or to a new file format (.lcvf or Life Chest Vault File)
 
