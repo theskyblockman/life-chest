@@ -17,5 +17,6 @@ An app to securely store your data for Android and iOS.
 - Lazy loading
 - Chaining file players with a ``PageView``
 - File renaming
+- Export files/vautls to their original file or to a new file format (.lcvf or Life Chest Vault File)
 
 :copyright: Haroun El Omri, 2023
