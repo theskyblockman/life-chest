@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:life_chest/file_recovery/native_recovery.dart';
 import 'package:life_chest/file_viewers/audio.dart';
 import 'package:life_chest/file_viewers/documents.dart';
 import 'package:life_chest/file_viewers/image.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
-import 'package:life_chest/file_recovery/splitted_recovery.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FileThumbnail extends StatelessWidget {
@@ -136,7 +136,8 @@ class FileExplorerState extends State<FileExplorer> {
             itemBuilder: (context) {
             return [
               PopupMenuItem(
-                onTap: () {
+                onTap: () async {
+                  String encryptedMap = (await VaultsManager.encryptMap(widget.vault, map))!;
                   setState(() {
                     // TODO: Forensic should be made to see if iOS/Android keeps any of the file data in storage, if yes fill the file with null bytes and then delete it.
                     for(FileThumbnail thumbnail in thumbnails) {
@@ -145,7 +146,7 @@ class FileExplorerState extends State<FileExplorer> {
                         map.remove(thumbnail.localPath);
                       }
                     }
-                    File(join(widget.vault.path, '.map')).writeAsStringSync(VaultsManager.encryptMap(widget.vault, map)!);
+                    File(join(widget.vault.path, '.map')).writeAsStringSync(encryptedMap);
                     isSelectionMode = false;
                     thumbnailCollector = reloadThumbnails();
                   });
@@ -226,14 +227,14 @@ class FileExplorerState extends State<FileExplorer> {
 
             map = VaultsManager.constructMap(widget.vault,
                 oldMap: map,
-                additionalFiles: await MultithreadedRecovery
+                additionalFiles: await NativeRecovery
                     .saveFilesForMultithreadedDecryption(
                         widget.vault.encryptionKey!, widget.vault.path,
                         dialogTitle: AppLocalizations.of(context)!
                             .pickFilesDialogTitle));
 
             mapFile.writeAsStringSync(
-                VaultsManager.encryptMap(widget.vault, map)!);
+                (await VaultsManager.encryptMap(widget.vault, map))!);
 
             setState(() {
               thumbnailCollector = reloadThumbnails();
@@ -273,7 +274,7 @@ class FileExplorerState extends State<FileExplorer> {
 
                             map = VaultsManager.constructMap(widget.vault,
                                 oldMap: map,
-                                additionalFiles: await MultithreadedRecovery
+                                additionalFiles: await NativeRecovery
                                     .saveFilesForMultithreadedDecryption(
                                         widget.vault.encryptionKey!,
                                         widget.vault.path,
@@ -281,7 +282,7 @@ class FileExplorerState extends State<FileExplorer> {
                                             AppLocalizations.of(context)!
                                                 .pickFilesDialogTitle));
                             mapFile.writeAsStringSync(
-                                VaultsManager.encryptMap(widget.vault, map)!);
+                                (await VaultsManager.encryptMap(widget.vault, map))!);
 
                             setState(() {
                               thumbnailCollector = reloadThumbnails();
@@ -317,7 +318,7 @@ class FileExplorerState extends State<FileExplorer> {
       return false;
     }
 
-    map = VaultsManager.decryptMap(widget.vault, mapFile.readAsStringSync())!;
+    map = (await VaultsManager.decryptMap(widget.vault, mapFile.readAsStringSync()))!;
     List<FileThumbnail> createdThumbnails = [];
 
     keepThumbnailsLoaded = map.length <= 20;

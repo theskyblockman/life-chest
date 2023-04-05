@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:encrypt/encrypt.dart' as e;
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -524,7 +524,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                         return StatefulBuilder(builder: (context, setState) {
                           return AlertDialog(title: Text(AppLocalizations.of(context)!.enterTheChestPassword), content: TextField(autofocus: true, controller: passwordField, obscureText: true, decoration: InputDecoration(border: const OutlineInputBorder(), errorText: failedPasswordForVault ? AppLocalizations.of(context)!.wrongPassword : null)), actions: [
                             TextButton(onPressed: () async {
-                              chest.encryptionKey = e.Key.fromUtf8(passwordToCryptKey(passwordField.text));
+                              chest.encryptionKey = SecretKey(passwordToCryptKey(passwordField.text));
                               chest.locked = !(await VaultsManager.testVaultKey(chest));
                               if(!kDebugMode) passwordField.text = '';
                               if(!chest.locked && context.mounted) {
