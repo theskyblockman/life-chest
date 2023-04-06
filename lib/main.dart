@@ -1,19 +1,25 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:audioplayers/audioplayers.dart';
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:life_chest/color_schemes.g.dart';
 import 'package:life_chest/file_explorer.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:encrypt/encrypt.dart' as e;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AudioPlayer.global.changeLogLevel(LogLevel.error);
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('fonts/LICENSE.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
 
   Directory appDocuments = await getApplicationDocumentsDirectory();
   VaultsManager.appFolder = appDocuments.path;
@@ -35,6 +41,15 @@ class LifeChestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    ThemeData lightTheme = ThemeData(
+        useMaterial3: true,
+        colorScheme: lightColorScheme,
+    );
+    ThemeData darkTheme = ThemeData(
+        useMaterial3: true,
+        colorScheme: darkColorScheme,
+    );
+
     return MaterialApp(
       title: 'Life Chest',
       localizationsDelegates: const [
@@ -42,12 +57,8 @@ class LifeChestApp extends StatelessWidget {
         SfGlobalLocalizations.delegate
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: lightColorScheme),
-      darkTheme: ThemeData(
-          useMaterial3: true,
-          colorScheme: darkColorScheme),
+      theme: lightTheme.copyWith(textTheme: GoogleFonts.robotoTextTheme(lightTheme.textTheme)),
+      darkTheme: darkTheme.copyWith(textTheme: GoogleFonts.robotoTextTheme(darkTheme.textTheme)),
       home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
     );
   }
@@ -258,16 +269,16 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                   if (value == null || value.trim().isEmpty) {
                     return AppLocalizations.of(context)!.errorChestPasswordShouldNotBeEmpty;
                   }
-                  if(value.length < 8) {
+                  if(value.length < 8 && !kDebugMode) {
                     return AppLocalizations.of(context)!.errorChestPasswordMoreCharacters;
                   }
-                  if(!value.contains(RegExp(r'[A-Z]'))) {
+                  if(!value.contains(RegExp(r'[A-Z]')) && !kDebugMode) {
                     return AppLocalizations.of(context)!.errorChestPasswordMoreUppercaseLetter;
                   }
-                  if(!value.contains(RegExp(r'[a-z]'))) {
+                  if(!value.contains(RegExp(r'[a-z]')) && !kDebugMode) {
                     return AppLocalizations.of(context)!.errorChestPasswordMoreLowercaseLetter;
                   }
-                  if(!value.contains(RegExp(r'\d'))) {
+                  if(!value.contains(RegExp(r'\d')) && !kDebugMode) {
                     return AppLocalizations.of(context)!.errorChestPasswordMoreDigits;
                   }
 
@@ -427,6 +438,7 @@ class ChestMainPageState extends State<ChestMainPage> {
   GlobalKey<AnimatedListState> animatedListState = GlobalKey();
   int currentlySelectedChestID = -1;
   TextEditingController passwordField = TextEditingController();
+  bool failedPasswordForVault = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -453,7 +465,11 @@ class ChestMainPageState extends State<ChestMainPage> {
                       });
                     },
                     child: Text(AppLocalizations.of(context)!.about),
-                  )
+                  ),
+                  if(kDebugMode)
+                    PopupMenuItem(child: const Text('Debug button'), onTap: () {
+                      
+                    },)
                 ];
               })
         ],
@@ -499,23 +515,29 @@ class ChestMainPageState extends State<ChestMainPage> {
                                       });
                                     });
                                   },
-                                  child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.redAccent)),
+                                  child: Text(AppLocalizations.of(context)!.delete),
                                 )
                               ];
                             }), onTap: () {
                       showDialog(context: context, builder: (context) {
                         passwordField = TextEditingController();
-                        return AlertDialog(title: Text(AppLocalizations.of(context)!.enterTheChestPassword), content: TextField(autofocus: true, controller: passwordField, obscureText: true, decoration: const InputDecoration(border: OutlineInputBorder())), actions: [
-                          TextButton(onPressed: () async {
-                            chest.encryptionKey = e.Key.fromUtf8(passwordToCryptKey(passwordField.text));
-                            chest.locked = !(await VaultsManager.testVaultKey(chest));
-                            if(!kDebugMode) passwordField.text = '';
-                            if(!chest.locked && context.mounted) {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => FileExplorer(chest))).then((_) => setState(() => {}));
-                            }
-                          }, child: Text(AppLocalizations.of(context)!.validate))
-                        ],);
-                      });
+                        return StatefulBuilder(builder: (context, setState) {
+                          return AlertDialog(title: Text(AppLocalizations.of(context)!.enterTheChestPassword), content: TextField(autofocus: true, controller: passwordField, obscureText: true, decoration: InputDecoration(border: const OutlineInputBorder(), errorText: failedPasswordForVault ? AppLocalizations.of(context)!.wrongPassword : null)), actions: [
+                            TextButton(onPressed: () async {
+                              chest.encryptionKey = SecretKey(passwordToCryptKey(passwordField.text));
+                              chest.locked = !(await VaultsManager.testVaultKey(chest));
+                              if(!kDebugMode) passwordField.text = '';
+                              if(!chest.locked && context.mounted) {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => FileExplorer(chest))).then((_) => setState(() => {}));
+                              } else {
+                                setState(() {
+                                  failedPasswordForVault = true;
+                                });
+                              }
+                            }, child: Text(AppLocalizations.of(context)!.validate))
+                          ]);
+                        },);
+                      }).then((value) => failedPasswordForVault = false);
                     }
                     )
                 );

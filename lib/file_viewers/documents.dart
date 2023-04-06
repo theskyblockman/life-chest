@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:life_chest/file_recovery/multithreaded_recovery.dart';
+import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:path/path.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -38,7 +39,7 @@ class DocumentViewerState extends State<DocumentViewer> {
   Widget build(BuildContext context) {
     return FutureBuilder(builder: (context, snapshot) {
       if(snapshot.hasData) {
-        return Container(child: documentType == DocumentType.pdf ? SfPdfViewer.memory(loadedDocument!) : SingleChildScrollView(child: Text(String.fromCharCodes(loadedDocument!))),);
+        return Container(child: documentType == DocumentType.pdf ? SfPdfViewer.memory(loadedDocument!) : SingleChildScrollView(child: Text(utf8.decode(loadedDocument!))),);
       } else {
         return Center(
             child: Opacity(
@@ -59,7 +60,7 @@ class DocumentViewerState extends State<DocumentViewer> {
   }
 
   Future<bool> load() async {
-    loadedDocument = await MultithreadedRecovery.loadAndDecryptFile(widget.fileVault.encryptionKey!, widget.fileToRead);
+    loadedDocument = await SingleThreadedRecovery.loadAndDecryptFullFile(widget.fileVault.encryptionKey!, widget.fileToRead);
     return true;
   }
 

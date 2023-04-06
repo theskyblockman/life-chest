@@ -1,28 +1,32 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/vault.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:audioplayers/audioplayers.dart';
 
-class ImageViewer extends StatefulWidget {
+class AudioViewer extends StatefulWidget {
   final Vault fileVault;
   final File fileToRead;
-  const ImageViewer({super.key, required this.fileVault, required this.fileToRead});
+  const AudioViewer({super.key, required this.fileVault, required this.fileToRead});
 
   @override
-  State<StatefulWidget> createState() => ImageViewerState();
+  State<StatefulWidget> createState() => AudioViewerState();
 }
 
-class ImageViewerState extends State<ImageViewer> {
-  Uint8List? loadedImage;
+class AudioViewerState extends State<AudioViewer> {
+  Uint8List? loadedMusic;
+  final AudioPlayer player = AudioPlayer();
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(builder: (context, snapshot) {
       if(snapshot.hasData) {
-        return Center(child: InteractiveViewer(clipBehavior: Clip.none, child: Image.memory(loadedImage!)));
+        return Center(child: FilledButton(child: const Text('send notification'), onPressed: () {
+          const MethodChannel('theskyblockman.fr/channel').invokeMethod('createMediaNotification');
+        },));
       } else {
         return Center(
             child: Opacity(
@@ -32,7 +36,7 @@ class ImageViewerState extends State<ImageViewer> {
                   children: [
                     const CircularProgressIndicator(),
                     Text(
-                      AppLocalizations.of(context)!.loadingImage,
+                      AppLocalizations.of(context)!.loadingAudioTrack,
                       textScaleFactor: 2.5,
                       textAlign: TextAlign.center,
                     )
@@ -43,13 +47,15 @@ class ImageViewerState extends State<ImageViewer> {
   }
 
   Future<bool> load() async {
-    loadedImage = await SingleThreadedRecovery.loadAndDecryptFullFile(widget.fileVault.encryptionKey!, widget.fileToRead);
+    loadedMusic = await SingleThreadedRecovery.loadAndDecryptFullFile(widget.fileVault.encryptionKey!, widget.fileToRead);
+    await player.setSourceBytes(loadedMusic!);
+    await player.resume();
     return true;
   }
 
   @override
   void dispose() {
-    loadedImage = null;
+    loadedMusic = null;
     super.dispose();
   }
 }
