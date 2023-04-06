@@ -3,7 +3,7 @@
     "welcomePage1Content": "Welcome to your life chest ! Here you will be able to create chests to store your data privately without compromising over usability.",
 
     "welcomePage2Title": "Here, our main priority is your security",
-    "welcomePage2Content": "We use an encryption system called AES-256, so trying to access your files without your password will take about 1370 times the age of the universe! And to prove we aren't lying about our security, we are 100% open-source and free!",
+    "welcomePage2Content": "We use an encryption system called Chacha20, so trying to access your files without your password will take about 200 trillions of trillions of trillions times the age of the universe! And to prove it, we are 100% open-source!",
 
     "welcomePage3Title": "Let's create your first chest!",
     "welcomePage3Content": "You'll see, it's fast, easy and secure!",
@@ -43,16 +43,18 @@
 
     "validate": "Validate",
     "delete": "Delete",
+    "rename": "Rename",
     "about": "About...",
 
     "addFiles": "Add files",
     "loadingElements": "Loading elements",
     "loadingDocuments": "Loading document",
     "loadingImage": "Loading image",
+    "loadingAudioTrack": "Loading audio track",
 
     "pickFilesDialogTitle": "Pick the files you want to add",
 
-    "selected": "{count} {count, plural, =0{selected} other{selected}}",
+    "selected": "{count} {count, plural, =1{selected} other{selected}}",
     "@selected": {
         "placeholders": {
             "count": {
@@ -60,5 +62,9 @@
                 "format": "compact"
             }
         }
-    }
+    },
+
+    "selectAll": "Select all",
+
+    "wrongPassword": "Wrong password"
 }

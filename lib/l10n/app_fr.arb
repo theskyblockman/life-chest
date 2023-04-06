@@ -3,7 +3,7 @@
     "welcomePage1Content": "Bienvenue dans votre coffre de vie ! Ici, vous pourrez créer des coffres pour stocker vos données en toute sécurité sans compromettre l'utilisation.",
 
     "welcomePage2Title": "Ici, notre priorité principale est votre sécurité",
-    "welcomePage2Content": "Nous utilisons un système de cryptage appelé AES-256, donc essayer d'accéder à vos fichiers sans votre mot de passe prendra environ 1370 fois l'âge de l'univers ! Et pour prouver que nous ne mentons pas sur notre sécurité, nous sommes 100 % open-source et gratuit !",
+    "welcomePage2Content": "Nous utilisons un système de cryptage appelé Chacha20, donc essayer d'accéder à vos fichiers sans votre mot de passe prendra environ 200 billions de billions de billions de fois l'âge de l'univers ! Et pour le prouver, nous sommes 100 % open-source !",
 
     "welcomePage3Title": "Créons votre premier coffre !",
     "welcomePage3Content": "Vous verrez, c'est rapide, facile et sécurisé !",
@@ -43,14 +43,19 @@
 
     "validate": "Valider",
     "delete": "Supprimer",
+    "rename": "Renommer",
     "about": "A propos...",
 
     "addFiles": "Ajouter des fichiers",
     "loadingElements": "Chargement des éléments",
     "loadingDocuments": "Chargement du document",
     "loadingImage": "Chargement de l'image",
+    "loadingAudioTrack": "Chargement de la piste audio",
 
     "pickFilesDialogTitle": "Choisissez les fichiers que vous voulez ajouter",
 
-    "selected": "{count} {count, plural, =1{fichier sélectionné} other{fichiers sélectionnés}}"
+    "selected": "{count} {count, plural, =1{fichier sélectionné} other{fichiers sélectionnés}}",
+    "selectAll": "Tout sélectionner",
+
+    "wrongPassword": "Mauvais mot de passe"
 }
