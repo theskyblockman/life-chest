@@ -6,7 +6,6 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:life_chest/color_schemes.g.dart';
 import 'package:life_chest/file_explorer.dart';
 import 'package:life_chest/vault.dart';
@@ -17,10 +16,6 @@ import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AudioPlayer.global.changeLogLevel(LogLevel.error);
-  LicenseRegistry.addLicense(() async* {
-    final license = await rootBundle.loadString('fonts/LICENSE.txt');
-    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
-  });
 
   Directory appDocuments = await getApplicationDocumentsDirectory();
   VaultsManager.appFolder = appDocuments.path;
@@ -58,10 +53,8 @@ class LifeChestApp extends StatelessWidget {
         SfGlobalLocalizations.delegate
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: lightTheme.copyWith(
-          textTheme: GoogleFonts.robotoTextTheme(lightTheme.textTheme)),
-      darkTheme: darkTheme.copyWith(
-          textTheme: GoogleFonts.robotoTextTheme(darkTheme.textTheme)),
+      theme: lightTheme,
+      darkTheme: darkTheme,
       home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
     );
   }

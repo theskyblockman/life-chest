@@ -1,5 +1,5 @@
 name: life_chest
-description: A safe container for  your data
+description: A safe container for your data
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -16,7 +16,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  google_fonts: ^4.0.3
   intl: any
   path: ^1.8.3
   path_provider: ^2.0.13
@@ -37,5 +36,4 @@ flutter:
   uses-material-design: true
   assets:
     - file_settings/
-    - fonts/
     - logo.png
