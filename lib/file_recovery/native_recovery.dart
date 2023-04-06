@@ -9,7 +9,6 @@ import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
 import 'package:flutter/services.dart';
 
-
 /// This whole multithreading process is slower if Dart FFI is used for decryption as Isolates doesn't have any impact on native calls
 @Deprecated('Use SingleThreadedRecovery instead')
 class NativeRecovery {
@@ -19,7 +18,10 @@ class NativeRecovery {
     SecretBox block = args[2];
     int blockID = args[3];
 
-    comPort.send(MapEntry(blockID, Uint8List.fromList(await VaultsManager.cipher.decrypt(block, secretKey: cipher))));
+    comPort.send(MapEntry(
+        blockID,
+        Uint8List.fromList(
+            await VaultsManager.cipher.decrypt(block, secretKey: cipher))));
   }
 
   static void _startMultithreadedDecryption(List<dynamic> args) async {
@@ -29,11 +31,13 @@ class NativeRecovery {
     final ReceivePort decryptPort = ReceivePort();
 
     List<String> base64Blocks = fileToRead.readAsLinesSync();
-    List<SecretBox> encryptedBlocks = List.generate(base64Blocks.length, (index) {
-      return SecretBox(base64Blocks[index].codeUnits, nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty);
+    List<SecretBox> encryptedBlocks =
+        List.generate(base64Blocks.length, (index) {
+      return SecretBox(base64Blocks[index].codeUnits,
+          nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty);
     });
 
-    for(SecretBox encryptedBlock in encryptedBlocks) {
+    for (SecretBox encryptedBlock in encryptedBlocks) {
       await Isolate.spawn(_decryptFileBlock, [
         encryptionKey,
         decryptPort.sendPort,
@@ -41,17 +45,18 @@ class NativeRecovery {
         encryptedBlocks.indexOf(encryptedBlock)
       ]);
     }
-    List<Uint8List> decryptedBlocks = List.generate(encryptedBlocks.length, (index) => Uint8List(0));
+    List<Uint8List> decryptedBlocks =
+        List.generate(encryptedBlocks.length, (index) => Uint8List(0));
     int receivedBlocksAmount = 0;
     decryptPort.listen((message) {
       MapEntry<int, Uint8List> msg = message;
       decryptedBlocks[msg.key] = msg.value;
       receivedBlocksAmount++;
-      if(receivedBlocksAmount == encryptedBlocks.length) {
+      if (receivedBlocksAmount == encryptedBlocks.length) {
         List<int>? finalFile;
-        for(Uint8List decryptedRawBlock in decryptedBlocks) {
+        for (Uint8List decryptedRawBlock in decryptedBlocks) {
           List<int> decryptedBlock = decryptedRawBlock.toList();
-          if(finalFile == null) {
+          if (finalFile == null) {
             finalFile = decryptedBlock;
             continue;
           }
@@ -63,9 +68,11 @@ class NativeRecovery {
     });
   }
 
-  static Future<Uint8List> loadAndDecryptFile(SecretKey encryptionKey, File fileToRead) async {
+  static Future<Uint8List> loadAndDecryptFile(
+      SecretKey encryptionKey, File fileToRead) async {
     ReceivePort dataPort = ReceivePort();
-    Isolate.spawn(_startMultithreadedDecryption, [encryptionKey, fileToRead, dataPort.sendPort]);
+    Isolate.spawn(_startMultithreadedDecryption,
+        [encryptionKey, fileToRead, dataPort.sendPort]);
 
     return await dataPort.first;
   }
@@ -83,13 +90,18 @@ class NativeRecovery {
     return sublists;
   }
 
-  static Future<Map<String, String>?> saveFilesForMultithreadedDecryption(SecretKey encryptionKey, String vaultPath, {List<File> filesToSave = const [], String dialogTitle = 'Pick the files you want to add', int threadCount = 3, int blocksCount = 3}) async {
-    if(filesToSave.isEmpty) {
-      FilePickerResult? pickedFiles = await FilePicker.platform.pickFiles(allowMultiple: true, dialogTitle: dialogTitle);
-      if(pickedFiles != null) {
+  static Future<Map<String, String>?> saveFilesForMultithreadedDecryption(
+      SecretKey encryptionKey, String vaultPath,
+      {List<File> filesToSave = const [],
+      String dialogTitle = 'Pick the files you want to add',
+      int threadCount = 3,
+      int blocksCount = 3}) async {
+    if (filesToSave.isEmpty) {
+      FilePickerResult? pickedFiles = await FilePicker.platform
+          .pickFiles(allowMultiple: true, dialogTitle: dialogTitle);
+      if (pickedFiles != null) {
         filesToSave = [
-          for(PlatformFile file in pickedFiles.files)
-            File(file.path!)
+          for (PlatformFile file in pickedFiles.files) File(file.path!)
         ];
       } else {
         return null;
@@ -116,9 +128,9 @@ class NativeRecovery {
 
     listenForMessages();
 
-
-    for(List<File> threadFiles in assignableFiles) {
-      await Isolate.spawn(_saveAndEncryptFiles, [threadFiles, encryptionKey, vaultPath, port.sendPort, blocksCount]);
+    for (List<File> threadFiles in assignableFiles) {
+      await Isolate.spawn(_saveAndEncryptFiles,
+          [threadFiles, encryptionKey, vaultPath, port.sendPort, blocksCount]);
     }
 
     await completer.future; // Wait for all the tasks to finish
@@ -129,7 +141,7 @@ class NativeRecovery {
   static String _joinByNewLine(List<String> lines) {
     String finalString = '';
 
-    for(String line in lines) {
+    for (String line in lines) {
       finalString += line;
       finalString += '\n';
     }
@@ -146,14 +158,19 @@ class NativeRecovery {
     SendPort port = args[3];
     int blocksAmount = args[4];
 
-    for(File createdFile in pickedFiles) {
+    for (File createdFile in pickedFiles) {
       String fileName = md5RandomFileName();
       File fileToCreate = File(join(vaultPath, fileName));
       await fileToCreate.create(recursive: true);
-      List<List<int>> decryptedBlocks = _splitList(await createdFile.readAsBytes(), blocksAmount);
+      List<List<int>> decryptedBlocks =
+          _splitList(await createdFile.readAsBytes(), blocksAmount);
       List<String> encryptedBlocks = [];
-      for(List<int> decryptedBlock in decryptedBlocks) {
-        encryptedBlocks.add(String.fromCharCodes(((await VaultsManager.cipher.encrypt(decryptedBlock, secretKey: encryptionKey, nonce: Uint8List(VaultsManager.cipher.nonceLength))).cipherText)));
+      for (List<int> decryptedBlock in decryptedBlocks) {
+        encryptedBlocks.add(String.fromCharCodes(((await VaultsManager.cipher
+                .encrypt(decryptedBlock,
+                    secretKey: encryptionKey,
+                    nonce: Uint8List(VaultsManager.cipher.nonceLength)))
+            .cipherText)));
       }
       await fileToCreate.writeAsString(_joinByNewLine(encryptedBlocks));
       additionalFiles[fileName] = basename(createdFile.path);

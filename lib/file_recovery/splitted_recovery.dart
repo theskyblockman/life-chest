@@ -17,7 +17,8 @@ class MultithreadedRecovery {
     Encrypted block = args[2];
     int blockID = args[3];
 
-    comPort.send(MapEntry(blockID, Uint8List.fromList(cipher.decryptBytes(block, iv: IV.fromLength(16)))));
+    comPort.send(MapEntry(blockID,
+        Uint8List.fromList(cipher.decryptBytes(block, iv: IV.fromLength(16)))));
   }
 
   static void _startMultithreadedDecryption(List<dynamic> args) async {
@@ -27,11 +28,12 @@ class MultithreadedRecovery {
     final ReceivePort decryptPort = ReceivePort();
     Encrypter cipher = Encrypter(AES(encryptionKey, mode: AESMode.cbc));
     List<String> base64Blocks = fileToRead.readAsLinesSync();
-    List<Encrypted> encryptedBlocks = List.generate(base64Blocks.length, (index) {
+    List<Encrypted> encryptedBlocks =
+        List.generate(base64Blocks.length, (index) {
       return Encrypted.fromBase64(base64Blocks[index]);
     });
 
-    for(Encrypted encryptedBlock in encryptedBlocks) {
+    for (Encrypted encryptedBlock in encryptedBlocks) {
       await Isolate.spawn(_decryptFileBlock, [
         cipher,
         decryptPort.sendPort,
@@ -39,17 +41,18 @@ class MultithreadedRecovery {
         encryptedBlocks.indexOf(encryptedBlock)
       ]);
     }
-    List<Uint8List> decryptedBlocks = List.generate(encryptedBlocks.length, (index) => Uint8List(0));
+    List<Uint8List> decryptedBlocks =
+        List.generate(encryptedBlocks.length, (index) => Uint8List(0));
     int receivedBlocksAmount = 0;
     decryptPort.listen((message) {
       MapEntry<int, Uint8List> msg = message;
       decryptedBlocks[msg.key] = msg.value;
       receivedBlocksAmount++;
-      if(receivedBlocksAmount == encryptedBlocks.length) {
+      if (receivedBlocksAmount == encryptedBlocks.length) {
         List<int>? finalFile;
-        for(Uint8List decryptedRawBlock in decryptedBlocks) {
+        for (Uint8List decryptedRawBlock in decryptedBlocks) {
           List<int> decryptedBlock = decryptedRawBlock.toList();
-          if(finalFile == null) {
+          if (finalFile == null) {
             finalFile = decryptedBlock;
             continue;
           }
@@ -60,10 +63,12 @@ class MultithreadedRecovery {
       }
     });
   }
-  
-  static Future<Uint8List> loadAndDecryptFile(Key encryptionKey, File fileToRead) async {
+
+  static Future<Uint8List> loadAndDecryptFile(
+      Key encryptionKey, File fileToRead) async {
     ReceivePort dataPort = ReceivePort();
-    Isolate.spawn(_startMultithreadedDecryption, [encryptionKey, fileToRead, dataPort.sendPort]);
+    Isolate.spawn(_startMultithreadedDecryption,
+        [encryptionKey, fileToRead, dataPort.sendPort]);
 
     return await dataPort.first;
   }
@@ -80,15 +85,20 @@ class MultithreadedRecovery {
     }
     return sublists;
   }
-  
-  static Future<Map<String, String>?> saveFilesForMultithreadedDecryption(Key encryptionKey, String vaultPath, {List<File> filesToSave = const [], String dialogTitle = 'Pick the files you want to add', int threadCount = 3, int blocksCount = 3}) async {
-    if(filesToSave.isEmpty) {
-      FilePickerResult? pickedFiles = await FilePicker.platform.pickFiles(allowMultiple: true, dialogTitle: dialogTitle);
-      if(pickedFiles != null) {
+
+  static Future<Map<String, String>?> saveFilesForMultithreadedDecryption(
+      Key encryptionKey, String vaultPath,
+      {List<File> filesToSave = const [],
+      String dialogTitle = 'Pick the files you want to add',
+      int threadCount = 3,
+      int blocksCount = 3}) async {
+    if (filesToSave.isEmpty) {
+      FilePickerResult? pickedFiles = await FilePicker.platform
+          .pickFiles(allowMultiple: true, dialogTitle: dialogTitle);
+      if (pickedFiles != null) {
         filesToSave = [
-            for(PlatformFile file in pickedFiles.files)
-              File(file.path!)
-          ];
+          for (PlatformFile file in pickedFiles.files) File(file.path!)
+        ];
       } else {
         return null;
       }
@@ -114,10 +124,10 @@ class MultithreadedRecovery {
     }
 
     listenForMessages();
-    
-    
-    for(List<File> threadFiles in assignableFiles) {
-      await Isolate.spawn(_saveAndEncryptFiles, [threadFiles, cipher, vaultPath, port.sendPort, blocksCount]);
+
+    for (List<File> threadFiles in assignableFiles) {
+      await Isolate.spawn(_saveAndEncryptFiles,
+          [threadFiles, cipher, vaultPath, port.sendPort, blocksCount]);
     }
 
     await completer.future; // Wait for all the tasks to finish
@@ -128,7 +138,7 @@ class MultithreadedRecovery {
   static String _joinByNewLine(List<String> lines) {
     String finalString = '';
 
-    for(String line in lines) {
+    for (String line in lines) {
       finalString += line;
       finalString += '\n';
     }
@@ -145,14 +155,16 @@ class MultithreadedRecovery {
     SendPort port = args[3];
     int blocksAmount = args[4];
 
-    for(File createdFile in pickedFiles) {
+    for (File createdFile in pickedFiles) {
       String fileName = md5RandomFileName();
       File fileToCreate = File(join(vaultPath, fileName));
       await fileToCreate.create(recursive: true);
-      List<List<int>> decryptedBlocks = _splitList(await createdFile.readAsBytes(), blocksAmount);
+      List<List<int>> decryptedBlocks =
+          _splitList(await createdFile.readAsBytes(), blocksAmount);
       List<String> encryptedBlocks = [];
-      for(List<int> decryptedBlock in decryptedBlocks) {
-        encryptedBlocks.add(cipher.encryptBytes(decryptedBlock, iv: IV.fromLength(16)).base64);
+      for (List<int> decryptedBlock in decryptedBlocks) {
+        encryptedBlocks.add(
+            cipher.encryptBytes(decryptedBlock, iv: IV.fromLength(16)).base64);
       }
       await fileToCreate.writeAsString(_joinByNewLine(encryptedBlocks));
       additionalFiles[fileName] = basename(createdFile.path);
