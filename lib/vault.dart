@@ -1,15 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
-import 'package:crypto/crypto.dart' as crypto;
 
 class PermissionError extends Error {
   final String message;
+
   PermissionError(this.message);
+
   @override
   String toString() => message;
 }
@@ -195,7 +198,7 @@ List<int> passwordToCryptKey(String password) {
   int currentValue = -1;
   for(int passwordByte in passwordBytes) {
     if(currentValue == -1) {
-      currentValue = passwordByte; 
+      currentValue = passwordByte;
       continue;
     }
     finalBytes.add(currentValue + passwordByte);

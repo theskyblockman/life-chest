@@ -5,9 +5,9 @@ import 'dart:typed_data';
 
 import 'package:encrypt/encrypt.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
-import 'package:flutter/services.dart';
 
 @Deprecated('Use NativeRecovery instead')
 class MultithreadedRecovery {

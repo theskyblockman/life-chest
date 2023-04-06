@@ -4,9 +4,9 @@ import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
-import 'package:flutter/services.dart';
 
 class SingleThreadedRecovery {
   static Future<Uint8List> loadAndDecryptFullFile(

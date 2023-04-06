@@ -2,13 +2,14 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/vault.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ImageViewer extends StatefulWidget {
   final Vault fileVault;
   final File fileToRead;
+
   const ImageViewer(
       {super.key, required this.fileVault, required this.fileToRead});
 

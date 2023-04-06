@@ -1,12 +1,13 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/audio.dart';
 import 'package:life_chest/file_viewers/documents.dart';
 import 'package:life_chest/file_viewers/image.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FileThumbnail extends StatelessWidget {
   final String name;
@@ -17,6 +18,7 @@ class FileThumbnail extends StatelessWidget {
   final void Function(BuildContext context, FileThumbnail state) onPress;
   final void Function(FileThumbnail state) onLongPress;
   final bool isSelected;
+
   const FileThumbnail(
       {super.key,
       required this.localPath,
@@ -51,6 +53,7 @@ class FileReader extends StatefulWidget {
   final List<FileThumbnail> thumbnails;
   final Vault fileVault;
   final int initialThumbnail;
+
   const FileReader(
       {super.key,
       required this.thumbnails,
@@ -105,8 +108,44 @@ class FileReaderState extends State<FileReader> {
   }
 }
 
+class RenameWindow extends StatefulWidget {
+  final void Function(String newName) onOkButtonPressed;
+  final VoidCallback onCancelButtonPressed;
+  final FileThumbnail thumbnail;
+  const RenameWindow({super.key, required this.onOkButtonPressed, required this.onCancelButtonPressed, required this.thumbnail});
+
+  @override
+  State<StatefulWidget> createState() => RenameWindowState();
+
+}
+
+class RenameWindowState extends State<RenameWindow> {
+  late final TextEditingController renameFieldController;
+  bool hasNotChanged = true;
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(title: Text(AppLocalizations.of(context)!.rename), content: TextField(autofocus: true, textInputAction: TextInputAction.none, controller: renameFieldController, decoration: const InputDecoration(border: OutlineInputBorder()), onChanged: (value) {
+      bool oldValue = hasNotChanged;
+      hasNotChanged = value == widget.thumbnail.name;
+      if(oldValue != hasNotChanged) {
+        setState(() {});
+      }
+    }), actions: [
+      TextButton(onPressed: widget.onCancelButtonPressed, child: Text(AppLocalizations.of(context)!.cancel)),
+      TextButton(onPressed: hasNotChanged ? null : () => widget.onOkButtonPressed(renameFieldController.text), child: Text(AppLocalizations.of(context)!.ok)),
+    ]);
+  }
+
+  @override
+  void initState() {
+    renameFieldController = TextEditingController(text: widget.thumbnail.name);
+    super.initState();
+  }
+}
+
 class FileExplorer extends StatefulWidget {
   final Vault vault;
+
   const FileExplorer(this.vault, {super.key});
 
   @override
@@ -162,6 +201,28 @@ class FileExplorerState extends State<FileExplorer> {
                             child: Text(AppLocalizations.of(context)!.delete)),
                         if (amountOfFilesSelected == 1)
                           PopupMenuItem(
+                              onTap: () {
+                                FileThumbnail selectedThumbnail = thumbnails.firstWhere((element) => element.isSelected);
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((timeStamp) {
+                                  showDialog<bool>(context: context, builder: (context) {
+                                    return RenameWindow(onOkButtonPressed: (newName) async {
+                                      map[selectedThumbnail.localPath] = newName;
+                                      File(join(widget.vault.path, '.map')).writeAsBytesSync((await VaultsManager.encryptMap(widget.vault, map))!);
+                                      isSelectionMode = false;
+                                      thumbnailCollector = reloadThumbnails();
+                                      if(context.mounted) Navigator.of(context).pop(true);
+                                    }, onCancelButtonPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    }, thumbnail: selectedThumbnail);
+                                  },).then((value) {
+                                    if(value == true) { // NOTE: Do not edit this, as the value can be null it saves 1 instruction to try to put value as true as to verify that it isn't null and to then verify it's bool value
+                                      setState(() {});
+                                    }
+                                  });
+                                });
+
+                              },
                               child:
                                   Text(AppLocalizations.of(context)!.rename)),
                         PopupMenuItem(

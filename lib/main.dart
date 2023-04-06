@@ -6,11 +6,11 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:life_chest/color_schemes.g.dart';
 import 'package:life_chest/file_explorer.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 void main() async {
@@ -33,6 +33,7 @@ void main() async {
 
 class LifeChestApp extends StatelessWidget {
   const LifeChestApp({super.key, required this.firstLaunch});
+
   final bool firstLaunch;
 
   @override
@@ -72,6 +73,7 @@ class WelcomePageState extends State<WelcomePage> {
 
   PageController controller = PageController();
   int previousPage = 0;
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations currentLocal = AppLocalizations.of(context)!;
@@ -234,6 +236,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
             title: TextFormField(
               maxLines: 1,
               keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
               onChanged: (value) {
                 policy.vaultName = value;
               },
@@ -389,6 +392,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
 
 class HourMinsFormatter extends TextInputFormatter {
   late RegExp pattern;
+
   HourMinsFormatter() {
     pattern = RegExp(r'^[\d:]+$');
   }
@@ -461,6 +465,7 @@ class ChestMainPageState extends State<ChestMainPage> {
   int currentlySelectedChestID = -1;
   TextEditingController passwordField = TextEditingController();
   bool failedPasswordForVault = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

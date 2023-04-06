@@ -5,9 +5,9 @@ import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
-import 'package:flutter/services.dart';
 
 /// This whole multithreading process is slower if Dart FFI is used for decryption as Isolates doesn't have any impact on native calls
 @Deprecated('Use SingleThreadedRecovery instead')
