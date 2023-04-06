@@ -9,6 +9,9 @@ import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
 import 'package:flutter/services.dart';
 
+
+/// This whole multithreading process is slower if Dart FFI is used for decryption as Isolates doesn't have any impact on native calls
+@Deprecated('Use SingleThreadedRecovery instead')
 class NativeRecovery {
   static void _decryptFileBlock(List<dynamic> args) async {
     SecretKey cipher = args[0];
@@ -27,7 +30,7 @@ class NativeRecovery {
 
     List<String> base64Blocks = fileToRead.readAsLinesSync();
     List<SecretBox> encryptedBlocks = List.generate(base64Blocks.length, (index) {
-      return SecretBox(base64Blocks[index].codeUnits, nonce: Uint8List(32), mac: Mac.empty);
+      return SecretBox(base64Blocks[index].codeUnits, nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty);
     });
 
     for(SecretBox encryptedBlock in encryptedBlocks) {
@@ -150,7 +153,7 @@ class NativeRecovery {
       List<List<int>> decryptedBlocks = _splitList(await createdFile.readAsBytes(), blocksAmount);
       List<String> encryptedBlocks = [];
       for(List<int> decryptedBlock in decryptedBlocks) {
-        encryptedBlocks.add(String.fromCharCodes((await VaultsManager.cipher.encrypt(decryptedBlock, secretKey: encryptionKey)).cipherText));
+        encryptedBlocks.add(String.fromCharCodes(((await VaultsManager.cipher.encrypt(decryptedBlock, secretKey: encryptionKey, nonce: Uint8List(VaultsManager.cipher.nonceLength))).cipherText)));
       }
       await fileToCreate.writeAsString(_joinByNewLine(encryptedBlocks));
       additionalFiles[fileName] = basename(createdFile.path);

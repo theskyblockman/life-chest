@@ -269,16 +269,16 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                   if (value == null || value.trim().isEmpty) {
                     return AppLocalizations.of(context)!.errorChestPasswordShouldNotBeEmpty;
                   }
-                  if(value.length < 8) {
+                  if(value.length < 8 && !kDebugMode) {
                     return AppLocalizations.of(context)!.errorChestPasswordMoreCharacters;
                   }
-                  if(!value.contains(RegExp(r'[A-Z]'))) {
+                  if(!value.contains(RegExp(r'[A-Z]')) && !kDebugMode) {
                     return AppLocalizations.of(context)!.errorChestPasswordMoreUppercaseLetter;
                   }
-                  if(!value.contains(RegExp(r'[a-z]'))) {
+                  if(!value.contains(RegExp(r'[a-z]')) && !kDebugMode) {
                     return AppLocalizations.of(context)!.errorChestPasswordMoreLowercaseLetter;
                   }
-                  if(!value.contains(RegExp(r'\d'))) {
+                  if(!value.contains(RegExp(r'\d')) && !kDebugMode) {
                     return AppLocalizations.of(context)!.errorChestPasswordMoreDigits;
                   }
 
@@ -515,7 +515,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                                       });
                                     });
                                   },
-                                  child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.redAccent)),
+                                  child: Text(AppLocalizations.of(context)!.delete),
                                 )
                               ];
                             }), onTap: () {

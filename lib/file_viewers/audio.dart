@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:life_chest/file_recovery/native_recovery.dart';
+import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/vault.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -47,7 +47,7 @@ class AudioViewerState extends State<AudioViewer> {
   }
 
   Future<bool> load() async {
-    loadedMusic = await NativeRecovery.loadAndDecryptFile(widget.fileVault.encryptionKey!, widget.fileToRead);
+    loadedMusic = await SingleThreadedRecovery.loadAndDecryptFullFile(widget.fileVault.encryptionKey!, widget.fileToRead);
     await player.setSourceBytes(loadedMusic!);
     await player.resume();
     return true;

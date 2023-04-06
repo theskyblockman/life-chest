@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:life_chest/file_recovery/native_recovery.dart';
+import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/vault.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -43,7 +43,7 @@ class ImageViewerState extends State<ImageViewer> {
   }
 
   Future<bool> load() async {
-    loadedImage = await NativeRecovery.loadAndDecryptFile(widget.fileVault.encryptionKey!, widget.fileToRead);
+    loadedImage = await SingleThreadedRecovery.loadAndDecryptFullFile(widget.fileVault.encryptionKey!, widget.fileToRead);
     return true;
   }
 
