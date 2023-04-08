@@ -283,7 +283,7 @@ class ChestMainPageState extends State<ChestMainPage> {
   void initState() {
     VaultsManager.loadVaults();
     const MethodChannel('theskyblockman.fr/channel').setMethodCallHandler((call) async {
-      if(call.method == 'goBackToHome') {
+      if(call.method == 'goBackToHome' && !FileExplorerState.isPauseAllowed) {
         Navigator.popUntil(context, (route) => route.isFirst);
       }
     });

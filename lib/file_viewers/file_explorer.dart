@@ -163,6 +163,7 @@ class FileExplorerState extends State<FileExplorer> {
   int amountOfFilesSelected = 0;
   int? loaderTarget;
   int? loaderCurrentLoad;
+  static bool isPauseAllowed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -355,7 +356,9 @@ class FileExplorerState extends State<FileExplorer> {
     File(join(widget.vault.path, '.map'));
     mapFile.createSync(recursive: true);
     try {
+      isPauseAllowed = true;
       List<File>? selectedFiles = await SingleThreadedRecovery.pickFilesToSave(dialogTitle: AppLocalizations.of(context)!.pickFilesDialogTitle);
+      isPauseAllowed = false;
 
       if(selectedFiles == null || selectedFiles.isEmpty) {
         return;
