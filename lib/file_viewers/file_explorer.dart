@@ -7,7 +7,7 @@ import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/audio.dart';
 import 'package:life_chest/file_viewers/documents.dart';
 import 'package:life_chest/file_viewers/image.dart';
-import 'package:life_chest/vault.dart'
+import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
 
 class FileThumbnail extends StatelessWidget {
