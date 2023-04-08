@@ -125,7 +125,10 @@ class ChestMainPageState extends State<ChestMainPage> {
                     if (kDebugMode)
                       PopupMenuItem(
                         child: const Text('Debug button'),
-                        onTap: () {},
+                        onTap: () {
+                          const MethodChannel('theskyblockman.fr/channel')
+                              .invokeMethod('createMediaNotification');
+                        },
                       )
                   ];
                 })
@@ -279,6 +282,11 @@ class ChestMainPageState extends State<ChestMainPage> {
   @override
   void initState() {
     VaultsManager.loadVaults();
+    const MethodChannel('theskyblockman.fr/channel').setMethodCallHandler((call) async {
+      if(call.method == 'goBackToHome') {
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
+    });
     super.initState();
   }
 }
