@@ -30,6 +30,7 @@
   "enterTheChestPassword": "Please enter the password of this vault",
   "validate": "Validate",
   "delete": "Delete",
+  "deleteAllChests": "Delete all the chests",
   "rename": "Rename",
   "about": "About...",
   "addFiles": "Add files",
@@ -50,5 +51,8 @@
   "selectAll": "Select all",
   "wrongPassword": "Wrong password",
   "cancel": "Cancel",
-  "ok": "OK"
+  "ok": "OK",
+  "areYouSure": "Are you sure?",
+  "yes": "Yes",
+  "no": "No"
 }

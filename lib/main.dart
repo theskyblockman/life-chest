@@ -103,6 +103,25 @@ class ChestMainPageState extends State<ChestMainPage> {
                       },
                       child: Text(AppLocalizations.of(context)!.about),
                     ),
+                    if(VaultsManager.storedVaults.isNotEmpty)
+                      PopupMenuItem(onTap: () {
+                        WidgetsBinding.instance
+                            .addPostFrameCallback((timeStamp) {
+                              showDialog(context: context, builder: (context) => AlertDialog(title: Text(AppLocalizations.of(context)!.areYouSure), actions: [
+                                TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.no)),
+                                TextButton(onPressed: () => Navigator.pop(context, true), child: Text(AppLocalizations.of(context)!.yes))
+                              ])).then((value) {
+                                if(value == true) {
+                                  setState(() {
+                                    for(Vault vault in List.from(VaultsManager.storedVaults)) {
+                                      VaultsManager.deleteVault(vault);
+                                    }
+                                    VaultsManager.saveVaults();
+                                  });
+                                }
+                              });
+                        });
+                      }, child: Text(AppLocalizations.of(context)!.deleteAllChests)),
                     if (kDebugMode)
                       PopupMenuItem(
                         child: const Text('Debug button'),

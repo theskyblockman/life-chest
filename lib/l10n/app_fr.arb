@@ -30,8 +30,9 @@
   "enterTheChestPassword": "Veuillez entrer le mot de passe de ce coffre",
   "validate": "Valider",
   "delete": "Supprimer",
+  "deleteAllChests": "Supprimer tous les coffres",
   "rename": "Renommer",
-  "about": "A propos...",
+  "about": "À propos...",
   "addFiles": "Ajouter des fichiers",
   "loadingElements": "Chargement des éléments",
   "loadingDocuments": "Chargement du document",
@@ -42,5 +43,8 @@
   "selectAll": "Tout sélectionner",
   "wrongPassword": "Mauvais mot de passe",
   "cancel": "Annuler",
-  "ok": "OK"
+  "ok": "OK",
+  "areYouSure": "Êtes-vous sûr?",
+  "yes": "Oui",
+  "no": "Non"
 }
