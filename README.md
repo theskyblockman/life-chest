@@ -4,7 +4,8 @@ An app to securely store your data for Android and iOS.
 
 ## Features
 
-- Multithreaded AES file encryption/decryption
+- Multithreaded AES file encryption/decryption (OBSELETE)
+- Singlethreaded ChaCha20 encryption/decryption (Natively implemented)
 - Chest/Vault system (name to determine)
 - See images
 - View documents
@@ -12,14 +13,18 @@ An app to securely store your data for Android and iOS.
 - Localization
 - Remaking file cards in the ``GridView``
 - Chaining file players with a ``PageView``
+- File renaming
 
 ## WIP
 
 - Video playing
 - Audio playing
-- Lazy loading
-- File renaming
+
+
+## TODO
+
 - Export files/vaults to their original file or to a new file format (.lcvf or Life Chest Vault
   File)
-
+- Lazy loading
+  
 :copyright: Haroun El Omri, 2023
