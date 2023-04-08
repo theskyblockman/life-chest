@@ -111,8 +111,8 @@ class FileReaderState extends State<FileReader> {
 class RenameWindow extends StatefulWidget {
   final void Function(String newName) onOkButtonPressed;
   final VoidCallback onCancelButtonPressed;
-  final FileThumbnail thumbnail;
-  const RenameWindow({super.key, required this.onOkButtonPressed, required this.onCancelButtonPressed, required this.thumbnail});
+  final String initialName;
+  const RenameWindow({super.key, required this.onOkButtonPressed, required this.onCancelButtonPressed, required this.initialName});
 
   @override
   State<StatefulWidget> createState() => RenameWindowState();
@@ -126,7 +126,7 @@ class RenameWindowState extends State<RenameWindow> {
   Widget build(BuildContext context) {
     return AlertDialog(title: Text(AppLocalizations.of(context)!.rename), content: TextField(autofocus: true, textInputAction: TextInputAction.none, controller: renameFieldController, decoration: const InputDecoration(border: OutlineInputBorder()), onChanged: (value) {
       bool oldValue = hasNotChanged;
-      hasNotChanged = value == widget.thumbnail.name;
+      hasNotChanged = value == widget.initialName;
       if(oldValue != hasNotChanged) {
         setState(() {});
       }
@@ -138,7 +138,7 @@ class RenameWindowState extends State<RenameWindow> {
 
   @override
   void initState() {
-    renameFieldController = TextEditingController(text: widget.thumbnail.name);
+    renameFieldController = TextEditingController(text: widget.initialName);
     super.initState();
   }
 }
@@ -214,7 +214,7 @@ class FileExplorerState extends State<FileExplorer> {
                                       if(context.mounted) Navigator.of(context).pop(true);
                                     }, onCancelButtonPressed: () {
                                       Navigator.of(context).pop(false);
-                                    }, thumbnail: selectedThumbnail);
+                                    }, initialName: selectedThumbnail.name);
                                   },).then((value) {
                                     if(value == true) { // NOTE: Do not edit this, as the value can be null it saves 1 instruction to try to put value as true as to verify that it isn't null and to then verify it's bool value
                                       setState(() {});

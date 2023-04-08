@@ -551,6 +551,29 @@ class ChestMainPageState extends State<ChestMainPage> {
                                     },
                                     child: Text(
                                         AppLocalizations.of(context)!.delete),
+                                  ),
+                                  PopupMenuItem(
+                                    onTap: () {
+                                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                                        showDialog<bool>(context: context, builder: (context) {
+                                          return RenameWindow(onOkButtonPressed: (newName) {
+                                            chest.name = newName;
+
+                                            VaultsManager.saveVaults();
+                                            if(context.mounted) Navigator.of(context).pop(true);
+                                          }, onCancelButtonPressed: () {
+                                            Navigator.of(context).pop(false);
+                                          }, initialName: chest.name);
+                                        },).then((value) {
+                                          if(value == true) { // NOTE: Do not edit this, as the value can be null it is easier to try to put value as true as to verify that it isn't null and to then verify it's bool value
+                                            setState(() {});
+                                          }
+                                        });
+                                      });
+                                    },
+                                    child: Text(
+                                      AppLocalizations.of(context)!.rename
+                                    ),
                                   )
                                 ];
                               }),
