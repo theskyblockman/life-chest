@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/audio.dart';
@@ -160,6 +161,8 @@ class FileExplorerState extends State<FileExplorer> {
   late Map<String, dynamic> map;
   bool isSelectionMode = false;
   int amountOfFilesSelected = 0;
+  int? loaderTarget;
+  int? loaderCurrentLoad;
 
   @override
   Widget build(BuildContext context) {
@@ -284,30 +287,15 @@ class FileExplorerState extends State<FileExplorer> {
           title: Text(isSelectionMode
               ? AppLocalizations.of(context)!.selected(amountOfFilesSelected)
               : widget.vault.name),
-          bottom: const PreferredSize(
-              preferredSize: Size.fromHeight(3),
-              child: LinearProgressIndicator(value: 0.5)),
+          bottom: loaderTarget == null || loaderCurrentLoad == null ? null : PreferredSize(
+              preferredSize: const Size.fromHeight(3),
+              child: LinearProgressIndicator(value: loaderCurrentLoad! / loaderTarget!)),
           backgroundColor: isSelectionMode
               ? Theme.of(context).colorScheme.tertiary.withOpacity(.7)
               : null),
       floatingActionButton: FloatingActionButton.large(
           onPressed: () async {
-            File mapFile = File(join(widget.vault.path, '.map'));
-            mapFile.createSync(recursive: true);
-
-            map = VaultsManager.constructMap(widget.vault,
-                oldMap: map,
-                additionalFiles: await SingleThreadedRecovery.saveFiles(
-                    widget.vault.encryptionKey!, widget.vault.path,
-                    dialogTitle:
-                        AppLocalizations.of(context)!.pickFilesDialogTitle));
-
-            mapFile.writeAsBytesSync(
-                (await VaultsManager.encryptMap(widget.vault, map))!);
-
-            setState(() {
-              thumbnailCollector = reloadThumbnails();
-            });
+            saveFiles(context);
           },
           child: const Icon(Icons.add)),
       body: FutureBuilder(
@@ -336,26 +324,7 @@ class FileExplorerState extends State<FileExplorer> {
                           )),
                       FilledButton.tonal(
                           onPressed: () async {
-                            File mapFile =
-                                File(join(widget.vault.path, '.map'));
-                            mapFile.createSync(recursive: true);
-
-                            map = VaultsManager.constructMap(widget.vault,
-                                oldMap: map,
-                                additionalFiles:
-                                    await SingleThreadedRecovery.saveFiles(
-                                        widget.vault.encryptionKey!,
-                                        widget.vault.path,
-                                        dialogTitle:
-                                            AppLocalizations.of(context)!
-                                                .pickFilesDialogTitle));
-                            mapFile.writeAsBytesSync(
-                                (await VaultsManager.encryptMap(
-                                    widget.vault, map))!);
-
-                            setState(() {
-                              thumbnailCollector = reloadThumbnails();
-                            });
+                            saveFiles(context);
                           },
                           child: Text(AppLocalizations.of(context)!.addFiles))
                     ],
@@ -379,6 +348,52 @@ class FileExplorerState extends State<FileExplorer> {
         },
       ),
     );
+  }
+
+  Future<void> saveFiles(BuildContext context) async {
+    File mapFile =
+    File(join(widget.vault.path, '.map'));
+    mapFile.createSync(recursive: true);
+    try {
+      List<File>? selectedFiles = await SingleThreadedRecovery.pickFilesToSave(dialogTitle: AppLocalizations.of(context)!.pickFilesDialogTitle);
+
+      if(selectedFiles == null || selectedFiles.isEmpty) {
+        return;
+      }
+      setState(() {
+        loaderTarget = selectedFiles.length;
+        loaderCurrentLoad = 0;
+      });
+
+      Map<String, String> savedFiles = {};
+
+      await for(MapEntry<String, String> savedFile in SingleThreadedRecovery.progressivelySaveFiles(
+          widget.vault.encryptionKey!,
+          widget.vault.path,
+          filesToSave: selectedFiles)) {
+        savedFiles[savedFile.key] = savedFile.value;
+        setState(() {
+          loaderCurrentLoad = loaderCurrentLoad! + 1;
+        });
+      }
+      setState(() {
+        loaderTarget = null;
+        loaderCurrentLoad = null;
+      });
+      map = VaultsManager.constructMap(widget.vault,
+          oldMap: map,
+          additionalFiles:
+          savedFiles);
+      mapFile.writeAsBytesSync(
+          (await VaultsManager.encryptMap(
+              widget.vault, map))!);
+
+      setState(() {
+        thumbnailCollector = reloadThumbnails();
+      });
+    } on PlatformException {
+      return;
+    }
   }
 
   Future<bool> reloadThumbnails() async {
