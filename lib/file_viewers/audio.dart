@@ -1,64 +1,33 @@
-import 'dart:io';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
-import 'package:life_chest/vault.dart';
+import 'package:life_chest/file_viewers/file_viewer.dart';
 
-class AudioViewer extends StatefulWidget {
-  final Vault fileVault;
-  final File fileToRead;
-
-  const AudioViewer(
-      {super.key, required this.fileVault, required this.fileToRead});
-
-  @override
-  State<StatefulWidget> createState() => AudioViewerState();
-}
-
-class AudioViewerState extends State<AudioViewer> {
+class AudioListener extends FileViewer {
   Uint8List? loadedMusic;
   final AudioPlayer player = AudioPlayer();
 
+  AudioListener({required super.fileVault, required super.fileToRead, required super.fileName});
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Center(
-              child: FilledButton(
-            child: const Text('send notification'),
-            onPressed: () {
-              const MethodChannel('theskyblockman.fr/channel')
-                  .invokeMethod('createMediaNotification');
-            },
-          ));
-        } else {
-          return Center(
-              child: Opacity(
-                  opacity: 0.25,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(),
-                      Text(
-                        AppLocalizations.of(context)!.loadingAudioTrack,
-                        textScaleFactor: 2.5,
-                        textAlign: TextAlign.center,
-                      )
-                    ],
-                  )));
-        }
-      },
-      future: load(),
+    return Center(
+      child: FilledButton(
+        child: const Text('send notification'),
+          onPressed: () {
+            const MethodChannel('theskyblockman.fr/channel')
+              .invokeMethod('createMediaNotification');
+          },
+        )
     );
   }
 
+  @override
   Future<bool> load() async {
     loadedMusic = await SingleThreadedRecovery.loadAndDecryptFullFile(
-        widget.fileVault.encryptionKey!, widget.fileToRead);
+        fileVault.encryptionKey!, fileToRead);
     await player.setSourceBytes(loadedMusic!);
     await player.resume();
     return true;
@@ -67,6 +36,8 @@ class AudioViewerState extends State<AudioViewer> {
   @override
   void dispose() {
     loadedMusic = null;
-    super.dispose();
   }
+
+  @override
+  String loadingMessage(BuildContext context) => AppLocalizations.of(context)!.loadingAudioTrack;
 }

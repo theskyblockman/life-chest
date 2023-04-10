@@ -41,6 +41,11 @@ class SingleThreadedRecovery {
     } finally {
       fileToCreateSink.close();
     }
+    try {
+      createdFile.deleteSync(recursive: true);
+    } catch(e) {
+      // Ignore
+    }
 
     return MapEntry(fileName, basename(createdFile.path));
   }

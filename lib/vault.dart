@@ -78,9 +78,7 @@ class VaultsManager {
         path: path,
         name: policy.vaultName,
         shouldDisconnectWhenVaultOpened: policy.shouldDisconnectWhenVaultOpened,
-        automaticallyCloseVaultOnTimeout:
-            policy.automaticallyCloseVaultOnTimeout,
-        timeout: policy.vaultTimeout,
+        securityLevel: policy.securityLevel,
         encryptionKey: cryptKey);
 
     File mapFile = File(p.join(path, '.map'));
@@ -168,19 +166,14 @@ class VaultPolicy {
   String vaultName;
   String vaultPassword;
   bool shouldDisconnectWhenVaultOpened;
-  Duration? vaultTimeout;
-  bool?
-      automaticallyCloseVaultOnTimeout; // If false a notification will be sent
-  bool isTimeoutEnabled;
+  int securityLevel;
 
   VaultPolicy({
     this.isInternalVault = true,
     this.vaultName = 'Unnamed vault',
     this.vaultPassword = '',
     this.shouldDisconnectWhenVaultOpened = false,
-    this.vaultTimeout = const Duration(minutes: 15),
-    this.automaticallyCloseVaultOnTimeout = false,
-    this.isTimeoutEnabled = false,
+    this.securityLevel = 2,
   });
 }
 
@@ -192,20 +185,7 @@ String md5RandomFileName() {
 }
 
 List<int> passwordToCryptKey(String password) {
-  final passwordBytes =
-      crypto.md5.convert(utf8.encode(password)).toString().codeUnits;
-  /*final List<int> finalBytes = [];
-  int currentValue = -1;
-  for(int passwordByte in passwordBytes) {
-    if(currentValue == -1) {
-      currentValue = passwordByte;
-      continue;
-    }
-    finalBytes.add(currentValue + passwordByte);
-    currentValue = -1;
-  }
-  return finalBytes;*/
-  return passwordBytes;
+  return crypto.md5.convert(utf8.encode(password)).toString().codeUnits;
 }
 
 /// Represents a vault data-wise
@@ -217,8 +197,7 @@ class Vault {
       required this.filesMetadataBankPath,
       required this.name,
       required this.shouldDisconnectWhenVaultOpened,
-      this.timeout,
-      this.automaticallyCloseVaultOnTimeout,
+      required this.securityLevel,
       this.encryptionKey});
 
   Vault.fromJson(Map<String, dynamic> storedData) {
@@ -230,9 +209,8 @@ class Vault {
     name = storedData['name'];
     shouldDisconnectWhenVaultOpened =
         storedData['should_disconnect_when_vault_opened'];
-    timeout = Duration(seconds: storedData['timeout']);
-    automaticallyCloseVaultOnTimeout =
-        storedData['automatically_close_vault_on_timeout'];
+    securityLevel =
+        storedData['security_level'];
   }
 
   Map<String, dynamic> toJson() {
@@ -243,8 +221,7 @@ class Vault {
       'files_metadata_bank_path': filesMetadataBankPath,
       'name': name,
       'should_disconnect_when_vault_opened': shouldDisconnectWhenVaultOpened,
-      'timeout': timeout?.inSeconds,
-      'automatically_close_vault_on_timeout': automaticallyCloseVaultOnTimeout
+      'security_level': securityLevel,
     };
   }
 
@@ -270,11 +247,8 @@ class Vault {
   /// Should the phone enter airplane mode when the chest is opened
   late bool shouldDisconnectWhenVaultOpened;
 
-  /// The amount of time the chest is kept opened (if applicable)
-  late Duration? timeout;
-
-  /// Should the vault be closed when the timeout has passed, if not a notification will be sent to the user to see if it wants to close the vault
-  late bool? automaticallyCloseVaultOnTimeout;
+  /// The level of security the vault has
+  late int securityLevel;
 
   /// The decryption key used to read files
   late SecretKey? encryptionKey;

@@ -1,63 +1,32 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
-import 'package:life_chest/vault.dart';
+import 'package:life_chest/file_viewers/file_viewer.dart';
 
-class ImageViewer extends StatefulWidget {
-  final Vault fileVault;
-  final File fileToRead;
+class ImageViewer extends FileViewer {
+  Image? loadedImage;
 
-  const ImageViewer(
-      {super.key, required this.fileVault, required this.fileToRead});
-
-  @override
-  State<StatefulWidget> createState() => ImageViewerState();
-}
-
-class ImageViewerState extends State<ImageViewer> {
-  Uint8List? loadedImage;
+  ImageViewer({required super.fileVault, required super.fileToRead, required super.fileName});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Center(
-              child: InteractiveViewer(
-                  clipBehavior: Clip.none, child: Image.memory(loadedImage!)));
-        } else {
-          return Center(
-              child: Opacity(
-                  opacity: 0.25,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(),
-                      Text(
-                        AppLocalizations.of(context)!.loadingImage,
-                        textScaleFactor: 2.5,
-                        textAlign: TextAlign.center,
-                      )
-                    ],
-                  )));
-        }
-      },
-      future: load(),
-    );
+    return Center(
+      child: InteractiveViewer(
+        clipBehavior: Clip.none, child: loadedImage!));
   }
 
+  @override
   Future<bool> load() async {
-    loadedImage = await SingleThreadedRecovery.loadAndDecryptFullFile(
-        widget.fileVault.encryptionKey!, widget.fileToRead);
+    loadedImage = Image.memory(await SingleThreadedRecovery.loadAndDecryptFullFile(
+        fileVault.encryptionKey!, fileToRead));
     return true;
   }
 
   @override
   void dispose() {
     loadedImage = null;
-    super.dispose();
   }
+
+  @override
+  String loadingMessage(BuildContext context) => AppLocalizations.of(context)!.loadingImage;
 }

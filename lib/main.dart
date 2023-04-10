@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:life_chest/color_schemes.g.dart';
-import 'package:life_chest/file_viewers/file_explorer.dart';
+import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/new_chest.dart';
 import 'package:life_chest/onboarding.dart';
 import 'package:life_chest/vault.dart';
@@ -249,7 +249,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                                                       }
                                                       if (!chest.locked &&
                                                           context.mounted) {
-                                                        Navigator.push(
+                                                        Navigator.pushReplacement(
                                                             context,
                                                             MaterialPageRoute(
                                                                 builder: (context) =>
@@ -282,9 +282,25 @@ class ChestMainPageState extends State<ChestMainPage> {
   @override
   void initState() {
     VaultsManager.loadVaults();
+    if(!Platform.isAndroid) return;
     const MethodChannel('theskyblockman.fr/channel').setMethodCallHandler((call) async {
-      if(call.method == 'goBackToHome' && !FileExplorerState.isPauseAllowed) {
+      if(call.method == 'goBackToHome') {
+        debugPrint('goBackToHome');
+        if(FileExplorerState.isPauseAllowed) {
+          debugPrint('pauseAllowed');
+          Navigator.popUntil(context, (route) => route.isFirst);
+          return true;
+        }
+        if(FileExplorerState.shouldNotificationBeSent) {
+          debugPrint('shouldNotificationBeSent');
+          const MethodChannel('theskyblockman.fr/channel').invokeMethod('sendVaultNotification', {'notification_title': AppLocalizations.of(context)!.closeChestNotificationTitle, 'notification_content': AppLocalizations.of(context)!.closeChestNotificationContent, 'notification_close_button_content': AppLocalizations.of(context)!.closeChest});
+          return true;
+        }
+
+        return false;
+      } else if(call.method == 'closeVault') {
         Navigator.popUntil(context, (route) => route.isFirst);
+        return true;
       }
     });
     super.initState();

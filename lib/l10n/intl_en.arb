@@ -17,7 +17,7 @@
   "errorChestPasswordMoreLowercaseLetter": "The password must contain at least one lowercase character",
   "errorChestPasswordMoreDigits": "The password must contain at least one digit",
   "shouldEnterAirplaneMode": "Enter airplane mode when the vault opens",
-  "whatShouldBeDoneAfterTimeout": "What should we do when the timeout exceeds",
+  "whatShouldBeDoneAfterUnfocus": "What should we do when the application is paused",
   "doNothing": "Do nothing",
   "notify": "Notify you",
   "closeChest": "Close the chest",
@@ -54,5 +54,7 @@
   "ok": "OK",
   "areYouSure": "Are you sure?",
   "yes": "Yes",
-  "no": "No"
+  "no": "No",
+  "closeChestNotificationTitle": "You still have a chest opened",
+  "closeChestNotificationContent": "Click on the button down there to close it"
 }

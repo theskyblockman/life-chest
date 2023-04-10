@@ -17,7 +17,7 @@
   "errorChestPasswordMoreLowercaseLetter": "Le mot de passe doit contenir au moins une lettre minuscule",
   "errorChestPasswordMoreDigits": "Le mot de passe doit contenir au moins un chiffre",
   "shouldEnterAirplaneMode": "Activer le mode avion lorsque le coffre s'ouvre",
-  "whatShouldBeDoneAfterTimeout": "Que devons-nous faire si le délai d'expiration est dépassé",
+  "whatShouldBeDoneAfterUnfocus": "Que devons-nous faire si l'application est mise en pause",
   "doNothing": "Ne rien faire",
   "notify": "Vous notifier",
   "closeChest": "Fermer le coffre",
@@ -46,5 +46,7 @@
   "ok": "OK",
   "areYouSure": "Êtes-vous sûr?",
   "yes": "Oui",
-  "no": "Non"
+  "no": "Non",
+  "closeChestNotificationTitle": "Vous avez toujours un coffre d'ouvert",
+  "closeChestNotificationContent": "Appuiez sur le bouton ci-dessous pour le fermer"
 }

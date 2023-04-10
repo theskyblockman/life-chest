@@ -18,7 +18,6 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
   VaultPolicy policy = VaultPolicy();
   FocusNode nameNode = FocusNode();
   FocusNode passwordNode = FocusNode();
-  int timeoutLevel = 0;
   GlobalKey<FormState> formState = GlobalKey();
   TextEditingController timeoutController = TextEditingController();
 
@@ -105,7 +104,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
               const Divider(),
               ListTile(
                   title: Text(
-                      AppLocalizations.of(context)!.whatShouldBeDoneAfterTimeout)),
+                      AppLocalizations.of(context)!.whatShouldBeDoneAfterUnfocus)),
               ListTile(
                 title: SegmentedButton<int>(
                     segments: [
@@ -120,53 +119,21 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                           label: Text(AppLocalizations.of(context)!.closeChest)),
                     ],
                     selected: {
-                      timeoutLevel
+                      policy.securityLevel
                     },
                     multiSelectionEnabled: false,
                     emptySelectionAllowed: false,
                     onSelectionChanged: (newSet) {
                       setState(() {
-                        timeoutLevel = newSet.first;
+                        policy.securityLevel = newSet.first;
                       });
                     }),
-              ),
-              ListTile(
-                  enabled: timeoutLevel > 0,
-                  leading: const Icon(Icons.timelapse),
-                  title: TextFormField(
-                    keyboardType:
-                    const TextInputType.numberWithOptions(decimal: false),
-                    decoration: const InputDecoration(hintText: '00:00'),
-                    inputFormatters: [HourMinsFormatter()],
-                    enabled: timeoutLevel > 0,
-                    validator: (value) {
-                      if (timeoutLevel < 1) return null;
-
-                      if (value == null || value.trim().isEmpty) {
-                        return AppLocalizations.of(context)!
-                            .errorDurationMustNotBeEmpty;
-                      }
-                      if (!value.contains(':') || value.length != 5) {
-                        return AppLocalizations.of(context)!
-                            .errorDurationMustBeFormatted;
-                      }
-
-                      return null;
-                    },
-                    controller: timeoutController,
-                  ))
+              )
             ]),
           )),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           if (formState.currentState!.validate()) {
-            policy.isTimeoutEnabled = timeoutLevel > 0;
-            if (policy.isTimeoutEnabled) {
-              int hours = int.parse(timeoutController.text.split(':')[0]);
-              int minutes = int.parse(timeoutController.text.split(':')[1]);
-              policy.vaultTimeout = Duration(hours: hours, minutes: minutes);
-              policy.automaticallyCloseVaultOnTimeout = timeoutLevel > 1;
-            }
             Vault createdVault =
             await VaultsManager.createVaultFromPolicy(policy);
             VaultsManager.storedVaults.add(createdVault);
