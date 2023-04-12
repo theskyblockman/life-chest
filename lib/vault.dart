@@ -210,8 +210,7 @@ class Vault {
     name = storedData['name'];
     shouldDisconnectWhenVaultOpened =
         storedData['should_disconnect_when_vault_opened'];
-    securityLevel =
-        storedData['security_level'];
+    securityLevel = storedData['security_level'];
   }
 
   Map<String, dynamic> toJson() {

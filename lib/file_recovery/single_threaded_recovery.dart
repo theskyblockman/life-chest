@@ -24,8 +24,7 @@ class SingleThreadedRecovery {
   }
 
   static Future<MapEntry<String, String>?> saveFile(
-      SecretKey encryptionKey, String vaultPath, File createdFile
-      ) async {
+      SecretKey encryptionKey, String vaultPath, File createdFile) async {
     String fileName = md5RandomFileName();
     File fileToCreate = File(join(vaultPath, fileName));
     await fileToCreate.create(recursive: true);
@@ -43,7 +42,7 @@ class SingleThreadedRecovery {
     }
     try {
       createdFile.deleteSync(recursive: true);
-    } catch(e) {
+    } catch (e) {
       // Ignore
     }
 
@@ -69,7 +68,8 @@ class SingleThreadedRecovery {
     final Map<String, String> additionalFiles = {};
 
     for (File createdFile in filesToSave) {
-      MapEntry<String, String> savedFile = (await saveFile(encryptionKey, vaultPath, createdFile))!;
+      MapEntry<String, String> savedFile =
+          (await saveFile(encryptionKey, vaultPath, createdFile))!;
       additionalFiles[savedFile.key] = savedFile.value;
     }
     return additionalFiles;
@@ -80,15 +80,15 @@ class SingleThreadedRecovery {
     FilePickerResult? pickedFiles = await FilePicker.platform
         .pickFiles(allowMultiple: true, dialogTitle: dialogTitle);
 
-    return pickedFiles != null ? [
-      for (PlatformFile file in pickedFiles.files) File(file.path!)
-    ] : null;
+    return pickedFiles != null
+        ? [for (PlatformFile file in pickedFiles.files) File(file.path!)]
+        : null;
   }
 
   static Stream<MapEntry<String, String>> progressivelySaveFiles(
       SecretKey encryptionKey, String vaultPath,
       {required List<File> filesToSave,
-        String dialogTitle = 'Pick the files you want to add'}) async* {
+      String dialogTitle = 'Pick the files you want to add'}) async* {
     for (File createdFile in filesToSave) {
       yield (await saveFile(encryptionKey, vaultPath, createdFile))!;
     }

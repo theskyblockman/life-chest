@@ -17,15 +17,17 @@ class DocumentViewer extends FileViewer {
   late DocumentType documentType;
   Uint8List? loadedDocument;
 
-  DocumentViewer({required super.fileVault, required super.fileToRead, required super.fileName});
+  DocumentViewer(
+      {required super.fileVault,
+      required super.fileToRead,
+      required super.fileName});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: documentType == DocumentType.pdf
-        ? SfPdfViewer.memory(loadedDocument!)
-      : SingleChildScrollView(
-        child: Text(utf8.decode(loadedDocument!))),
+          ? SfPdfViewer.memory(loadedDocument!)
+          : SingleChildScrollView(child: Text(utf8.decode(loadedDocument!))),
     );
   }
 
@@ -45,5 +47,6 @@ class DocumentViewer extends FileViewer {
   }
 
   @override
-  String loadingMessage(BuildContext context) => AppLocalizations.of(context)!.loadingDocuments;
+  String loadingMessage(BuildContext context) =>
+      AppLocalizations.of(context)!.loadingDocuments;
 }

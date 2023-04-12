@@ -105,25 +105,45 @@ class ChestMainPageState extends State<ChestMainPage> {
                       },
                       child: Text(AppLocalizations.of(context)!.about),
                     ),
-                    if(VaultsManager.storedVaults.isNotEmpty)
-                      PopupMenuItem(onTap: () {
-                        WidgetsBinding.instance
-                            .addPostFrameCallback((timeStamp) {
-                              showDialog(context: context, builder: (context) => AlertDialog(title: Text(AppLocalizations.of(context)!.areYouSure), actions: [
-                                TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.no)),
-                                TextButton(onPressed: () => Navigator.pop(context, true), child: Text(AppLocalizations.of(context)!.yes))
-                              ])).then((value) {
-                                if(value == true) {
+                    if (VaultsManager.storedVaults.isNotEmpty)
+                      PopupMenuItem(
+                          onTap: () {
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((timeStamp) {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                          title: Text(
+                                              AppLocalizations.of(context)!
+                                                  .areYouSure),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, false),
+                                                child: Text(AppLocalizations.of(
+                                                        context)!
+                                                    .no)),
+                                            TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, true),
+                                                child: Text(AppLocalizations.of(
+                                                        context)!
+                                                    .yes))
+                                          ])).then((value) {
+                                if (value == true) {
                                   setState(() {
-                                    for(Vault vault in List.from(VaultsManager.storedVaults)) {
+                                    for (Vault vault in List.from(
+                                        VaultsManager.storedVaults)) {
                                       VaultsManager.deleteVault(vault);
                                     }
                                     VaultsManager.saveVaults();
                                   });
                                 }
                               });
-                        });
-                      }, child: Text(AppLocalizations.of(context)!.deleteAllChests)),
+                            });
+                          },
+                          child: Text(
+                              AppLocalizations.of(context)!.deleteAllChests)),
                     if (kDebugMode)
                       PopupMenuItem(
                         child: const Text('Debug button'),
@@ -187,26 +207,36 @@ class ChestMainPageState extends State<ChestMainPage> {
                                   ),
                                   PopupMenuItem(
                                     onTap: () {
-                                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                                        showDialog<bool>(context: context, builder: (context) {
-                                          return RenameWindow(onOkButtonPressed: (newName) {
-                                            chest.name = newName;
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((timeStamp) {
+                                        showDialog<bool>(
+                                          context: context,
+                                          builder: (context) {
+                                            return RenameWindow(
+                                                onOkButtonPressed: (newName) {
+                                                  chest.name = newName;
 
-                                            VaultsManager.saveVaults();
-                                            if(context.mounted) Navigator.of(context).pop(true);
-                                          }, onCancelButtonPressed: () {
-                                            Navigator.of(context).pop(false);
-                                          }, initialName: chest.name);
-                                        },).then((value) {
-                                          if(value == true) { // NOTE: Do not edit this, as the value can be null it is easier to try to put value as true as to verify that it isn't null and to then verify it's bool value
+                                                  VaultsManager.saveVaults();
+                                                  if (context.mounted)
+                                                    Navigator.of(context)
+                                                        .pop(true);
+                                                },
+                                                onCancelButtonPressed: () {
+                                                  Navigator.of(context)
+                                                      .pop(false);
+                                                },
+                                                initialName: chest.name);
+                                          },
+                                        ).then((value) {
+                                          if (value == true) {
+                                            // NOTE: Do not edit this, as the value can be null it is easier to try to put value as true as to verify that it isn't null and to then verify it's bool value
                                             setState(() {});
                                           }
                                         });
                                       });
                                     },
                                     child: Text(
-                                      AppLocalizations.of(context)!.rename
-                                    ),
+                                        AppLocalizations.of(context)!.rename),
                                   )
                                 ];
                               }),
@@ -284,23 +314,32 @@ class ChestMainPageState extends State<ChestMainPage> {
   @override
   void initState() {
     VaultsManager.loadVaults();
-    if(!Platform.isAndroid) return;
-    const MethodChannel('theskyblockman.fr/channel').setMethodCallHandler((call) async {
-      if(call.method == 'goBackToHome') {
+    if (!Platform.isAndroid) return;
+    const MethodChannel('theskyblockman.fr/channel')
+        .setMethodCallHandler((call) async {
+      if (call.method == 'goBackToHome') {
         debugPrint('goBackToHome');
-        if(FileExplorerState.isPauseAllowed) {
+        if (FileExplorerState.isPauseAllowed) {
           debugPrint('pauseAllowed');
           Navigator.popUntil(context, (route) => route.isFirst);
           return true;
         }
-        if(FileExplorerState.shouldNotificationBeSent) {
+        if (FileExplorerState.shouldNotificationBeSent) {
           debugPrint('shouldNotificationBeSent');
-          const MethodChannel('theskyblockman.fr/channel').invokeMethod('sendVaultNotification', {'notification_title': AppLocalizations.of(context)!.closeChestNotificationTitle, 'notification_content': AppLocalizations.of(context)!.closeChestNotificationContent, 'notification_close_button_content': AppLocalizations.of(context)!.closeChest});
+          const MethodChannel('theskyblockman.fr/channel')
+              .invokeMethod('sendVaultNotification', {
+            'notification_title':
+                AppLocalizations.of(context)!.closeChestNotificationTitle,
+            'notification_content':
+                AppLocalizations.of(context)!.closeChestNotificationContent,
+            'notification_close_button_content':
+                AppLocalizations.of(context)!.closeChest
+          });
           return true;
         }
 
         return false;
-      } else if(call.method == 'closeVault') {
+      } else if (call.method == 'closeVault') {
         Navigator.popUntil(context, (route) => route.isFirst);
         return true;
       }

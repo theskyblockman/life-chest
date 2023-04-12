@@ -68,9 +68,9 @@ class WelcomePageState extends State<WelcomePage> {
         ? (controller.page!.round() == welcomePages.length - 1 ? true : false)
         : false;
     String textToDisplay =
-    isLastPage ? currentLocal.createANewChest : currentLocal.welcomeNext;
+        isLastPage ? currentLocal.createANewChest : currentLocal.welcomeNext;
     controller.addListener(
-          () {
+      () {
         int currentPage = controller.page!.round();
         if (previousPage != currentPage) {
           previousPage = currentPage;
@@ -125,12 +125,16 @@ class WelcomePageState extends State<WelcomePage> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ChestMainPage(key: ChestMainPage.pageKey,)));
+                                  builder: (context) => ChestMainPage(
+                                        key: ChestMainPage.pageKey,
+                                      )));
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                  const CreateNewChestPage())).then((value) => ChestMainPage.pageKey.currentState!.setState(() {}));
+                                      const CreateNewChestPage())).then(
+                              (value) => ChestMainPage.pageKey.currentState!
+                                  .setState(() {}));
                         } else {
                           setState(() {
                             controller.nextPage(

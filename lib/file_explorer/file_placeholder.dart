@@ -24,7 +24,7 @@ class FileThumbnailsPlaceholder {
         'jp2', 'j2k', 'jpf', 'jpx', 'jpm', 'mj2', // JPEG 2000
         'svg', 'svgz' // SVG
       ],
-          (Vault vault, File fileToRead, String fileName) => ImageViewer(
+      (Vault vault, File fileToRead, String fileName) => ImageViewer(
           fileVault: vault, fileToRead: fileToRead, fileName: fileName));
   static final FileThumbnailsPlaceholder documents = FileThumbnailsPlaceholder(
       const Icon(Icons.description, color: Colors.redAccent, size: 128),
@@ -32,11 +32,19 @@ class FileThumbnailsPlaceholder {
         'txt', // RAW TEXT
         'md', // MARKDOWN
         'pdf', // PORTABLE DOCUMENT FORMAT
-        'json', 'dart', 'py', 'python', 'html', 'css', 'scss', 'gitignore', "xml"
-        'yml',
+        'json',
+        'dart',
+        'py',
+        'python',
+        'html',
+        'css',
+        'scss',
+        'gitignore',
+        "xml"
+            'yml',
         'yaml' // Other file formats
       ],
-          (Vault vault, File fileToRead, String fileName) => DocumentViewer(
+      (Vault vault, File fileToRead, String fileName) => DocumentViewer(
           fileVault: vault, fileToRead: fileToRead, fileName: fileName));
   static final FileThumbnailsPlaceholder videos = FileThumbnailsPlaceholder(
       const Icon(Icons.video_file, color: Colors.blueAccent, size: 128),
@@ -59,10 +67,11 @@ class FileThumbnailsPlaceholder {
         '3gp', // 3GPP
         '3g2' // 3GPP2
       ],
-          (Vault vault, File fileToRead, String fileName) => ImageViewer(
+      (Vault vault, File fileToRead, String fileName) => ImageViewer(
           fileVault: vault, fileToRead: fileToRead, fileName: fileName));
   static final archive = FileThumbnailsPlaceholder(
-      const Icon(Icons.archive_outlined, color: Colors.deepPurpleAccent, size: 128),
+      const Icon(Icons.archive_outlined,
+          color: Colors.deepPurpleAccent, size: 128),
       [
         'zip', // ZIP
         'rar', // RAR (WinRAR)
@@ -73,7 +82,7 @@ class FileThumbnailsPlaceholder {
         'gz', // GZIP
         'apk', // APK
       ],
-          (Vault vault, File fileToRead, String fileName) => ImageViewer(
+      (Vault vault, File fileToRead, String fileName) => ImageViewer(
           fileVault: vault, fileToRead: fileToRead, fileName: fileName));
   static final audio = FileThumbnailsPlaceholder(
       const Icon(
@@ -90,21 +99,20 @@ class FileThumbnailsPlaceholder {
         'wav', // WAV
         'webm' // WEBM
       ],
-          (Vault vault, File fileToRead, String fileName) => AudioListener(
+      (Vault vault, File fileToRead, String fileName) => AudioListener(
           fileVault: vault, fileToRead: fileToRead, fileName: fileName));
   static final unknown = FileThumbnailsPlaceholder(
       const Icon(Icons.question_mark, color: Colors.grey, size: 128),
       [],
-          (Vault vault, File fileToRead, String fileName) => DocumentViewer(
+      (Vault vault, File fileToRead, String fileName) => DocumentViewer(
           fileVault: vault, fileToRead: fileToRead, fileName: fileName));
 
   final Icon icon;
   final List<String> fileExtension;
   final FileViewer Function(Vault vault, File fileToRead, String fileName)
-  invokeData;
+      invokeData;
 
-  FileThumbnailsPlaceholder(
-      this.icon, this.fileExtension, this.invokeData);
+  FileThumbnailsPlaceholder(this.icon, this.fileExtension, this.invokeData);
 
   /// OPTIMIZED for big data
   static Map<String, FileThumbnailsPlaceholder> getPlaceholderFromFileName(
@@ -122,11 +130,17 @@ class FileThumbnailsPlaceholder {
       notFoundFileNames[fileName] = fileExtension;
     }
 
-    for (FileThumbnailsPlaceholder placeholder
-    in [FileThumbnailsPlaceholder.archive , FileThumbnailsPlaceholder.audio, FileThumbnailsPlaceholder.documents, FileThumbnailsPlaceholder.image, FileThumbnailsPlaceholder.videos, FileThumbnailsPlaceholder.unknown]) {
+    for (FileThumbnailsPlaceholder placeholder in [
+      FileThumbnailsPlaceholder.archive,
+      FileThumbnailsPlaceholder.audio,
+      FileThumbnailsPlaceholder.documents,
+      FileThumbnailsPlaceholder.image,
+      FileThumbnailsPlaceholder.videos,
+      FileThumbnailsPlaceholder.unknown
+    ]) {
       for (String possibleExtension in placeholder.fileExtension) {
         for (MapEntry<String, String> fileNameToTest
-        in Map<String, String>.from(notFoundFileNames).entries) {
+            in Map<String, String>.from(notFoundFileNames).entries) {
           if (fileNameToTest.value == possibleExtension) {
             foundFileTypes[fileNameToTest.key] = placeholder;
             notFoundFileNames.remove(fileNameToTest.key);
@@ -135,7 +149,7 @@ class FileThumbnailsPlaceholder {
       }
     }
     for (MapEntry<String, String> notFoundFileType
-    in notFoundFileNames.entries) {
+        in notFoundFileNames.entries) {
       foundFileTypes[notFoundFileType.key] = FileThumbnailsPlaceholder.unknown;
     }
     return foundFileTypes;

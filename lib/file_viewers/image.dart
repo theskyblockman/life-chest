@@ -6,19 +6,22 @@ import 'package:life_chest/file_viewers/file_viewer.dart';
 class ImageViewer extends FileViewer {
   Image? loadedImage;
 
-  ImageViewer({required super.fileVault, required super.fileToRead, required super.fileName});
+  ImageViewer(
+      {required super.fileVault,
+      required super.fileToRead,
+      required super.fileName});
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: InteractiveViewer(
-        clipBehavior: Clip.none, child: loadedImage!));
+        child: InteractiveViewer(clipBehavior: Clip.none, child: loadedImage!));
   }
 
   @override
   Future<bool> load() async {
-    loadedImage = Image.memory(await SingleThreadedRecovery.loadAndDecryptFullFile(
-        fileVault.encryptionKey!, fileToRead));
+    loadedImage = Image.memory(
+        await SingleThreadedRecovery.loadAndDecryptFullFile(
+            fileVault.encryptionKey!, fileToRead));
     return true;
   }
 
@@ -28,5 +31,6 @@ class ImageViewer extends FileViewer {
   }
 
   @override
-  String loadingMessage(BuildContext context) => AppLocalizations.of(context)!.loadingImage;
+  String loadingMessage(BuildContext context) =>
+      AppLocalizations.of(context)!.loadingImage;
 }

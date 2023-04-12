@@ -17,9 +17,9 @@ class FileReader extends StatefulWidget {
 
   const FileReader(
       {super.key,
-        required this.thumbnails,
-        required this.fileVault,
-        required this.initialThumbnail});
+      required this.thumbnails,
+      required this.fileVault,
+      required this.initialThumbnail});
 
   @override
   State<StatefulWidget> createState() => FileReaderState();
@@ -30,35 +30,35 @@ class FileReaderState extends State<FileReader> {
   final Map<int, FileViewer> loadedViewers = {};
 
   Widget readFile(BuildContext context, FileThumbnail thumbnail) {
-    if(!loadedViewers.containsKey(widget.thumbnails.indexOf(thumbnail))) {
-      FileViewer viewer = thumbnail.placeholder.invokeData(
-          widget.fileVault,
-          thumbnail.file,
-          thumbnail.name
-      );
-      return FutureBuilder(future: viewer.load(), builder: (context, snapshot) {
-        if(snapshot.hasData) {
-          loadedViewers[widget.thumbnails.indexOf(thumbnail)] = viewer;
-          return viewer.build(context);
-        } else {
-          return Center(
-              child: Opacity(
-                  opacity: 0.25,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(),
-                      Text(
-                        viewer.loadingMessage(context),
-                        textScaleFactor: 2.5,
-                        textAlign: TextAlign.center,
-                      )
-                    ],
-                  )));
-        }
-      });
+    if (!loadedViewers.containsKey(widget.thumbnails.indexOf(thumbnail))) {
+      FileViewer viewer = thumbnail.placeholder
+          .invokeData(widget.fileVault, thumbnail.file, thumbnail.name);
+      return FutureBuilder(
+          future: viewer.load(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              loadedViewers[widget.thumbnails.indexOf(thumbnail)] = viewer;
+              return viewer.build(context);
+            } else {
+              return Center(
+                  child: Opacity(
+                      opacity: 0.25,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const CircularProgressIndicator(),
+                          Text(
+                            viewer.loadingMessage(context),
+                            textScaleFactor: 2.5,
+                            textAlign: TextAlign.center,
+                          )
+                        ],
+                      )));
+            }
+          });
     } else {
-      return loadedViewers[widget.thumbnails.indexOf(thumbnail)]!.build(context);
+      return loadedViewers[widget.thumbnails.indexOf(thumbnail)]!
+          .build(context);
     }
   }
 
@@ -74,8 +74,7 @@ class FileReaderState extends State<FileReader> {
         itemCount: widget.thumbnails.length,
         scrollDirection: Axis.horizontal,
         controller: pageViewController,
-      allowImplicitScrolling: true
-    );
+        allowImplicitScrolling: true);
   }
 
   @override
@@ -100,9 +99,9 @@ class RenameWindow extends StatefulWidget {
 
   const RenameWindow(
       {super.key,
-        required this.onOkButtonPressed,
-        required this.onCancelButtonPressed,
-        required this.initialName});
+      required this.onOkButtonPressed,
+      required this.onCancelButtonPressed,
+      required this.initialName});
 
   @override
   State<StatefulWidget> createState() => RenameWindowState();
@@ -190,115 +189,114 @@ class FileExplorerState extends State<FileExplorer> {
       appBar: AppBar(
           actions: isSelectionMode
               ? [
-            PopupMenuButton(
-              icon: const Icon(Icons.more_vert),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
-              itemBuilder: (context) {
-                return [
-                  PopupMenuItem(
-                      onTap: () async {
-                        for (FileThumbnail thumbnail in thumbnails) {
-                          if (thumbnail.isSelected) {
-                            thumbnail.file.deleteSync();
-                            map.remove(thumbnail.localPath);
-                          }
-                        }
-                        List<int> encryptedMap =
-                        (await VaultsManager.encryptMap(
-                            widget.vault, map))!;
-                        setState(() {
-                          // TODO: Forensic should be made to see if iOS/Android keeps any of the file data in storage, if yes fill the file with null bytes and then delete it.
-                          File(join(widget.vault.path, '.map'))
-                              .writeAsBytesSync(encryptedMap);
-                          isSelectionMode = false;
-                          thumbnailCollector = reloadThumbnails();
-                        });
-                        fileReader = FileReader(
-                            thumbnails: thumbnails,
-                            fileVault: widget.vault,
-                            initialThumbnail: 0,
-                            key: fileReaderKey
-                        );
-                      },
-                      child: Text(AppLocalizations.of(context)!.delete)),
-                  if (amountOfFilesSelected == 1)
-                    PopupMenuItem(
-                        onTap: () {
-                          FileThumbnail selectedThumbnail =
-                          thumbnails.firstWhere(
-                                  (element) => element.isSelected);
-                          WidgetsBinding.instance
-                              .addPostFrameCallback((timeStamp) {
-                            showDialog<bool>(
-                              context: context,
-                              builder: (context) {
-                                return RenameWindow(
-                                    onOkButtonPressed: (newName) async {
-                                      map[selectedThumbnail.localPath] =
-                                          newName;
-                                      File(join(
-                                          widget.vault.path, '.map'))
-                                          .writeAsBytesSync(
-                                          (await VaultsManager
-                                              .encryptMap(
-                                              widget.vault,
-                                              map))!);
-                                      isSelectionMode = false;
-                                      thumbnailCollector =
-                                          reloadThumbnails();
-                                      if (context.mounted) {
-                                        Navigator.of(context).pop(true);
-                                      }
-                                    },
-                                    onCancelButtonPressed: () {
-                                      Navigator.of(context).pop(false);
-                                    },
-                                    initialName: selectedThumbnail.name);
-                              },
-                            ).then((value) {
-                              if (value == true) { // NOTE: Do not edit this, as the value can be null it saves 1 instruction to try to put value as true as to verify that it isn't null and to then verify it's bool value
-                                setState(() {
-                                  fileReader = FileReader(
-                                      thumbnails: thumbnails,
-                                      fileVault: widget.vault,
-                                      initialThumbnail: 0,
-                                      key: fileReaderKey
-                                  );
-                                });
+                  PopupMenuButton(
+                    icon: const Icon(Icons.more_vert),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    itemBuilder: (context) {
+                      return [
+                        PopupMenuItem(
+                            onTap: () async {
+                              for (FileThumbnail thumbnail in thumbnails) {
+                                if (thumbnail.isSelected) {
+                                  thumbnail.file.deleteSync();
+                                  map.remove(thumbnail.localPath);
+                                }
                               }
-                            });
-                          });
-                        },
-                        child:
-                        Text(AppLocalizations.of(context)!.rename)),
-                  PopupMenuItem(
-                      onTap: () {
-                        setState(() {
-                          for (FileThumbnail thumbnail
-                          in List.from(thumbnails)) {
-                            if (!thumbnail.isSelected) {
-                              thumbnails[thumbnails.indexOf(thumbnail)] =
-                                  FileThumbnail(
-                                      localPath: thumbnail.localPath,
-                                      name: thumbnail.name,
-                                      placeholder: thumbnail.placeholder,
-                                      file: thumbnail.file,
-                                      vault: thumbnail.vault,
-                                      onPress: thumbnail.onPress,
-                                      onLongPress: thumbnail.onLongPress,
-                                      isSelected: true);
-                            }
-                          }
-                          amountOfFilesSelected = thumbnails.length;
-                        });
-                      },
-                      child:
-                      Text(AppLocalizations.of(context)!.selectAll))
-                ];
-              },
-            )
-          ]
+                              List<int> encryptedMap =
+                                  (await VaultsManager.encryptMap(
+                                      widget.vault, map))!;
+                              setState(() {
+                                // TODO: Forensic should be made to see if iOS/Android keeps any of the file data in storage, if yes fill the file with null bytes and then delete it.
+                                File(join(widget.vault.path, '.map'))
+                                    .writeAsBytesSync(encryptedMap);
+                                isSelectionMode = false;
+                                thumbnailCollector = reloadThumbnails();
+                              });
+                              fileReader = FileReader(
+                                  thumbnails: thumbnails,
+                                  fileVault: widget.vault,
+                                  initialThumbnail: 0,
+                                  key: fileReaderKey);
+                            },
+                            child: Text(AppLocalizations.of(context)!.delete)),
+                        if (amountOfFilesSelected == 1)
+                          PopupMenuItem(
+                              onTap: () {
+                                FileThumbnail selectedThumbnail =
+                                    thumbnails.firstWhere(
+                                        (element) => element.isSelected);
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((timeStamp) {
+                                  showDialog<bool>(
+                                    context: context,
+                                    builder: (context) {
+                                      return RenameWindow(
+                                          onOkButtonPressed: (newName) async {
+                                            map[selectedThumbnail.localPath] =
+                                                newName;
+                                            File(join(
+                                                    widget.vault.path, '.map'))
+                                                .writeAsBytesSync(
+                                                    (await VaultsManager
+                                                        .encryptMap(
+                                                            widget.vault,
+                                                            map))!);
+                                            isSelectionMode = false;
+                                            thumbnailCollector =
+                                                reloadThumbnails();
+                                            if (context.mounted) {
+                                              Navigator.of(context).pop(true);
+                                            }
+                                          },
+                                          onCancelButtonPressed: () {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                          initialName: selectedThumbnail.name);
+                                    },
+                                  ).then((value) {
+                                    if (value == true) {
+                                      // NOTE: Do not edit this, as the value can be null it saves 1 instruction to try to put value as true as to verify that it isn't null and to then verify it's bool value
+                                      setState(() {
+                                        fileReader = FileReader(
+                                            thumbnails: thumbnails,
+                                            fileVault: widget.vault,
+                                            initialThumbnail: 0,
+                                            key: fileReaderKey);
+                                      });
+                                    }
+                                  });
+                                });
+                              },
+                              child:
+                                  Text(AppLocalizations.of(context)!.rename)),
+                        PopupMenuItem(
+                            onTap: () {
+                              setState(() {
+                                for (FileThumbnail thumbnail
+                                    in List.from(thumbnails)) {
+                                  if (!thumbnail.isSelected) {
+                                    thumbnails[thumbnails.indexOf(thumbnail)] =
+                                        FileThumbnail(
+                                            localPath: thumbnail.localPath,
+                                            name: thumbnail.name,
+                                            placeholder: thumbnail.placeholder,
+                                            file: thumbnail.file,
+                                            vault: thumbnail.vault,
+                                            onPress: thumbnail.onPress,
+                                            onLongPress: thumbnail.onLongPress,
+                                            isSelected: true);
+                                  }
+                                }
+                                amountOfFilesSelected = thumbnails.length;
+                              });
+                            },
+                            child:
+                                Text(AppLocalizations.of(context)!.selectAll))
+                      ];
+                    },
+                  )
+                ]
               : null,
           leading: IconButton(
               onPressed: () {
@@ -336,9 +334,9 @@ class FileExplorerState extends State<FileExplorer> {
           bottom: loaderTarget == null || loaderCurrentLoad == null
               ? null
               : PreferredSize(
-              preferredSize: const Size.fromHeight(3),
-              child: LinearProgressIndicator(
-                  value: loaderCurrentLoad! / loaderTarget!)),
+                  preferredSize: const Size.fromHeight(3),
+                  child: LinearProgressIndicator(
+                      value: loaderCurrentLoad! / loaderTarget!)),
           backgroundColor: isSelectionMode
               ? Theme.of(context).colorScheme.tertiary.withOpacity(.7)
               : null),
@@ -353,31 +351,31 @@ class FileExplorerState extends State<FileExplorer> {
           if (snapshot.hasData) {
             return thumbnails.isNotEmpty
                 ? GridView.count(
-                mainAxisSpacing: 3,
-                crossAxisSpacing: 3,
-                crossAxisCount: MediaQuery.of(context).size.width >
-                    MediaQuery.of(context).size.height
-                    ? 4
-                    : 2,
-                children: List.from(thumbnails))
+                    mainAxisSpacing: 3,
+                    crossAxisSpacing: 3,
+                    crossAxisCount: MediaQuery.of(context).size.width >
+                            MediaQuery.of(context).size.height
+                        ? 4
+                        : 2,
+                    children: List.from(thumbnails))
                 : Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Opacity(
-                        opacity: 0.45,
-                        child: Text(
-                          AppLocalizations.of(context)!.noFilesCreatedYet,
-                          textScaleFactor: 2.5,
-                          textAlign: TextAlign.center,
-                        )),
-                    FilledButton.tonal(
-                        onPressed: () async {
-                          saveFiles(context);
-                        },
-                        child: Text(AppLocalizations.of(context)!.addFiles))
-                  ],
-                ));
+                    child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Opacity(
+                          opacity: 0.45,
+                          child: Text(
+                            AppLocalizations.of(context)!.noFilesCreatedYet,
+                            textScaleFactor: 2.5,
+                            textAlign: TextAlign.center,
+                          )),
+                      FilledButton.tonal(
+                          onPressed: () async {
+                            saveFiles(context);
+                          },
+                          child: Text(AppLocalizations.of(context)!.addFiles))
+                    ],
+                  ));
           } else {
             return Center(
                 child: Opacity(
@@ -421,9 +419,9 @@ class FileExplorerState extends State<FileExplorer> {
       Map<String, String> savedFiles = {};
 
       await for (MapEntry<String, String> savedFile
-      in SingleThreadedRecovery.progressivelySaveFiles(
-          widget.vault.encryptionKey!, widget.vault.path,
-          filesToSave: selectedFiles)) {
+          in SingleThreadedRecovery.progressivelySaveFiles(
+              widget.vault.encryptionKey!, widget.vault.path,
+              filesToSave: selectedFiles)) {
         savedFiles[savedFile.key] = savedFile.value;
         setState(() {
           loaderCurrentLoad = loaderCurrentLoad! + 1;
@@ -459,8 +457,8 @@ class FileExplorerState extends State<FileExplorer> {
     keepThumbnailsLoaded = map.length <= 20;
 
     Map<String, FileThumbnailsPlaceholder> fileTypes =
-    FileThumbnailsPlaceholder.getPlaceholderFromFileName(
-        List.from(map.values));
+        FileThumbnailsPlaceholder.getPlaceholderFromFileName(
+            List.from(map.values));
 
     for (MapEntry<String, dynamic> mappedFile in map.entries) {
       ValueKey<String> thumbnailKey = ValueKey(mappedFile.key);
@@ -483,19 +481,18 @@ class FileExplorerState extends State<FileExplorer> {
 
   void thumbnailTap(BuildContext context, FileThumbnail thumbnail) {
     if (!isSelectionMode) {
-      if(fileReader == null) {
+      if (fileReader == null) {
         fileReader ??= FileReader(
             key: fileReaderKey,
             thumbnails: thumbnails,
             fileVault: widget.vault,
             initialThumbnail: thumbnails.indexOf(thumbnail));
       } else {
-        fileReaderKey.currentState!.setCurrentPage(thumbnails.indexOf(thumbnail));
+        fileReaderKey.currentState!
+            .setCurrentPage(thumbnails.indexOf(thumbnail));
       }
       Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => fileReader!));
+          context, MaterialPageRoute(builder: (context) => fileReader!));
       return;
     }
     setState(() {
@@ -541,4 +538,3 @@ class FileExplorerState extends State<FileExplorer> {
     });
   }
 }
-

@@ -9,19 +9,21 @@ class AudioListener extends FileViewer {
   Uint8List? loadedMusic;
   final AudioPlayer player = AudioPlayer();
 
-  AudioListener({required super.fileVault, required super.fileToRead, required super.fileName});
+  AudioListener(
+      {required super.fileVault,
+      required super.fileToRead,
+      required super.fileName});
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: FilledButton(
-        child: const Text('send notification'),
-          onPressed: () {
-            const MethodChannel('theskyblockman.fr/channel')
-              .invokeMethod('createMediaNotification');
-          },
-        )
-    );
+        child: FilledButton(
+      child: const Text('send notification'),
+      onPressed: () {
+        const MethodChannel('theskyblockman.fr/channel')
+            .invokeMethod('createMediaNotification');
+      },
+    ));
   }
 
   @override
@@ -39,5 +41,6 @@ class AudioListener extends FileViewer {
   }
 
   @override
-  String loadingMessage(BuildContext context) => AppLocalizations.of(context)!.loadingAudioTrack;
+  String loadingMessage(BuildContext context) =>
+      AppLocalizations.of(context)!.loadingAudioTrack;
 }

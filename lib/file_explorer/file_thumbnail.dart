@@ -16,14 +16,14 @@ class FileThumbnail extends StatelessWidget {
 
   const FileThumbnail(
       {super.key,
-        required this.localPath,
-        required this.name,
-        required this.placeholder,
-        required this.file,
-        required this.vault,
-        required this.onPress,
-        required this.onLongPress,
-        required this.isSelected});
+      required this.localPath,
+      required this.name,
+      required this.placeholder,
+      required this.file,
+      required this.vault,
+      required this.onPress,
+      required this.onLongPress,
+      required this.isSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +32,14 @@ class FileThumbnail extends StatelessWidget {
         onTap: () => onPress(context, this),
         child: GridTile(
             child: Container(
-              decoration: BoxDecoration(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.tertiary.withOpacity(.3)
-                      : Theme.of(context).colorScheme.outline.withOpacity(.1)),
-              child: Column(children: [
-                placeholder.icon,
-                Text(name, overflow: TextOverflow.ellipsis)
-              ]),
-            )));
+          decoration: BoxDecoration(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.tertiary.withOpacity(.3)
+                  : Theme.of(context).colorScheme.outline.withOpacity(.1)),
+          child: Column(children: [
+            placeholder.icon,
+            Text(name, overflow: TextOverflow.ellipsis)
+          ]),
+        )));
   }
 }

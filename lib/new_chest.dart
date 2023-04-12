@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -25,117 +24,117 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:
-      AppBar(title: Text(AppLocalizations.of(context)!.createANewChest)),
+          AppBar(title: Text(AppLocalizations.of(context)!.createANewChest)),
       body: SingleChildScrollView(
           child: Form(
-            key: formState,
-            child: Column(children: [
-              ListTile(
-                title: TextFormField(
-                  maxLines: 1,
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.next,
-                  onChanged: (value) {
-                    policy.vaultName = value;
-                  },
-                  onEditingComplete: () => passwordNode.requestFocus(),
-                  decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: AppLocalizations.of(context)!.chestName),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return AppLocalizations.of(context)!
-                          .errorChestNameShouldNotBeEmpty;
-                    }
+        key: formState,
+        child: Column(children: [
+          ListTile(
+            title: TextFormField(
+              maxLines: 1,
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
+              onChanged: (value) {
+                policy.vaultName = value;
+              },
+              onEditingComplete: () => passwordNode.requestFocus(),
+              decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: AppLocalizations.of(context)!.chestName),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return AppLocalizations.of(context)!
+                      .errorChestNameShouldNotBeEmpty;
+                }
 
-                    return null;
-                  },
-                ),
-                focusNode: nameNode,
-                leading: const Icon(Icons.perm_identity),
-              ),
-              ListTile(
-                title: TextFormField(
-                  maxLines: 1,
-                  onChanged: (value) {
-                    policy.vaultPassword = value;
-                  },
-                  decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: AppLocalizations.of(context)!.chestPassword),
-                  obscureText: true,
-                  focusNode: passwordNode,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return AppLocalizations.of(context)!
-                          .errorChestPasswordShouldNotBeEmpty;
-                    }
-                    if (value.length < 8 && !kDebugMode) {
-                      return AppLocalizations.of(context)!
-                          .errorChestPasswordMoreCharacters;
-                    }
-                    if (!value.contains(RegExp(r'[A-Z]')) && !kDebugMode) {
-                      return AppLocalizations.of(context)!
-                          .errorChestPasswordMoreUppercaseLetter;
-                    }
-                    if (!value.contains(RegExp(r'[a-z]')) && !kDebugMode) {
-                      return AppLocalizations.of(context)!
-                          .errorChestPasswordMoreLowercaseLetter;
-                    }
-                    if (!value.contains(RegExp(r'\d')) && !kDebugMode) {
-                      return AppLocalizations.of(context)!
-                          .errorChestPasswordMoreDigits;
-                    }
+                return null;
+              },
+            ),
+            focusNode: nameNode,
+            leading: const Icon(Icons.perm_identity),
+          ),
+          ListTile(
+            title: TextFormField(
+              maxLines: 1,
+              onChanged: (value) {
+                policy.vaultPassword = value;
+              },
+              decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: AppLocalizations.of(context)!.chestPassword),
+              obscureText: true,
+              focusNode: passwordNode,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return AppLocalizations.of(context)!
+                      .errorChestPasswordShouldNotBeEmpty;
+                }
+                if (value.length < 8 && !kDebugMode) {
+                  return AppLocalizations.of(context)!
+                      .errorChestPasswordMoreCharacters;
+                }
+                if (!value.contains(RegExp(r'[A-Z]')) && !kDebugMode) {
+                  return AppLocalizations.of(context)!
+                      .errorChestPasswordMoreUppercaseLetter;
+                }
+                if (!value.contains(RegExp(r'[a-z]')) && !kDebugMode) {
+                  return AppLocalizations.of(context)!
+                      .errorChestPasswordMoreLowercaseLetter;
+                }
+                if (!value.contains(RegExp(r'\d')) && !kDebugMode) {
+                  return AppLocalizations.of(context)!
+                      .errorChestPasswordMoreDigits;
+                }
 
-                    return null;
-                  },
-                ),
-                leading: const Icon(Icons.lock_outline),
-              ),
-              const Divider(),
-              ListTile(
-                trailing: Switch(
-                    onChanged: (value) => setState(() {
+                return null;
+              },
+            ),
+            leading: const Icon(Icons.lock_outline),
+          ),
+          const Divider(),
+          ListTile(
+            trailing: Switch(
+                onChanged: (value) => setState(() {
                       policy.shouldDisconnectWhenVaultOpened = value;
                     }),
-                    value: policy.shouldDisconnectWhenVaultOpened),
-                title: Text(AppLocalizations.of(context)!.shouldEnterAirplaneMode),
-              ),
-              const Divider(),
-              ListTile(
-                  title: Text(
-                      AppLocalizations.of(context)!.whatShouldBeDoneAfterUnfocus)),
-              ListTile(
-                title: SegmentedButton<int>(
-                    segments: [
-                      ButtonSegment(
-                          value: 0,
-                          label: Text(AppLocalizations.of(context)!.doNothing)),
-                      ButtonSegment(
-                          value: 1,
-                          label: Text(AppLocalizations.of(context)!.notify)),
-                      ButtonSegment(
-                          value: 2,
-                          label: Text(AppLocalizations.of(context)!.closeChest)),
-                    ],
-                    selected: {
-                      policy.securityLevel
-                    },
-                    multiSelectionEnabled: false,
-                    emptySelectionAllowed: false,
-                    onSelectionChanged: (newSet) {
-                      setState(() {
-                        policy.securityLevel = newSet.first;
-                      });
-                    }),
-              )
-            ]),
-          )),
+                value: policy.shouldDisconnectWhenVaultOpened),
+            title: Text(AppLocalizations.of(context)!.shouldEnterAirplaneMode),
+          ),
+          const Divider(),
+          ListTile(
+              title: Text(
+                  AppLocalizations.of(context)!.whatShouldBeDoneAfterUnfocus)),
+          ListTile(
+            title: SegmentedButton<int>(
+                segments: [
+                  ButtonSegment(
+                      value: 0,
+                      label: Text(AppLocalizations.of(context)!.doNothing)),
+                  ButtonSegment(
+                      value: 1,
+                      label: Text(AppLocalizations.of(context)!.notify)),
+                  ButtonSegment(
+                      value: 2,
+                      label: Text(AppLocalizations.of(context)!.closeChest)),
+                ],
+                selected: {
+                  policy.securityLevel
+                },
+                multiSelectionEnabled: false,
+                emptySelectionAllowed: false,
+                onSelectionChanged: (newSet) {
+                  setState(() {
+                    policy.securityLevel = newSet.first;
+                  });
+                }),
+          )
+        ]),
+      )),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           if (formState.currentState!.validate()) {
             Vault createdVault =
-            await VaultsManager.createVaultFromPolicy(policy);
+                await VaultsManager.createVaultFromPolicy(policy);
             VaultsManager.storedVaults.add(createdVault);
             VaultsManager.saveVaults();
             if (context.mounted) Navigator.pop(context);
@@ -185,9 +184,9 @@ class HourMinsFormatter extends TextInputFormatter {
 
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     if (!pattern.hasMatch(newValue.text)) return oldValue;
 
     TextSelection newSelection = newValue.selection;

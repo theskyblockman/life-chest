@@ -13,8 +13,7 @@ abstract class FileViewer {
   final String fileName;
 
   const FileViewer(
-      {
-        required this.fileVault,
-        required this.fileToRead,
-        required this.fileName});
+      {required this.fileVault,
+      required this.fileToRead,
+      required this.fileName});
 }
