@@ -22,6 +22,7 @@ class VaultsManager {
   static late final String appFolder;
   static late final File mainConfigFile;
   static final cipher = Chacha20(macAlgorithm: MacAlgorithm.empty);
+  static bool shouldUpdateVaultList = false;
 
   static void saveVaults() {
     mainConfigFile.writeAsStringSync(jsonEncode({

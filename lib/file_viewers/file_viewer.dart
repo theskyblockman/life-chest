@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:life_chest/vault.dart';
 
 abstract class FileViewer {
-  void initialInit() {}
   Widget build(BuildContext context);
   Future<bool> load();
   void dispose();

@@ -73,7 +73,9 @@ class FileReaderState extends State<FileReader> {
         },
         itemCount: widget.thumbnails.length,
         scrollDirection: Axis.horizontal,
-        controller: pageViewController);
+        controller: pageViewController,
+      allowImplicitScrolling: true
+    );
   }
 
   @override
@@ -82,6 +84,12 @@ class FileReaderState extends State<FileReader> {
         PageController(initialPage: widget.initialThumbnail, keepPage: true);
 
     super.initState();
+  }
+
+  void setCurrentPage(int newFileIndex) {
+    setState(() {
+      pageViewController.jumpToPage(newFileIndex);
+    });
   }
 }
 
@@ -160,6 +168,8 @@ class FileExplorerState extends State<FileExplorer> {
   int? loaderCurrentLoad;
   static bool isPauseAllowed = false;
   static bool shouldNotificationBeSent = false;
+  FileReader? fileReader;
+  GlobalKey<FileReaderState> fileReaderKey = GlobalKey();
 
   @override
   void initState() {
@@ -204,6 +214,12 @@ class FileExplorerState extends State<FileExplorer> {
                           isSelectionMode = false;
                           thumbnailCollector = reloadThumbnails();
                         });
+                        fileReader = FileReader(
+                            thumbnails: thumbnails,
+                            fileVault: widget.vault,
+                            initialThumbnail: 0,
+                            key: fileReaderKey
+                        );
                       },
                       child: Text(AppLocalizations.of(context)!.delete)),
                   if (amountOfFilesSelected == 1)
@@ -241,9 +257,15 @@ class FileExplorerState extends State<FileExplorer> {
                                     initialName: selectedThumbnail.name);
                               },
                             ).then((value) {
-                              if (value == true) {
-                                // NOTE: Do not edit this, as the value can be null it saves 1 instruction to try to put value as true as to verify that it isn't null and to then verify it's bool value
-                                setState(() {});
+                              if (value == true) { // NOTE: Do not edit this, as the value can be null it saves 1 instruction to try to put value as true as to verify that it isn't null and to then verify it's bool value
+                                setState(() {
+                                  fileReader = FileReader(
+                                      thumbnails: thumbnails,
+                                      fileVault: widget.vault,
+                                      initialThumbnail: 0,
+                                      key: fileReaderKey
+                                  );
+                                });
                               }
                             });
                           });
@@ -461,13 +483,19 @@ class FileExplorerState extends State<FileExplorer> {
 
   void thumbnailTap(BuildContext context, FileThumbnail thumbnail) {
     if (!isSelectionMode) {
+      if(fileReader == null) {
+        fileReader ??= FileReader(
+            key: fileReaderKey,
+            thumbnails: thumbnails,
+            fileVault: widget.vault,
+            initialThumbnail: thumbnails.indexOf(thumbnail));
+      } else {
+        fileReaderKey.currentState!.setCurrentPage(thumbnails.indexOf(thumbnail));
+      }
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => FileReader(
-                  thumbnails: thumbnails,
-                  fileVault: widget.vault,
-                  initialThumbnail: thumbnails.indexOf(thumbnail))));
+              builder: (context) => fileReader!));
       return;
     }
     setState(() {

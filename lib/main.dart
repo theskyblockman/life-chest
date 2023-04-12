@@ -57,12 +57,14 @@ class LifeChestApp extends StatelessWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       theme: lightTheme,
       darkTheme: darkTheme,
-      home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
+      home: firstLaunch ? const WelcomePage() : ChestMainPage(),
     );
   }
 }
 
 class ChestMainPage extends StatefulWidget {
+  static GlobalKey<ChestMainPageState> pageKey = GlobalKey();
+
   const ChestMainPage({super.key});
 
   @override

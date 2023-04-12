@@ -125,12 +125,12 @@ class WelcomePageState extends State<WelcomePage> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const ChestMainPage()));
+                                  builder: (context) => ChestMainPage(key: ChestMainPage.pageKey,)));
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                  const CreateNewChestPage()));
+                                  const CreateNewChestPage())).then((value) => ChestMainPage.pageKey.currentState!.setState(() {}));
                         } else {
                           setState(() {
                             controller.nextPage(

@@ -31,6 +31,9 @@ class DocumentViewer extends FileViewer {
 
   @override
   Future<bool> load() async {
+    documentType = basename(fileName).endsWith('pdf')
+        ? DocumentType.pdf
+        : DocumentType.plainText;
     loadedDocument = await SingleThreadedRecovery.loadAndDecryptFullFile(
         fileVault.encryptionKey!, fileToRead);
     return true;
@@ -39,13 +42,6 @@ class DocumentViewer extends FileViewer {
   @override
   void dispose() {
     loadedDocument = null;
-  }
-
-  @override
-  void initialInit() {
-    documentType = basename(fileName).endsWith('pdf')
-        ? DocumentType.pdf
-        : DocumentType.plainText;
   }
 
   @override
