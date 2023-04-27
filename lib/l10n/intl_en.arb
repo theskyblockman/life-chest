@@ -39,6 +39,7 @@
   "loadingImage": "Loading image",
   "loadingAudioTrack": "Loading audio track",
   "pickFilesDialogTitle": "Pick the files you want to add",
+  "pickFolderDialogTitle": "Pick the folder you want to add",
   "selected": "{count} {count, plural, =1{selected} other{selected}}",
   "@selected": {
     "placeholders": {
@@ -56,5 +57,10 @@
   "yes": "Yes",
   "no": "No",
   "closeChestNotificationTitle": "You still have a chest opened",
-  "closeChestNotificationContent": "Click on the button down there to close it"
+  "closeChestNotificationContent": "Click on the button down there to close it",
+  "createANewFolder": "Create a new folder",
+  "newFolder": "New folder",
+  "sortBy": "Sort by...",
+  "numberSortName": "First detected number",
+  "nameSortName": "Alphabetical order"
 }

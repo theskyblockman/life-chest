@@ -6,6 +6,8 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:life_chest/file_explorer/file_explorer.dart';
+import 'package:life_chest/file_explorer/file_sort_methods.dart';
 import 'package:path/path.dart' as p;
 
 class PermissionError extends Error {
@@ -26,7 +28,8 @@ class VaultsManager {
 
   static void saveVaults() {
     mainConfigFile.writeAsStringSync(jsonEncode({
-      "chests": [for (Vault vault in storedVaults) vault.toJson()]
+      "chests": [for (Vault vault in storedVaults) vault.toJson()],
+      "current_sort_method": FileExplorerState.currentSortMethod.id
     }));
 
     for (Vault vault in storedVaults) {
@@ -41,8 +44,13 @@ class VaultsManager {
 
     try {
       chests = jsonDecode(mainConfigFile.readAsStringSync());
+      FileExplorerState.currentSortMethod =
+          FileSortMethod.fromID(chests['current_sort_method']!)!;
     } on FormatException {
-      chests = {'chests': []};
+      chests = {
+        'chests': [],
+        "current_sort_method": FileExplorerState.currentSortMethod.id
+      };
     }
 
     List<Vault> constructedVaults = [];
@@ -117,7 +125,8 @@ class VaultsManager {
   }
 
   static Map<String, dynamic> constructMap(Vault vault,
-      {Map<String, dynamic>? oldMap, Map<String, String>? additionalFiles}) {
+      {Map<String, dynamic>? oldMap,
+      Map<String, Map<String, dynamic>>? additionalFiles}) {
     Map<String, dynamic> newMap = {};
     oldMap ??= {};
     additionalFiles ??= {};
@@ -126,12 +135,12 @@ class VaultsManager {
 
       if (localPath.startsWith('.')) continue;
 
-      newMap[localPath] = 'unknown';
+      newMap[localPath] = {'name': 'unknown', 'type': '*/*'};
     }
 
     for (MapEntry<String, dynamic> oldFile in oldMap.entries.toList()
       ..addAll(additionalFiles.entries)) {
-      if (newMap[oldFile.key] != null) {
+      if (newMap[oldFile.key] != null || oldFile.value['type'] == 'folder') {
         newMap[oldFile.key] = oldFile.value;
       }
     }

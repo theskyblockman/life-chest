@@ -1,12 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:life_chest/vault.dart';
+import 'package:mime/mime.dart';
 import 'package:path/path.dart';
+
+import '../file_explorer/file_placeholder.dart';
 
 class SingleThreadedRecovery {
   static Future<Uint8List> loadAndDecryptFullFile(
@@ -20,11 +25,17 @@ class SingleThreadedRecovery {
   static Stream<List<int>> loadAndDecryptFile(
       SecretKey encryptionKey, File fileToRead) {
     return VaultsManager.cipher.decryptStream(fileToRead.openRead(),
-        secretKey: encryptionKey, nonce: Uint8List(32), mac: Mac.empty);
+        secretKey: encryptionKey,
+        nonce: Uint8List(VaultsManager.cipher.nonceLength),
+        mac: Mac.empty);
   }
 
-  static Future<MapEntry<String, String>?> saveFile(
-      SecretKey encryptionKey, String vaultPath, File createdFile) async {
+  static Future<MapEntry<String, Map<String, dynamic>>?> saveFile(
+      SecretKey encryptionKey,
+      String vaultPath,
+      File createdFile,
+      String localPath,
+      String? rootFolderPath) async {
     String fileName = md5RandomFileName();
     File fileToCreate = File(join(vaultPath, fileName));
     await fileToCreate.create(recursive: true);
@@ -40,19 +51,39 @@ class SingleThreadedRecovery {
     } finally {
       fileToCreateSink.close();
     }
+    String type = lookupMimeType(createdFile.path,
+            headerBytes: createdFile.readAsBytesSync()) ??
+        '*/*';
+    String finalName = join(
+        localPath,
+        rootFolderPath == null
+            ? basename(createdFile.path)
+            : relative(createdFile.path, from: rootFolderPath));
+    Map<String, dynamic> finalData = {'name': finalName, 'type': type};
+    if (FileThumbnailsPlaceholder.getPlaceholderFromFileName(
+            [finalData])[finalName] ==
+        FileThumbnailsPlaceholder.audio) {
+      Metadata foundData = await MetadataRetriever.fromFile(createdFile);
+      finalData['audioData'] = foundData.toJson();
+      finalData['audioData']['trackCover'] = foundData.albumArt != null
+          ? base64.encode(foundData.albumArt!)
+          : null;
+    }
+
     try {
       createdFile.deleteSync(recursive: true);
     } catch (e) {
       // Ignore
     }
 
-    return MapEntry(fileName, basename(createdFile.path));
+    return MapEntry(fileName, finalData);
   }
 
-  static Future<Map<String, String>?> saveFiles(
-      SecretKey encryptionKey, String vaultPath,
+  static Future<Map<String, Map<String, dynamic>>?> saveFiles(
+      SecretKey encryptionKey, String vaultPath, String localPath,
       {List<File>? filesToSave,
-      String dialogTitle = 'Pick the files you want to add'}) async {
+      String dialogTitle = 'Pick the files you want to add',
+      String? rootFolderPath}) async {
     if (filesToSave == null) {
       FilePickerResult? pickedFiles = await FilePicker.platform
           .pickFiles(allowMultiple: true, dialogTitle: dialogTitle);
@@ -65,11 +96,11 @@ class SingleThreadedRecovery {
       }
     }
 
-    final Map<String, String> additionalFiles = {};
+    final Map<String, Map<String, dynamic>> additionalFiles = {};
 
     for (File createdFile in filesToSave) {
-      MapEntry<String, String> savedFile =
-          (await saveFile(encryptionKey, vaultPath, createdFile))!;
+      MapEntry<String, Map<String, dynamic>> savedFile = (await saveFile(
+          encryptionKey, vaultPath, createdFile, localPath, rootFolderPath))!;
       additionalFiles[savedFile.key] = savedFile.value;
     }
     return additionalFiles;
@@ -85,12 +116,21 @@ class SingleThreadedRecovery {
         : null;
   }
 
-  static Stream<MapEntry<String, String>> progressivelySaveFiles(
-      SecretKey encryptionKey, String vaultPath,
+  static Future<Directory?> pickFolderToSave(
+      {String dialogTitle = 'Pick the folder you want to add'}) async {
+    String? folderPath =
+        await FilePicker.platform.getDirectoryPath(dialogTitle: dialogTitle);
+    return folderPath != null ? Directory(folderPath) : null;
+  }
+
+  static Stream<MapEntry<String, Map<String, dynamic>>> progressivelySaveFiles(
+      SecretKey encryptionKey, String vaultPath, String localPath,
       {required List<File> filesToSave,
-      String dialogTitle = 'Pick the files you want to add'}) async* {
+      String dialogTitle = 'Pick the files you want to add',
+      String? rootFolderPath}) async* {
     for (File createdFile in filesToSave) {
-      yield (await saveFile(encryptionKey, vaultPath, createdFile))!;
+      yield (await saveFile(
+          encryptionKey, vaultPath, createdFile, localPath, rootFolderPath))!;
     }
   }
 }

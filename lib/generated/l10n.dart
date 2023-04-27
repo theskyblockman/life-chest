@@ -450,6 +450,16 @@ class S {
     );
   }
 
+  /// `Pick the folder you want to add`
+  String get pickFolderDialogTitle {
+    return Intl.message(
+      'Pick the folder you want to add',
+      name: 'pickFolderDialogTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{count} {count, plural, =1{selected} other{selected}}`
   String selected(num count) {
     final NumberFormat countNumberFormat = NumberFormat.compact(
@@ -550,6 +560,56 @@ class S {
     return Intl.message(
       'Click on the button down there to close it',
       name: 'closeChestNotificationContent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create a new folder`
+  String get createANewFolder {
+    return Intl.message(
+      'Create a new folder',
+      name: 'createANewFolder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New folder`
+  String get newFolder {
+    return Intl.message(
+      'New folder',
+      name: 'newFolder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sort by...`
+  String get sortBy {
+    return Intl.message(
+      'Sort by...',
+      name: 'sortBy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `First detected number`
+  String get numberSortName {
+    return Intl.message(
+      'First detected number',
+      name: 'numberSortName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Alphabetical order`
+  String get nameSortName {
+    return Intl.message(
+      'Alphabetical order',
+      name: 'nameSortName',
       desc: '',
       args: [],
     );

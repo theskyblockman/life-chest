@@ -42,6 +42,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Vous avez toujours un coffre d\'ouvert"),
         "createANewChest":
             MessageLookupByLibrary.simpleMessage("Créer un nouveau coffre"),
+        "createANewFolder":
+            MessageLookupByLibrary.simpleMessage("Créer un nouveau dossier"),
         "createTheNewChest":
             MessageLookupByLibrary.simpleMessage("Créer le coffre"),
         "delete": MessageLookupByLibrary.simpleMessage("Supprimer"),
@@ -78,20 +80,28 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Chargement des éléments"),
         "loadingImage":
             MessageLookupByLibrary.simpleMessage("Chargement de l\'image"),
+        "nameSortName":
+            MessageLookupByLibrary.simpleMessage("Ordre alphabétique"),
+        "newFolder": MessageLookupByLibrary.simpleMessage("Nouveau dossier"),
         "no": MessageLookupByLibrary.simpleMessage("Non"),
         "noChestsCreatedYet": MessageLookupByLibrary.simpleMessage(
             "Aucun coffre créé pour le moment"),
         "noFilesCreatedYet": MessageLookupByLibrary.simpleMessage(
             "Aucun fichiers ajoutés pour le moment"),
         "notify": MessageLookupByLibrary.simpleMessage("Vous notifier"),
+        "numberSortName":
+            MessageLookupByLibrary.simpleMessage("Premier nombre détecté"),
         "ok": MessageLookupByLibrary.simpleMessage("OK"),
         "pickFilesDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Choisissez les fichiers que vous voulez ajouter"),
+        "pickFolderDialogTitle": MessageLookupByLibrary.simpleMessage(
+            "Choisissez le dossier que vous voulez ajouter"),
         "rename": MessageLookupByLibrary.simpleMessage("Renommer"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
         "selected": m0,
         "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
             "Activer le mode avion lorsque le coffre s\'ouvre"),
+        "sortBy": MessageLookupByLibrary.simpleMessage("Trier par..."),
         "validate": MessageLookupByLibrary.simpleMessage("Valider"),
         "welcomeNext": MessageLookupByLibrary.simpleMessage("Suivant"),
         "welcomePage1Content": MessageLookupByLibrary.simpleMessage(

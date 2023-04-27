@@ -40,6 +40,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "You still have a chest opened"),
         "createANewChest":
             MessageLookupByLibrary.simpleMessage("Create a new chest"),
+        "createANewFolder":
+            MessageLookupByLibrary.simpleMessage("Create a new folder"),
         "createTheNewChest":
             MessageLookupByLibrary.simpleMessage("Create the chest"),
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),
@@ -75,20 +77,28 @@ class MessageLookup extends MessageLookupByLibrary {
         "loadingElements":
             MessageLookupByLibrary.simpleMessage("Loading elements"),
         "loadingImage": MessageLookupByLibrary.simpleMessage("Loading image"),
+        "nameSortName":
+            MessageLookupByLibrary.simpleMessage("Alphabetical order"),
+        "newFolder": MessageLookupByLibrary.simpleMessage("New folder"),
         "no": MessageLookupByLibrary.simpleMessage("No"),
         "noChestsCreatedYet":
             MessageLookupByLibrary.simpleMessage("No chests created yet"),
         "noFilesCreatedYet":
             MessageLookupByLibrary.simpleMessage("No files added yet"),
         "notify": MessageLookupByLibrary.simpleMessage("Notify you"),
+        "numberSortName":
+            MessageLookupByLibrary.simpleMessage("First detected number"),
         "ok": MessageLookupByLibrary.simpleMessage("OK"),
         "pickFilesDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Pick the files you want to add"),
+        "pickFolderDialogTitle": MessageLookupByLibrary.simpleMessage(
+            "Pick the folder you want to add"),
         "rename": MessageLookupByLibrary.simpleMessage("Rename"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
         "selected": m0,
         "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
             "Enter airplane mode when the vault opens"),
+        "sortBy": MessageLookupByLibrary.simpleMessage("Sort by..."),
         "validate": MessageLookupByLibrary.simpleMessage("Validate"),
         "welcomeNext": MessageLookupByLibrary.simpleMessage("Next"),
         "welcomePage1Content": MessageLookupByLibrary.simpleMessage(

@@ -20,7 +20,8 @@ class DocumentViewer extends FileViewer {
   DocumentViewer(
       {required super.fileVault,
       required super.fileToRead,
-      required super.fileName});
+      required super.fileName,
+      required super.fileData});
 
   @override
   Widget build(BuildContext context) {
@@ -49,4 +50,7 @@ class DocumentViewer extends FileViewer {
   @override
   String loadingMessage(BuildContext context) =>
       AppLocalizations.of(context)!.loadingDocuments;
+
+  @override
+  Future<void> onFocus() async {}
 }

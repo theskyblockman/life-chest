@@ -7,23 +7,27 @@ import 'package:life_chest/file_explorer/file_placeholder.dart';
 class FileThumbnail extends StatelessWidget {
   final String name;
   final String localPath;
+  final String fullLocalPath;
   final FileThumbnailsPlaceholder placeholder;
   final File file;
   final Vault vault;
   final void Function(BuildContext context, FileThumbnail state) onPress;
   final void Function(FileThumbnail state) onLongPress;
   final bool isSelected;
+  final Map<String, dynamic> data;
 
   const FileThumbnail(
       {super.key,
       required this.localPath,
       required this.name,
+      required this.fullLocalPath,
       required this.placeholder,
       required this.file,
       required this.vault,
       required this.onPress,
       required this.onLongPress,
-      required this.isSelected});
+      required this.isSelected,
+      required this.data});
 
   @override
   Widget build(BuildContext context) {

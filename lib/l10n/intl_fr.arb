@@ -39,6 +39,7 @@
   "loadingImage": "Chargement de l'image",
   "loadingAudioTrack": "Chargement de la piste audio",
   "pickFilesDialogTitle": "Choisissez les fichiers que vous voulez ajouter",
+  "pickFolderDialogTitle": "Choisissez le dossier que vous voulez ajouter",
   "selected": "{count} {count, plural, =1{fichier sélectionné} other{fichiers sélectionnés}}",
   "selectAll": "Tout sélectionner",
   "wrongPassword": "Mauvais mot de passe",
@@ -48,5 +49,10 @@
   "yes": "Oui",
   "no": "Non",
   "closeChestNotificationTitle": "Vous avez toujours un coffre d'ouvert",
-  "closeChestNotificationContent": "Appuiez sur le bouton ci-dessous pour le fermer"
+  "closeChestNotificationContent": "Appuiez sur le bouton ci-dessous pour le fermer",
+  "createANewFolder": "Créer un nouveau dossier",
+  "newFolder": "Nouveau dossier",
+  "sortBy": "Trier par...",
+  "numberSortName": "Premier nombre détecté",
+  "nameSortName": "Ordre alphabétique"
 }

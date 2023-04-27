@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:life_chest/color_schemes.g.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
+import 'package:life_chest/file_viewers/audio.dart';
 import 'package:life_chest/new_chest.dart';
 import 'package:life_chest/onboarding.dart';
 import 'package:life_chest/vault.dart';
@@ -16,7 +17,6 @@ import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AudioPlayer.global.changeLogLevel(LogLevel.error);
 
   Directory appDocuments = await getApplicationDocumentsDirectory();
   VaultsManager.appFolder = appDocuments.path;
@@ -28,6 +28,15 @@ void main() async {
     VaultsManager.mainConfigFile.writeAsStringSync(await rootBundle
         .loadString('file_settings/default_config.json', cache: false));
   }
+
+  AudioListener.audioHandler = await AudioService.init(
+      builder: () => AudioPlayerHandler(),
+      config: const AudioServiceConfig(
+          androidNotificationChannelId:
+              'fr.theskyblockman.life_chest.channel.audio',
+          androidNotificationChannelName: 'Audio player',
+          androidNotificationOngoing: true,
+          androidStopForegroundOnPause: true));
 
   runApp(LifeChestApp(firstLaunch: firstLaunch)); //firstLaunch || kDebugMode
 }
@@ -57,7 +66,7 @@ class LifeChestApp extends StatelessWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       theme: lightTheme,
       darkTheme: darkTheme,
-      home: firstLaunch ? const WelcomePage() : ChestMainPage(),
+      home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
     );
   }
 }
@@ -75,6 +84,7 @@ class ChestMainPageState extends State<ChestMainPage> {
   GlobalKey<AnimatedListState> animatedListState = GlobalKey();
   int currentlySelectedChestID = -1;
   TextEditingController passwordField = TextEditingController();
+  FocusNode passwordFieldFocusNode = FocusNode();
   bool failedPasswordForVault = false;
 
   @override
@@ -147,10 +157,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                     if (kDebugMode)
                       PopupMenuItem(
                         child: const Text('Debug button'),
-                        onTap: () {
-                          const MethodChannel('theskyblockman.fr/channel')
-                              .invokeMethod('createMediaNotification');
-                        },
+                        onTap: () async {},
                       )
                   ];
                 })
@@ -217,9 +224,10 @@ class ChestMainPageState extends State<ChestMainPage> {
                                                   chest.name = newName;
 
                                                   VaultsManager.saveVaults();
-                                                  if (context.mounted)
+                                                  if (context.mounted) {
                                                     Navigator.of(context)
                                                         .pop(true);
+                                                  }
                                                 },
                                                 onCancelButtonPressed: () {
                                                   Navigator.of(context)
@@ -254,6 +262,8 @@ class ChestMainPageState extends State<ChestMainPage> {
                                               content: TextField(
                                                   autofocus: true,
                                                   controller: passwordField,
+                                                  focusNode:
+                                                      passwordFieldFocusNode,
                                                   obscureText: true,
                                                   decoration: InputDecoration(
                                                       border:
@@ -279,21 +289,31 @@ class ChestMainPageState extends State<ChestMainPage> {
                                                       if (!kDebugMode) {
                                                         passwordField.text = '';
                                                       }
-                                                      if (!chest.locked &&
-                                                          context.mounted) {
-                                                        Navigator.pushReplacement(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder: (context) =>
-                                                                    FileExplorer(
-                                                                        chest))).then(
-                                                            (_) => setState(
-                                                                () => {}));
+                                                      if (!chest.locked) {
+                                                        if (context.mounted) {
+                                                          passwordFieldFocusNode
+                                                              .unfocus();
+                                                          Navigator.pushReplacement(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder: (context) =>
+                                                                      FileExplorer(
+                                                                          chest))).then(
+                                                              (_) {
+                                                            if (context
+                                                                .mounted) {
+                                                              setState(
+                                                                  () => {});
+                                                            }
+                                                          });
+                                                        }
                                                       } else {
-                                                        setState(() {
-                                                          failedPasswordForVault =
-                                                              true;
-                                                        });
+                                                        if (context.mounted) {
+                                                          setState(() {
+                                                            failedPasswordForVault =
+                                                                true;
+                                                          });
+                                                        }
                                                       }
                                                     },
                                                     child: Text(

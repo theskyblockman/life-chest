@@ -2,11 +2,8 @@ package fr.theskyblockman.life_chest;
 
 import static android.app.PendingIntent.*;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.WindowManager;
 
@@ -15,14 +12,15 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.ryanheise.audioservice.AudioServiceActivity;
+
 import java.util.Map;
 import java.util.Objects;
 
-import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
 
-public class MainActivity extends FlutterActivity {
+public class MainActivity extends AudioServiceActivity {
     private MethodChannel channel;
     public static FlutterEngine engine;
 
@@ -30,23 +28,6 @@ public class MainActivity extends FlutterActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         super.onCreate(savedInstanceState);
-        createNotificationChannel();
-    }
-
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("theskyblockman.fr/notification_channel", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
     }
 
     @Override
@@ -57,16 +38,7 @@ public class MainActivity extends FlutterActivity {
         channel = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(),"theskyblockman.fr/channel");
 
         channel.setMethodCallHandler((call, result) -> {
-            if (Objects.equals(call.method, "createMediaNotification")) {
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "theskyblockman.fr/notification_channel")
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("I love bananas!")
-                        .setContentText("I really do like them!!!!!")
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-                NotificationManagerCompat.from(this).notify(0, builder.build());
-                result.success(true);
-            } else if(Objects.equals(call.method, "sendVaultNotification")) {
+            if(Objects.equals(call.method, "sendVaultNotification")) {
                 Map<String, String> args = (Map<String, String>) call.arguments;
                 Intent tapIntent = new Intent(this, VaultCloseBroadcastReceiver.class);
                 PendingIntent pendingTapIntent = getBroadcast(this, 0, tapIntent, FLAG_IMMUTABLE);

@@ -9,7 +9,8 @@ class ImageViewer extends FileViewer {
   ImageViewer(
       {required super.fileVault,
       required super.fileToRead,
-      required super.fileName});
+      required super.fileName,
+      required super.fileData});
 
   @override
   Widget build(BuildContext context) {
@@ -33,4 +34,7 @@ class ImageViewer extends FileViewer {
   @override
   String loadingMessage(BuildContext context) =>
       AppLocalizations.of(context)!.loadingImage;
+
+  @override
+  Future<void> onFocus() async {}
 }
