@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -139,7 +140,8 @@ class SeekBarState extends State<SeekBar> {
 }
 
 class AudioListener extends FileViewer {
-  Uint8List? loadingMusic;
+  Stream<List<int>>? loadingMusic;
+  EncryptedAudioSource? audioSource;
   final AudioPlayer player = AudioPlayer();
   static late final AudioPlayerHandler audioHandler;
 
@@ -172,7 +174,8 @@ class AudioListener extends FileViewer {
                           ],
                         )
                       : Container(),
-                  Text(mediaItem?.title ?? p.basename(fileName)),
+                  Text(
+                      mediaItem?.title ?? p.basenameWithoutExtension(fileName)),
                   const Padding(padding: EdgeInsets.only(top: 15))
                 ],
               );
@@ -233,9 +236,6 @@ class AudioListener extends FileViewer {
 
   @override
   Future<bool> load() async {
-    loadingMusic ??= await SingleThreadedRecovery.loadAndDecryptFullFile(
-        fileVault.encryptionKey!, fileToRead);
-
     return true;
   }
 
@@ -273,8 +273,12 @@ class AudioListener extends FileViewer {
 
   @override
   Future<void> onFocus() async {
-    loadingMusic ??= await SingleThreadedRecovery.loadAndDecryptFullFile(
+    loadingMusic ??= SingleThreadedRecovery.loadAndDecryptFile(
         fileVault.encryptionKey!, fileToRead);
+    audioSource ??= EncryptedAudioSource(
+        loadingMusic!,
+        fileData['audioData']['mimeType'],
+        fileData['audioData']['initialSize']);
     Metadata parsedMetadata = Metadata(
         trackName: fileData['audioData']['trackName'],
         trackArtistNames: fileData['audioData']['trackArtistNames'] != null
@@ -313,8 +317,7 @@ class AudioListener extends FileViewer {
             artHeaders: fileData['audioData']['trackCover'] != null
                 ? {'artData': fileData['audioData']['trackCover']}
                 : null),
-        loadingMusic!,
-        fileData['audioData']['mimeType']);
+        audioSource!);
   }
 }
 
@@ -326,20 +329,37 @@ class MediaState {
 }
 
 class EncryptedAudioSource extends StreamAudioSource {
-  final List<int> streamedData;
+  final Stream<List<int>> streamedData;
+  List<int> bufferedData = [];
+  Completer? targetCompleter;
+  int? currentTarget;
   final String mimeType;
+  final int fileByteLength;
 
-  EncryptedAudioSource(this.streamedData, this.mimeType);
+  EncryptedAudioSource(this.streamedData, this.mimeType, this.fileByteLength,
+      {super.tag = 'EncryptedAudioSource'}) {
+    streamedData.listen((receivedData) {
+      bufferedData += receivedData;
+      if (currentTarget != null && bufferedData.length >= currentTarget!) {
+        if (targetCompleter != null) {
+          targetCompleter!.complete();
+        }
+        currentTarget = null;
+      }
+    });
+  }
 
   @override
   Future<StreamAudioResponse> request([int? start, int? end]) async {
+    debugPrint('asked for $start to $end length is $fileByteLength');
     start ??= 0;
-    end ??= streamedData.length;
+    end ??= bufferedData.length;
+
     return StreamAudioResponse(
-      sourceLength: streamedData.length,
+      sourceLength: fileByteLength,
       contentLength: end - start,
       offset: start,
-      stream: Stream.value(streamedData.sublist(start, end)),
+      stream: Stream.value(bufferedData.sublist(start, end)),
       contentType: mimeType,
     );
   }
@@ -352,13 +372,17 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
   }
 
-  void playFile(MediaItem item, List<int> streamedData, String mimeType) {
+  void playFile(MediaItem item, EncryptedAudioSource source) {
     mediaItem.add(item);
-    _player.setAudioSource(EncryptedAudioSource(streamedData, mimeType));
+    _player.setAudioSource(source);
   }
 
   @override
-  Future<void> play() => _player.play();
+  Future<void> play() async {
+    if (playbackState.value.processingState == AudioProcessingState.ready) {
+      _player.play();
+    }
+  }
 
   @override
   Future<void> pause() => _player.pause();

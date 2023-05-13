@@ -13,6 +13,7 @@ import 'package:life_chest/file_viewers/file_viewer.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
 
+/// The file reader, this enable the user to see file and to browse between them while keeping a cache of them
 class FileReader extends StatefulWidget {
   final List<FileThumbnail> Function() thumbnails;
   final Vault fileVault;
@@ -28,15 +29,18 @@ class FileReader extends StatefulWidget {
   State<StatefulWidget> createState() => FileReaderState();
 }
 
+/// The [FileReader]'s state
 class FileReaderState extends State<FileReader> {
   late final PageController pageViewController;
   int? oldPage;
+  bool isPagingEnabled = true;
 
+  /// Manages the file viewer for a file.
   Widget readFile(
       BuildContext context, FileThumbnail thumbnail, int fileIndex) {
     FileViewer viewer = thumbnail.placeholder.invokeData(
-        widget.fileVault, thumbnail.file, thumbnail.name, thumbnail.data);
-    if (oldPage == null) {
+        widget.fileVault, thumbnail.file, thumbnail.name, thumbnail.data, this);
+    if (oldPage == null && widget.initialThumbnail == fileIndex) {
       viewer.onFocus();
       oldPage = fileIndex;
     }
@@ -73,9 +77,11 @@ class FileReaderState extends State<FileReader> {
         });
   }
 
+  /// Build the [FileReader], this code is mostly made for loading times
   @override
   Widget build(BuildContext context) {
     return PageView.builder(
+      physics: isPagingEnabled ? const PageScrollPhysics() : const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           FileThumbnail currentThumbnail = widget.thumbnails()[index];
           return Scaffold(
@@ -118,6 +124,7 @@ class FileReaderState extends State<FileReader> {
   }
 }
 
+/// The dialog to show when the user wants to rename an entity
 class RenameWindow extends StatefulWidget {
   final void Function(String newName) onOkButtonPressed;
   final VoidCallback onCancelButtonPressed;
@@ -133,6 +140,7 @@ class RenameWindow extends StatefulWidget {
   State<StatefulWidget> createState() => RenameWindowState();
 }
 
+/// The [RenameWindow]'s state
 class RenameWindowState extends State<RenameWindow> {
   late final TextEditingController renameFieldController;
   bool hasNotChanged = true;
@@ -172,6 +180,7 @@ class RenameWindowState extends State<RenameWindow> {
   }
 }
 
+/// The dialog to show when the user wants to create a new folder
 class FolderCreationWindow extends StatefulWidget {
   final void Function(String newName) onCreateButtonPressed;
   final VoidCallback onCancelButtonPressed;
@@ -187,6 +196,7 @@ class FolderCreationWindow extends StatefulWidget {
   State<StatefulWidget> createState() => FolderCreationWindowState();
 }
 
+/// The [FolderCreationWindow]'s state
 class FolderCreationWindowState extends State<FolderCreationWindow> {
   late final TextEditingController folderNameFieldController;
 
@@ -218,6 +228,7 @@ class FolderCreationWindowState extends State<FolderCreationWindow> {
   }
 }
 
+/// One of the core UI elements of the app, this file explorer enables the user to see file thumbnails, their name and to play them, its state is [FileExplorerState]
 class FileExplorer extends StatefulWidget {
   final Vault vault;
 
@@ -227,6 +238,7 @@ class FileExplorer extends StatefulWidget {
   State<StatefulWidget> createState() => FileExplorerState();
 }
 
+/// The [FileExplorer]'s state
 class FileExplorerState extends State<FileExplorer> {
   late List<FileThumbnail> thumbnails;
   bool keepThumbnailsLoaded = true;
@@ -241,7 +253,9 @@ class FileExplorerState extends State<FileExplorer> {
   static bool shouldNotificationBeSent = false;
   String currentLocalPath = '';
   static FileSortMethod currentSortMethod = FileSortMethod.name;
+  final ScrollController gridViewController = ScrollController();
 
+  /// A method to set and update the current sort method internally, not in the UI
   void setSortMethod(FileSortMethod newMethod) {
     currentSortMethod = newMethod;
     VaultsManager.saveVaults();
@@ -255,6 +269,7 @@ class FileExplorerState extends State<FileExplorer> {
     shouldNotificationBeSent = widget.vault.securityLevel == 1;
   }
 
+  /// One of the worst part of my code, this build method essentially powers the full file explorer navigation system
   @override
   Widget build(BuildContext context) {
     thumbnailSize ??= MediaQuery.of(context).size.width /
@@ -269,6 +284,7 @@ class FileExplorerState extends State<FileExplorer> {
           return true;
         } else {
           setState(() {
+            gridViewController.jumpTo(0);
             if (!currentLocalPath.contains('/')) {
               currentLocalPath = '';
             } else {
@@ -360,6 +376,32 @@ class FileExplorerState extends State<FileExplorer> {
                         },
                         child: Text(
                             AppLocalizations.of(context)!.createANewFolder)),
+                    PopupMenuItem(
+                        onTap: () {
+                          setState(() {
+                            isSelectionMode = true;
+                            for (FileThumbnail thumbnail
+                            in List.from(thumbnails)) {
+                              if (!thumbnail.isSelected) {
+                                thumbnails[thumbnails.indexOf(thumbnail)] =
+                                    FileThumbnail(
+                                        localPath: thumbnail.localPath,
+                                        name: thumbnail.name,
+                                        fullLocalPath:
+                                        thumbnail.fullLocalPath,
+                                        placeholder: thumbnail.placeholder,
+                                        file: thumbnail.file,
+                                        vault: thumbnail.vault,
+                                        onPress: thumbnail.onPress,
+                                        onLongPress: thumbnail.onLongPress,
+                                        isSelected: true,
+                                        data: thumbnail.data);
+                              }
+                            }
+                            amountOfFilesSelected = thumbnails.length;
+                          });
+                        },
+                        child: Text(AppLocalizations.of(context)!.selectAll)),
                     if (isSelectionMode) ...[
                       PopupMenuItem(
                           onTap: () async {
@@ -415,32 +457,7 @@ class FileExplorerState extends State<FileExplorer> {
                                 );
                               });
                             },
-                            child: Text(AppLocalizations.of(context)!.rename)),
-                      PopupMenuItem(
-                          onTap: () {
-                            setState(() {
-                              for (FileThumbnail thumbnail
-                                  in List.from(thumbnails)) {
-                                if (!thumbnail.isSelected) {
-                                  thumbnails[thumbnails.indexOf(thumbnail)] =
-                                      FileThumbnail(
-                                          localPath: thumbnail.localPath,
-                                          name: thumbnail.name,
-                                          fullLocalPath:
-                                              thumbnail.fullLocalPath,
-                                          placeholder: thumbnail.placeholder,
-                                          file: thumbnail.file,
-                                          vault: thumbnail.vault,
-                                          onPress: thumbnail.onPress,
-                                          onLongPress: thumbnail.onLongPress,
-                                          isSelected: true,
-                                          data: thumbnail.data);
-                                }
-                              }
-                              amountOfFilesSelected = thumbnails.length;
-                            });
-                          },
-                          child: Text(AppLocalizations.of(context)!.selectAll))
+                            child: Text(AppLocalizations.of(context)!.rename))
                     ]
                   ];
                 },
@@ -473,6 +490,7 @@ class FileExplorerState extends State<FileExplorer> {
                     isPauseAllowed = false;
                     shouldNotificationBeSent = false;
                     if (currentLocalPath.isNotEmpty) {
+                      gridViewController.jumpTo(0);
                       setState(() {
                         if (!currentLocalPath.contains('/')) {
                           currentLocalPath = '';
@@ -492,8 +510,7 @@ class FileExplorerState extends State<FileExplorer> {
                     : const Icon(Icons.arrow_back)),
             title: Text(isSelectionMode
                 ? AppLocalizations.of(context)!.selected(amountOfFilesSelected)
-                : widget.vault.name +
-                    (currentLocalPath.isNotEmpty ? '/$currentLocalPath' : '')),
+                : (currentLocalPath.isNotEmpty ? basenameWithoutExtension(currentLocalPath) : widget.vault.name)),
             bottom: loaderTarget == null || loaderCurrentLoad == null
                 ? null
                 : PreferredSize(
@@ -519,6 +536,7 @@ class FileExplorerState extends State<FileExplorer> {
             if (snapshot.hasData) {
               return thumbnails.isNotEmpty
                   ? GridView.count(
+                      controller: gridViewController,
                       mainAxisSpacing: 3,
                       crossAxisSpacing: 3,
                       crossAxisCount: MediaQuery.of(context).size.width >
@@ -566,6 +584,7 @@ class FileExplorerState extends State<FileExplorer> {
     );
   }
 
+  /// Used to import files into the vault
   Future<void> saveFiles(BuildContext context) async {
     File mapFile = File(join(widget.vault.path, '.map'));
     mapFile.createSync(recursive: true);
@@ -614,6 +633,7 @@ class FileExplorerState extends State<FileExplorer> {
     }
   }
 
+  /// Used to import a folder into the vault
   Future<void> saveFolder(BuildContext context) async {
     File mapFile = File(join(widget.vault.path, '.map'));
     mapFile.createSync(recursive: true);
@@ -674,6 +694,7 @@ class FileExplorerState extends State<FileExplorer> {
     }
   }
 
+  /// A helper method to know if an entity is 1 level deeper in the tree than a local path so that whe can know if the UI should draw it
   static bool shouldThumbnailBeShown(
       String fileLocalPath, String currentLocalPath) {
     return (currentLocalPath.isEmpty && !fileLocalPath.contains('/')) ||
@@ -683,6 +704,7 @@ class FileExplorerState extends State<FileExplorer> {
                 currentLocalPath.split('/').length);
   }
 
+  /// Implementation of the sorting system internally, not directly in the UI, this method sorts the entire Vault map
   static Map<String, dynamic> sortMap(
       FileSortMethod currentMethod, Map<String, dynamic> currentMap) {
     List<MapEntry<String, dynamic>> sortableMap = List.from(currentMap.entries);
@@ -697,6 +719,7 @@ class FileExplorerState extends State<FileExplorer> {
     return sortedMap;
   }
 
+  /// Updates the thumbnails internally, not in the UI
   Future<bool> reloadThumbnails() async {
     File mapFile = File(join(widget.vault.path, '.map'));
     if (!mapFile.existsSync()) {
@@ -737,14 +760,16 @@ class FileExplorerState extends State<FileExplorer> {
     return true;
   }
 
+  /// Too keep the thumbnails updated in the [FileReader]
   List<FileThumbnail> _getThumbnails() {
     return thumbnails;
   }
 
+  /// The callback used when the user clicks on a thumbnail
   void thumbnailTap(BuildContext context, FileThumbnail thumbnail) {
-    debugPrint(currentLocalPath);
     if (!isSelectionMode) {
       if (thumbnail.placeholder == FileThumbnailsPlaceholder.folder) {
+        gridViewController.jumpTo(0);
         currentLocalPath = thumbnail.fullLocalPath;
         setState(() {
           thumbnailCollector = reloadThumbnails();
@@ -786,6 +811,7 @@ class FileExplorerState extends State<FileExplorer> {
     return;
   }
 
+  /// The callback used when the user uses a long tap on a thumbnail
   void thumbnailLongTap(FileThumbnail thumbnail) {
     setState(() {
       if (!isSelectionMode) {

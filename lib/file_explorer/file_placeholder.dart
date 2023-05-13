@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_viewers/audio.dart';
 import 'package:life_chest/file_viewers/documents.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
@@ -9,11 +10,12 @@ import 'package:life_chest/file_viewers/image.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
 
+/// All the types of thumbnail that can be detected
 class FileThumbnailsPlaceholder {
   static final FileThumbnailsPlaceholder folder = FileThumbnailsPlaceholder(
       const Icon(Icons.folder, size: 128),
       'folder',
-      (vault, fileToRead, fileName, fileData) => FolderViewer(
+      (vault, fileToRead, fileName, fileData, explorerState) => FolderViewer(
           fileVault: vault,
           fileToRead: fileToRead,
           fileName: fileName,
@@ -23,18 +25,19 @@ class FileThumbnailsPlaceholder {
       const Icon(Icons.image, color: Colors.lightGreen, size: 128),
       'image',
       (Vault vault, File fileToRead, String fileName,
-              Map<String, dynamic> fileData) =>
+              Map<String, dynamic> fileData, FileReaderState explorerState) =>
           ImageViewer(
               fileVault: vault,
               fileToRead: fileToRead,
               fileName: fileName,
-              fileData: fileData));
+              fileData: fileData,
+              explorerState: explorerState));
   static final FileThumbnailsPlaceholder documents =
       FileThumbnailsPlaceholder.multipleSignatures(
           const Icon(Icons.description, color: Colors.redAccent, size: 128),
           ['text', 'pdf'],
           (Vault vault, File fileToRead, String fileName,
-                  Map<String, dynamic> fileData) =>
+                  Map<String, dynamic> fileData, FileReaderState explorerState) =>
               DocumentViewer(
                   fileVault: vault,
                   fileToRead: fileToRead,
@@ -44,12 +47,13 @@ class FileThumbnailsPlaceholder {
       const Icon(Icons.video_file, color: Colors.blueAccent, size: 128),
       'video',
       (Vault vault, File fileToRead, String fileName,
-              Map<String, dynamic> fileData) =>
+              Map<String, dynamic> fileData, FileReaderState explorerState) =>
           ImageViewer(
               fileVault: vault,
               fileToRead: fileToRead,
               fileName: fileName,
-              fileData: fileData));
+              fileData: fileData,
+              explorerState: explorerState));
   static final archive = FileThumbnailsPlaceholder.multipleSignatures(
       const Icon(Icons.archive_outlined,
           color: Colors.deepPurpleAccent, size: 128),
@@ -63,12 +67,13 @@ class FileThumbnailsPlaceholder {
         'apk', // APK
       ],
       (Vault vault, File fileToRead, String fileName,
-              Map<String, dynamic> fileData) =>
+              Map<String, dynamic> fileData, FileReaderState explorerState) =>
           ImageViewer(
               fileVault: vault,
               fileToRead: fileToRead,
               fileName: fileName,
-              fileData: fileData));
+              fileData: fileData,
+              explorerState: explorerState));
   static final audio = FileThumbnailsPlaceholder.multipleSignatures(
       const Icon(
         Icons.audiotrack_outlined,
@@ -77,7 +82,7 @@ class FileThumbnailsPlaceholder {
       ),
       ['audio', 'ogg', 'opus'],
       (Vault vault, File fileToRead, String fileName,
-              Map<String, dynamic> fileData) =>
+              Map<String, dynamic> fileData, FileReaderState explorerState) =>
           AudioListener(
               fileVault: vault,
               fileToRead: fileToRead,
@@ -87,7 +92,7 @@ class FileThumbnailsPlaceholder {
       const Icon(Icons.question_mark, color: Colors.grey, size: 128),
       ['unknown', '*'],
       (Vault vault, File fileToRead, String fileName,
-              Map<String, dynamic> fileData) =>
+              Map<String, dynamic> fileData, FileReaderState explorerState) =>
           DocumentViewer(
               fileVault: vault,
               fileToRead: fileToRead,
@@ -97,7 +102,7 @@ class FileThumbnailsPlaceholder {
   final Icon icon;
   final List<String> mimeSignatures;
   final FileViewer Function(Vault vault, File fileToRead, String fileName,
-      Map<String, dynamic> fileData) invokeData;
+      Map<String, dynamic> fileData, FileReaderState explorerState) invokeData;
 
   static final List<FileThumbnailsPlaceholder> values = [
     folder,

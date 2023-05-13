@@ -14,6 +14,7 @@ import 'package:path/path.dart';
 import '../file_explorer/file_placeholder.dart';
 
 class SingleThreadedRecovery {
+  /// Loads in memory the full decrypted content of [fileToRead] with [encryptionKey] and returns the decrypted data all at once
   static Future<Uint8List> loadAndDecryptFullFile(
       SecretKey encryptionKey, File fileToRead) async {
     return Uint8List.fromList(await VaultsManager.cipher.decrypt(
@@ -22,6 +23,7 @@ class SingleThreadedRecovery {
         secretKey: encryptionKey));
   }
 
+  /// Loads in memory the full decrypted content of [fileToRead] with [encryptionKey] and returns the decrypted data incrementally by data chunks
   static Stream<List<int>> loadAndDecryptFile(
       SecretKey encryptionKey, File fileToRead) {
     return VaultsManager.cipher.decryptStream(fileToRead.openRead(),
@@ -30,6 +32,7 @@ class SingleThreadedRecovery {
         mac: Mac.empty);
   }
 
+  /// Encrypts the file in a specific location with the [encryptionKey] in the ChaCha20 algorithm
   static Future<MapEntry<String, Map<String, dynamic>>?> saveFile(
       SecretKey encryptionKey,
       String vaultPath,
@@ -68,6 +71,7 @@ class SingleThreadedRecovery {
       finalData['audioData']['trackCover'] = foundData.albumArt != null
           ? base64.encode(foundData.albumArt!)
           : null;
+      finalData['audioData']['initialSize'] = createdFile.lengthSync();
     }
 
     try {
@@ -79,6 +83,8 @@ class SingleThreadedRecovery {
     return MapEntry(fileName, finalData);
   }
 
+  /// Encrypts multiple files at once
+  /// see [saveFile]
   static Future<Map<String, Map<String, dynamic>>?> saveFiles(
       SecretKey encryptionKey, String vaultPath, String localPath,
       {List<File>? filesToSave,
@@ -106,6 +112,7 @@ class SingleThreadedRecovery {
     return additionalFiles;
   }
 
+  /// Opens the system dialog to pick the files to save and probably encrypt.
   static Future<List<File>?> pickFilesToSave(
       {String dialogTitle = 'Pick the files you want to add'}) async {
     FilePickerResult? pickedFiles = await FilePicker.platform
@@ -116,6 +123,7 @@ class SingleThreadedRecovery {
         : null;
   }
 
+  /// Opens the system dialog to pick a folder to save and probably encrypt (inner files included)
   static Future<Directory?> pickFolderToSave(
       {String dialogTitle = 'Pick the folder you want to add'}) async {
     String? folderPath =
@@ -123,10 +131,10 @@ class SingleThreadedRecovery {
     return folderPath != null ? Directory(folderPath) : null;
   }
 
+  /// Incrementally save files provided, with the [encryptionKey] and returns its map value
   static Stream<MapEntry<String, Map<String, dynamic>>> progressivelySaveFiles(
       SecretKey encryptionKey, String vaultPath, String localPath,
       {required List<File> filesToSave,
-      String dialogTitle = 'Pick the files you want to add',
       String? rootFolderPath}) async* {
     for (File createdFile in filesToSave) {
       yield (await saveFile(

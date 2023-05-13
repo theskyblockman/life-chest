@@ -40,7 +40,7 @@ void main() async {
 
   runApp(LifeChestApp(firstLaunch: firstLaunch)); //firstLaunch || kDebugMode
 }
-
+/// The app root widget
 class LifeChestApp extends StatelessWidget {
   const LifeChestApp({super.key, required this.firstLaunch});
 
@@ -71,6 +71,7 @@ class LifeChestApp extends StatelessWidget {
   }
 }
 
+/// The main app's page, made to open chests and unlock them
 class ChestMainPage extends StatefulWidget {
   static GlobalKey<ChestMainPageState> pageKey = GlobalKey();
 
@@ -80,6 +81,7 @@ class ChestMainPage extends StatefulWidget {
   State<ChestMainPage> createState() => ChestMainPageState();
 }
 
+/// The [ChestMainPage]'s state
 class ChestMainPageState extends State<ChestMainPage> {
   GlobalKey<AnimatedListState> animatedListState = GlobalKey();
   int currentlySelectedChestID = -1;
@@ -331,6 +333,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                 itemCount: VaultsManager.storedVaults.length));
   }
 
+  /// Setups the notifications the user can receive if they want to
   @override
   void initState() {
     VaultsManager.loadVaults();
@@ -338,14 +341,11 @@ class ChestMainPageState extends State<ChestMainPage> {
     const MethodChannel('theskyblockman.fr/channel')
         .setMethodCallHandler((call) async {
       if (call.method == 'goBackToHome') {
-        debugPrint('goBackToHome');
         if (FileExplorerState.isPauseAllowed) {
-          debugPrint('pauseAllowed');
           Navigator.popUntil(context, (route) => route.isFirst);
           return true;
         }
         if (FileExplorerState.shouldNotificationBeSent) {
-          debugPrint('shouldNotificationBeSent');
           const MethodChannel('theskyblockman.fr/channel')
               .invokeMethod('sendVaultNotification', {
             'notification_title':

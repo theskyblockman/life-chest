@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:cryptography/cryptography.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_explorer/file_sort_methods.dart';
@@ -19,6 +18,7 @@ class PermissionError extends Error {
   String toString() => message;
 }
 
+/// The class that manages the core element of the app: chests (or vault, the name is still to determine)
 class VaultsManager {
   static List<Vault> storedVaults = [];
   static late final String appFolder;
@@ -75,9 +75,6 @@ class VaultsManager {
 
     File witnessFile = File(p.join(path, '.witness'));
     witnessFile.createSync(recursive: true);
-    debugPrint(encryptedWitnessFile.nonce.toString());
-    debugPrint(encryptedWitnessFile.mac.toString());
-    debugPrint(encryptedWitnessFile.cipherText.toString());
     witnessFile.writeAsBytesSync(encryptedWitnessFile.cipherText);
 
     Vault createdVault = Vault(
@@ -160,7 +157,6 @@ class VaultsManager {
   static Future<Map<String, dynamic>?> decryptMap(
       Vault vault, List<int> encryptedMap) async {
     if (vault.encryptionKey == null) return null;
-    debugPrint(encryptedMap.toString());
     Map<String, dynamic> decryptedMap = jsonDecode(utf8.decode(
         await cipher.decrypt(
             SecretBox(encryptedMap,

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:life_chest/vault.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+/// The page to create and parameter a new chest
 class CreateNewChestPage extends StatefulWidget {
   const CreateNewChestPage({super.key});
 
@@ -13,6 +14,7 @@ class CreateNewChestPage extends StatefulWidget {
   State<StatefulWidget> createState() => CreateNewChestPageState();
 }
 
+/// The [CreateNewChestPage]'s state
 class CreateNewChestPageState extends State<CreateNewChestPage> {
   VaultPolicy policy = VaultPolicy();
   FocusNode nameNode = FocusNode();

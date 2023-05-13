@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:life_chest/vault.dart';
 import 'package:life_chest/file_explorer/file_placeholder.dart';
 
+/// Represents a [FileThumbnail] data-wise
 class FileThumbnail extends StatelessWidget {
   final String name;
   final String localPath;

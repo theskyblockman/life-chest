@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:life_chest/main.dart';
 import 'package:life_chest/new_chest.dart';
 
+/// The onboarding page, it gives the user general information about the app
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
 
@@ -10,6 +11,7 @@ class WelcomePage extends StatefulWidget {
   State<StatefulWidget> createState() => WelcomePageState();
 }
 
+/// The [WelcomePage]'s state
 class WelcomePageState extends State<WelcomePage> {
   late List<List<Widget>> welcomePages;
 
