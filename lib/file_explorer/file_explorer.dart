@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/file_explorer/file_placeholder.dart';
 import 'package:life_chest/file_explorer/file_sort_methods.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
@@ -148,7 +148,7 @@ class RenameWindowState extends State<RenameWindow> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-        title: Text(AppLocalizations.of(context)!.rename),
+        title: Text(S.of(context).rename),
         content: TextField(
             autofocus: true,
             textInputAction: TextInputAction.none,
@@ -164,12 +164,12 @@ class RenameWindowState extends State<RenameWindow> {
         actions: [
           TextButton(
               onPressed: widget.onCancelButtonPressed,
-              child: Text(AppLocalizations.of(context)!.cancel)),
+              child: Text(S.of(context).cancel)),
           TextButton(
               onPressed: hasNotChanged
                   ? null
                   : () => widget.onOkButtonPressed(renameFieldController.text),
-              child: Text(AppLocalizations.of(context)!.ok)),
+              child: Text(S.of(context).ok)),
         ]);
   }
 
@@ -203,7 +203,7 @@ class FolderCreationWindowState extends State<FolderCreationWindow> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-        title: Text(AppLocalizations.of(context)!.createANewFolder),
+        title: Text(S.of(context).createANewFolder),
         content: TextField(
           autofocus: true,
           textInputAction: TextInputAction.none,
@@ -213,11 +213,11 @@ class FolderCreationWindowState extends State<FolderCreationWindow> {
         actions: [
           TextButton(
               onPressed: widget.onCancelButtonPressed,
-              child: Text(AppLocalizations.of(context)!.cancel)),
+              child: Text(S.of(context).cancel)),
           TextButton(
               onPressed: () =>
                   widget.onCreateButtonPressed(folderNameFieldController.text),
-              child: Text(AppLocalizations.of(context)!.ok)),
+              child: Text(S.of(context).ok)),
         ]);
   }
 
@@ -312,7 +312,7 @@ class FileExplorerState extends State<FileExplorer> {
                           },
                           child: const Text('Print map')),
                     PopupMenuItem(
-                        child: Text(AppLocalizations.of(context)!.sortBy),
+                        child: Text(S.of(context).sortBy),
                         onTap: () {
                           WidgetsBinding.instance
                               .addPostFrameCallback((timeStamp) {
@@ -368,14 +368,14 @@ class FileExplorerState extends State<FileExplorer> {
                                     onCancelButtonPressed: () {
                                       Navigator.of(context).pop(false);
                                     },
-                                    initialName: AppLocalizations.of(context)!
+                                    initialName: S.of(context)
                                         .newFolder);
                               },
                             );
                           });
                         },
                         child: Text(
-                            AppLocalizations.of(context)!.createANewFolder)),
+                            S.of(context).createANewFolder)),
                     PopupMenuItem(
                         onTap: () {
                           setState(() {
@@ -401,7 +401,7 @@ class FileExplorerState extends State<FileExplorer> {
                             amountOfFilesSelected = thumbnails.length;
                           });
                         },
-                        child: Text(AppLocalizations.of(context)!.selectAll)),
+                        child: Text(S.of(context).selectAll)),
                     if (isSelectionMode) ...[
                       PopupMenuItem(
                           onTap: () async {
@@ -422,7 +422,7 @@ class FileExplorerState extends State<FileExplorer> {
                               thumbnailCollector = reloadThumbnails();
                             });
                           },
-                          child: Text(AppLocalizations.of(context)!.delete)),
+                          child: Text(S.of(context).delete)),
                       if (amountOfFilesSelected == 1)
                         PopupMenuItem(
                             onTap: () {
@@ -457,7 +457,7 @@ class FileExplorerState extends State<FileExplorer> {
                                 );
                               });
                             },
-                            child: Text(AppLocalizations.of(context)!.rename))
+                            child: Text(S.of(context).rename))
                     ]
                   ];
                 },
@@ -509,7 +509,7 @@ class FileExplorerState extends State<FileExplorer> {
                     ? const Icon(Icons.close)
                     : const Icon(Icons.arrow_back)),
             title: Text(isSelectionMode
-                ? AppLocalizations.of(context)!.selected(amountOfFilesSelected)
+                ? S.of(context).selected(amountOfFilesSelected)
                 : (currentLocalPath.isNotEmpty ? basenameWithoutExtension(currentLocalPath) : widget.vault.name)),
             bottom: loaderTarget == null || loaderCurrentLoad == null
                 ? null
@@ -551,7 +551,7 @@ class FileExplorerState extends State<FileExplorer> {
                         Opacity(
                             opacity: 0.45,
                             child: Text(
-                              AppLocalizations.of(context)!.noFilesCreatedYet,
+                              S.of(context).noFilesCreatedYet,
                               textScaleFactor: 2.5,
                               textAlign: TextAlign.center,
                             )),
@@ -559,7 +559,7 @@ class FileExplorerState extends State<FileExplorer> {
                             onPressed: () async {
                               saveFiles(context);
                             },
-                            child: Text(AppLocalizations.of(context)!.addFiles))
+                            child: Text(S.of(context).addFiles))
                       ],
                     ));
             } else {
@@ -571,7 +571,7 @@ class FileExplorerState extends State<FileExplorer> {
                         children: [
                           const CircularProgressIndicator(),
                           Text(
-                            AppLocalizations.of(context)!.loadingElements,
+                            S.of(context).loadingElements,
                             textScaleFactor: 2.5,
                             textAlign: TextAlign.center,
                           )
@@ -592,7 +592,7 @@ class FileExplorerState extends State<FileExplorer> {
       isPauseAllowed = false;
       shouldNotificationBeSent = false;
       List<File>? selectedFiles = await SingleThreadedRecovery.pickFilesToSave(
-          dialogTitle: AppLocalizations.of(context)!.pickFilesDialogTitle);
+          dialogTitle: S.of(context).pickFilesDialogTitle);
       isPauseAllowed = widget.vault.securityLevel >= 2;
       shouldNotificationBeSent = widget.vault.securityLevel == 1;
 
@@ -641,7 +641,7 @@ class FileExplorerState extends State<FileExplorer> {
       isPauseAllowed = false;
       shouldNotificationBeSent = false;
       Directory? pickedFolder = (await SingleThreadedRecovery.pickFolderToSave(
-          dialogTitle: AppLocalizations.of(context)!.pickFolderDialogTitle));
+          dialogTitle: S.of(context).pickFolderDialogTitle));
       if (pickedFolder == null) {
         return;
       }

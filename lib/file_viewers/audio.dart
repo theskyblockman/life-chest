@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
 import 'package:path/path.dart' as p;
@@ -246,7 +246,7 @@ class AudioListener extends FileViewer {
 
   @override
   String loadingMessage(BuildContext context) =>
-      AppLocalizations.of(context)!.loadingAudioTrack;
+      S.of(context).loadingAudioTrack;
 
   /// A stream reporting the combined state of the current media item and its
   /// current position.

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/main.dart';
 import 'package:life_chest/new_chest.dart';
 
@@ -20,7 +20,7 @@ class WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations currentLocal = AppLocalizations.of(context)!;
+    S currentLocal = S.of(context);
 
     welcomePages = [
       [

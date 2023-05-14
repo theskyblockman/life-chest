@@ -220,10 +220,10 @@ class S {
     );
   }
 
-  /// `Enter airplane mode when the vault opens`
+  /// `Enter airplane mode when the chest opens`
   String get shouldEnterAirplaneMode {
     return Intl.message(
-      'Enter airplane mode when the vault opens',
+      'Enter airplane mode when the chest opens',
       name: 'shouldEnterAirplaneMode',
       desc: '',
       args: [],
@@ -330,10 +330,10 @@ class S {
     );
   }
 
-  /// `Please enter the password of this vault`
+  /// `Please enter the password of this chest`
   String get enterTheChestPassword {
     return Intl.message(
-      'Please enter the password of this vault',
+      'Please enter the password of this chest',
       name: 'enterTheChestPassword',
       desc: '',
       args: [],
@@ -610,6 +610,96 @@ class S {
     return Intl.message(
       'Alphabetical order',
       name: 'nameSortName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password`
+  String get password {
+    return Intl.message(
+      'Password',
+      name: 'password',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `PIN code`
+  String get pinCode {
+    return Intl.message(
+      'PIN code',
+      name: 'pinCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pattern (WIP)`
+  String get scheme {
+    return Intl.message(
+      'Pattern (WIP)',
+      name: 'scheme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chest PIN code`
+  String get chestPinCode {
+    return Intl.message(
+      'Chest PIN code',
+      name: 'chestPinCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter the unlocking pattern of this chest`
+  String get enterTheChestScheme {
+    return Intl.message(
+      'Please enter the unlocking pattern of this chest',
+      name: 'enterTheChestScheme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter the pin code of this chest`
+  String get enterThePinCode {
+    return Intl.message(
+      'Please enter the pin code of this chest',
+      name: 'enterThePinCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wrong PIN code`
+  String get wrongPinCode {
+    return Intl.message(
+      'Wrong PIN code',
+      name: 'wrongPinCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The chest PIN code shouldn't be empty`
+  String get errorChestPinCodeShouldNotBeEmpty {
+    return Intl.message(
+      'The chest PIN code shouldn\'t be empty',
+      name: 'errorChestPinCodeShouldNotBeEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The chest PIN code should be at least 4 digits long`
+  String get errorChestPinCodeMoreCharacters {
+    return Intl.message(
+      'The chest PIN code should be at least 4 digits long',
+      name: 'errorChestPinCodeMoreCharacters',
       desc: '',
       args: [],
     );

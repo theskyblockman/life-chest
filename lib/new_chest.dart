@@ -1,10 +1,11 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:life_chest/unlock_mechanism/password_unlock_mechanism.dart';
+import 'package:life_chest/unlock_mechanism/unlock_mechanism.dart';
 import 'package:life_chest/vault.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:life_chest/generated/l10n.dart';
 
 /// The page to create and parameter a new chest
 class CreateNewChestPage extends StatefulWidget {
@@ -16,17 +17,18 @@ class CreateNewChestPage extends StatefulWidget {
 
 /// The [CreateNewChestPage]'s state
 class CreateNewChestPageState extends State<CreateNewChestPage> {
-  VaultPolicy policy = VaultPolicy();
+  VaultPolicy policy = VaultPolicy(vaultUnlockAdditionalData: {});
   FocusNode nameNode = FocusNode();
-  FocusNode passwordNode = FocusNode();
   GlobalKey<FormState> formState = GlobalKey();
   TextEditingController timeoutController = TextEditingController();
+  UnlockMechanism? currentMechanism;
 
   @override
   Widget build(BuildContext context) {
+    currentMechanism ??= PasswordUnlockMechanism(onKeyRetrieved: (retrievedKey) => null);
     return Scaffold(
       appBar:
-          AppBar(title: Text(AppLocalizations.of(context)!.createANewChest)),
+          AppBar(title: Text(S.of(context).createANewChest)),
       body: SingleChildScrollView(
           child: Form(
         key: formState,
@@ -39,13 +41,13 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
               onChanged: (value) {
                 policy.vaultName = value;
               },
-              onEditingComplete: () => passwordNode.requestFocus(),
+              onEditingComplete: () => currentMechanism?.creationFocus(),
               decoration: InputDecoration(
                   border: const OutlineInputBorder(),
-                  labelText: AppLocalizations.of(context)!.chestName),
+                  labelText: S.of(context).chestName),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return AppLocalizations.of(context)!
+                  return S.of(context)
                       .errorChestNameShouldNotBeEmpty;
                 }
 
@@ -55,44 +57,29 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
             focusNode: nameNode,
             leading: const Icon(Icons.perm_identity),
           ),
+          const Divider(),
           ListTile(
-            title: TextFormField(
-              maxLines: 1,
-              onChanged: (value) {
-                policy.vaultPassword = value;
-              },
-              decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: AppLocalizations.of(context)!.chestPassword),
-              obscureText: true,
-              focusNode: passwordNode,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return AppLocalizations.of(context)!
-                      .errorChestPasswordShouldNotBeEmpty;
-                }
-                if (value.length < 8 && !kDebugMode) {
-                  return AppLocalizations.of(context)!
-                      .errorChestPasswordMoreCharacters;
-                }
-                if (!value.contains(RegExp(r'[A-Z]')) && !kDebugMode) {
-                  return AppLocalizations.of(context)!
-                      .errorChestPasswordMoreUppercaseLetter;
-                }
-                if (!value.contains(RegExp(r'[a-z]')) && !kDebugMode) {
-                  return AppLocalizations.of(context)!
-                      .errorChestPasswordMoreLowercaseLetter;
-                }
-                if (!value.contains(RegExp(r'\d')) && !kDebugMode) {
-                  return AppLocalizations.of(context)!
-                      .errorChestPasswordMoreDigits;
-                }
+            title: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Wrap(spacing: 5.0, clipBehavior: Clip.none, children: [
+                ...List.generate(UnlockMechanism.unlockMechanisms.length, (index) {
+                  dynamic mechanismBuilder = List.from(UnlockMechanism.unlockMechanisms.keys)[index]!;
+                  UnlockMechanism mechanism = mechanismBuilder((retrievedKey) => null);
+                  if(mechanism.runtimeType == currentMechanism?.runtimeType) {
+                    mechanism = currentMechanism!;
+                  }
 
-                return null;
-              },
+                  return ChoiceChip(label: Text(mechanism.getName(context)), selected: mechanism == currentMechanism, onSelected: (value) {
+                    setState(() {
+                      currentMechanism = mechanism;
+                      policy.unlockType = UnlockMechanism.unlockMechanisms[mechanismBuilder]!;
+                    });
+                  },);
+                })
+              ]),
             ),
-            leading: const Icon(Icons.lock_outline),
           ),
+          currentMechanism != null ? currentMechanism!.keyCreationBuild(context, policy) : Container(),
           const Divider(),
           ListTile(
             trailing: Switch(
@@ -100,24 +87,24 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                       policy.shouldDisconnectWhenVaultOpened = value;
                     }),
                 value: policy.shouldDisconnectWhenVaultOpened),
-            title: Text(AppLocalizations.of(context)!.shouldEnterAirplaneMode),
+            title: Text(S.of(context).shouldEnterAirplaneMode),
           ),
           const Divider(),
           ListTile(
               title: Text(
-                  AppLocalizations.of(context)!.whatShouldBeDoneAfterUnfocus)),
+                  S.of(context).whatShouldBeDoneAfterUnfocus)),
           ListTile(
             title: SegmentedButton<int>(
                 segments: [
                   ButtonSegment(
                       value: 0,
-                      label: Text(AppLocalizations.of(context)!.doNothing)),
+                      label: Text(S.of(context).doNothing)),
                   ButtonSegment(
                       value: 1,
-                      label: Text(AppLocalizations.of(context)!.notify)),
+                      label: Text(S.of(context).notify)),
                   ButtonSegment(
                       value: 2,
-                      label: Text(AppLocalizations.of(context)!.closeChest)),
+                      label: Text(S.of(context).closeChest)),
                 ],
                 selected: {
                   policy.securityLevel
@@ -135,6 +122,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           if (formState.currentState!.validate()) {
+            policy.key = currentMechanism!.createKey(context, policy).$1;
             Vault createdVault =
                 await VaultsManager.createVaultFromPolicy(policy);
             VaultsManager.storedVaults.add(createdVault);
@@ -142,7 +130,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
             if (context.mounted) Navigator.pop(context);
           }
         },
-        label: Text(AppLocalizations.of(context)!.createTheNewChest),
+        label: Text(S.of(context).createTheNewChest),
         icon: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -152,7 +140,6 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
   @override
   void dispose() {
     nameNode.dispose();
-    passwordNode.dispose();
     super.dispose();
   }
 }

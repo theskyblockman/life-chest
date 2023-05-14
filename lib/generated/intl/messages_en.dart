@@ -33,6 +33,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "chestName": MessageLookupByLibrary.simpleMessage("Chest name"),
         "chestPassword": MessageLookupByLibrary.simpleMessage("Chest password"),
+        "chestPinCode": MessageLookupByLibrary.simpleMessage("Chest PIN code"),
         "closeChest": MessageLookupByLibrary.simpleMessage("Close the chest"),
         "closeChestNotificationContent": MessageLookupByLibrary.simpleMessage(
             "Click on the button down there to close it"),
@@ -49,7 +50,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Delete all the chests"),
         "doNothing": MessageLookupByLibrary.simpleMessage("Do nothing"),
         "enterTheChestPassword": MessageLookupByLibrary.simpleMessage(
-            "Please enter the password of this vault"),
+            "Please enter the password of this chest"),
+        "enterTheChestScheme": MessageLookupByLibrary.simpleMessage(
+            "Please enter the unlocking pattern of this chest"),
+        "enterThePinCode": MessageLookupByLibrary.simpleMessage(
+            "Please enter the pin code of this chest"),
         "errorChestNameShouldNotBeEmpty": MessageLookupByLibrary.simpleMessage(
             "The chest name must not be empty"),
         "errorChestPasswordMoreCharacters":
@@ -66,6 +71,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "errorChestPasswordShouldNotBeEmpty":
             MessageLookupByLibrary.simpleMessage(
                 "The password must not be empty"),
+        "errorChestPinCodeMoreCharacters": MessageLookupByLibrary.simpleMessage(
+            "The chest PIN code should be at least 4 digits long"),
+        "errorChestPinCodeShouldNotBeEmpty":
+            MessageLookupByLibrary.simpleMessage(
+                "The chest PIN code shouldn\'t be empty"),
         "errorDurationMustBeFormatted": MessageLookupByLibrary.simpleMessage(
             "The duration must be in the HH:MM format"),
         "errorDurationMustNotBeEmpty": MessageLookupByLibrary.simpleMessage(
@@ -89,15 +99,18 @@ class MessageLookup extends MessageLookupByLibrary {
         "numberSortName":
             MessageLookupByLibrary.simpleMessage("First detected number"),
         "ok": MessageLookupByLibrary.simpleMessage("OK"),
+        "password": MessageLookupByLibrary.simpleMessage("Password"),
         "pickFilesDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Pick the files you want to add"),
         "pickFolderDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Pick the folder you want to add"),
+        "pinCode": MessageLookupByLibrary.simpleMessage("PIN code"),
         "rename": MessageLookupByLibrary.simpleMessage("Rename"),
+        "scheme": MessageLookupByLibrary.simpleMessage("Pattern (WIP)"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
         "selected": m0,
         "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
-            "Enter airplane mode when the vault opens"),
+            "Enter airplane mode when the chest opens"),
         "sortBy": MessageLookupByLibrary.simpleMessage("Sort by..."),
         "validate": MessageLookupByLibrary.simpleMessage("Validate"),
         "welcomeNext": MessageLookupByLibrary.simpleMessage("Next"),
@@ -117,6 +130,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "whatShouldBeDoneAfterUnfocus": MessageLookupByLibrary.simpleMessage(
             "What should we do when the application is paused"),
         "wrongPassword": MessageLookupByLibrary.simpleMessage("Wrong password"),
+        "wrongPinCode": MessageLookupByLibrary.simpleMessage("Wrong PIN code"),
         "yes": MessageLookupByLibrary.simpleMessage("Yes")
       };
 }

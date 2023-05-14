@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
@@ -42,7 +42,7 @@ class ImageViewer extends FileViewer {
 
   @override
   String loadingMessage(BuildContext context) =>
-      AppLocalizations.of(context)!.loadingImage;
+      S.of(context).loadingImage;
 
   @override
   Future<void> onFocus() async {}

@@ -2,18 +2,21 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:life_chest/color_schemes.g.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_viewers/audio.dart';
 import 'package:life_chest/new_chest.dart';
 import 'package:life_chest/onboarding.dart';
+import 'package:life_chest/unlock_mechanism/unlock_tester.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
+import 'package:life_chest/generated/l10n.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,10 +63,14 @@ class LifeChestApp extends StatelessWidget {
     return MaterialApp(
       title: 'Life Chest',
       localizationsDelegates: const [
-        ...AppLocalizations.localizationsDelegates,
-        SfGlobalLocalizations.delegate
+        S.delegate,
+        SfGlobalLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        DefaultCupertinoLocalizations.delegate
       ],
-      supportedLocales: AppLocalizations.supportedLocales,
+      supportedLocales: S.delegate.supportedLocales,
       theme: lightTheme,
       darkTheme: darkTheme,
       home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
@@ -85,9 +92,6 @@ class ChestMainPage extends StatefulWidget {
 class ChestMainPageState extends State<ChestMainPage> {
   GlobalKey<AnimatedListState> animatedListState = GlobalKey();
   int currentlySelectedChestID = -1;
-  TextEditingController passwordField = TextEditingController();
-  FocusNode passwordFieldFocusNode = FocusNode();
-  bool failedPasswordForVault = false;
 
   @override
   Widget build(BuildContext context) {
@@ -111,11 +115,11 @@ class ChestMainPageState extends State<ChestMainPage> {
                             applicationIcon:
                                 Image.asset('logo.png', height: 64, width: 64),
                             applicationLegalese:
-                                AppLocalizations.of(context)!.appLegalese,
+                                S.of(context).appLegalese,
                           );
                         });
                       },
-                      child: Text(AppLocalizations.of(context)!.about),
+                      child: Text(S.of(context).about),
                     ),
                     if (VaultsManager.storedVaults.isNotEmpty)
                       PopupMenuItem(
@@ -126,20 +130,20 @@ class ChestMainPageState extends State<ChestMainPage> {
                                   context: context,
                                   builder: (context) => AlertDialog(
                                           title: Text(
-                                              AppLocalizations.of(context)!
+                                              S.of(context)
                                                   .areYouSure),
                                           actions: [
                                             TextButton(
                                                 onPressed: () => Navigator.pop(
                                                     context, false),
-                                                child: Text(AppLocalizations.of(
-                                                        context)!
+                                                child: Text(S.of(
+                                                        context)
                                                     .no)),
                                             TextButton(
                                                 onPressed: () => Navigator.pop(
                                                     context, true),
-                                                child: Text(AppLocalizations.of(
-                                                        context)!
+                                                child: Text(S.of(
+                                                        context)
                                                     .yes))
                                           ])).then((value) {
                                 if (value == true) {
@@ -155,11 +159,11 @@ class ChestMainPageState extends State<ChestMainPage> {
                             });
                           },
                           child: Text(
-                              AppLocalizations.of(context)!.deleteAllChests)),
+                              S.of(context).deleteAllChests)),
                     if (kDebugMode)
                       PopupMenuItem(
                         child: const Text('Debug button'),
-                        onTap: () async {},
+                        onTap: () { },
                       )
                   ];
                 })
@@ -183,7 +187,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                       children: [
                         const Icon(Icons.lock_outline, size: 128),
                         Text(
-                          AppLocalizations.of(context)!.noChestsCreatedYet,
+                          S.of(context).noChestsCreatedYet,
                           textScaleFactor: 2.5,
                           textAlign: TextAlign.center,
                         )
@@ -212,7 +216,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                                       });
                                     },
                                     child: Text(
-                                        AppLocalizations.of(context)!.delete),
+                                        S.of(context).delete),
                                   ),
                                   PopupMenuItem(
                                     onTap: () {
@@ -238,99 +242,45 @@ class ChestMainPageState extends State<ChestMainPage> {
                                                 initialName: chest.name);
                                           },
                                         ).then((value) {
+                                          // NOTE: Do not edit this, as the value can be null it is easier to try to put value as true as to verify that it isn't null and to then verify it's bool value
                                           if (value == true) {
-                                            // NOTE: Do not edit this, as the value can be null it is easier to try to put value as true as to verify that it isn't null and to then verify it's bool value
                                             setState(() {});
                                           }
                                         });
                                       });
                                     },
                                     child: Text(
-                                        AppLocalizations.of(context)!.rename),
+                                        S.of(context).rename),
                                   )
                                 ];
                               }),
                           onTap: () {
-                            showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      passwordField = TextEditingController();
-                                      return StatefulBuilder(
-                                        builder: (context, setState) {
-                                          return AlertDialog(
-                                              title: Text(
-                                                  AppLocalizations.of(context)!
-                                                      .enterTheChestPassword),
-                                              content: TextField(
-                                                  autofocus: true,
-                                                  controller: passwordField,
-                                                  focusNode:
-                                                      passwordFieldFocusNode,
-                                                  obscureText: true,
-                                                  decoration: InputDecoration(
-                                                      border:
-                                                          const OutlineInputBorder(),
-                                                      errorText:
-                                                          failedPasswordForVault
-                                                              ? AppLocalizations
-                                                                      .of(context)!
-                                                                  .wrongPassword
-                                                              : null)),
-                                              actions: [
-                                                TextButton(
-                                                    onPressed: () async {
-                                                      chest.encryptionKey =
-                                                          SecretKey(
-                                                              passwordToCryptKey(
-                                                                  passwordField
-                                                                      .text));
-                                                      chest.locked =
-                                                          !(await VaultsManager
-                                                              .testVaultKey(
-                                                                  chest));
-                                                      if (!kDebugMode) {
-                                                        passwordField.text = '';
-                                                      }
-                                                      if (!chest.locked) {
-                                                        if (context.mounted) {
-                                                          passwordFieldFocusNode
-                                                              .unfocus();
-                                                          Navigator.pushReplacement(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                  builder: (context) =>
-                                                                      FileExplorer(
-                                                                          chest))).then(
-                                                              (_) {
-                                                            if (context
-                                                                .mounted) {
-                                                              setState(
-                                                                  () => {});
-                                                            }
-                                                          });
-                                                        }
-                                                      } else {
-                                                        if (context.mounted) {
-                                                          setState(() {
-                                                            failedPasswordForVault =
-                                                                true;
-                                                          });
-                                                        }
-                                                      }
-                                                    },
-                                                    child: Text(
-                                                        AppLocalizations.of(
-                                                                context)!
-                                                            .validate))
-                                              ]);
-                                        },
-                                      );
-                                    })
-                                .then(
-                                    (value) => failedPasswordForVault = false);
+                            UnlockTester tester = UnlockTester(chest, onKeyIssued: (issuedKey) => onKeyIssued(chest, issuedKey));
+                            if(tester.shouldUseChooser(context)) {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => UnlockChooser(onKeyIssued: (issuedKey) => onKeyIssued(chest, issuedKey))));
+                            }
                           }));
                 },
                 itemCount: VaultsManager.storedVaults.length));
+  }
+
+  void onKeyIssued(Vault chest, SecretKey issuedKey) async {
+    chest.encryptionKey = issuedKey;
+    chest.locked = !(await VaultsManager.testVaultKey(chest));
+    if (!chest.locked) {
+      if (context.mounted) {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    FileExplorer(chest))).then((_) {
+          if (context.mounted) {
+            setState(() => {});
+          }
+        }
+        );
+      }
+    }
   }
 
   /// Setups the notifications the user can receive if they want to
@@ -349,11 +299,11 @@ class ChestMainPageState extends State<ChestMainPage> {
           const MethodChannel('theskyblockman.fr/channel')
               .invokeMethod('sendVaultNotification', {
             'notification_title':
-                AppLocalizations.of(context)!.closeChestNotificationTitle,
+                S.of(context).closeChestNotificationTitle,
             'notification_content':
-                AppLocalizations.of(context)!.closeChestNotificationContent,
+                S.of(context).closeChestNotificationContent,
             'notification_close_button_content':
-                AppLocalizations.of(context)!.closeChest
+                S.of(context).closeChest
           });
           return true;
         }

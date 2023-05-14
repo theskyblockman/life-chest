@@ -1,4 +1,5 @@
 {
+  "@@locale": "en",
   "welcomePage1Title": "Hello there!",
   "welcomePage1Content": "Welcome to your life chest ! Here you will be able to create chests to store your data privately without compromising over usability.",
   "welcomePage2Title": "Here, our main priority is your security",
@@ -16,7 +17,7 @@
   "errorChestPasswordMoreUppercaseLetter": "The password must contain at least one uppercase character",
   "errorChestPasswordMoreLowercaseLetter": "The password must contain at least one lowercase character",
   "errorChestPasswordMoreDigits": "The password must contain at least one digit",
-  "shouldEnterAirplaneMode": "Enter airplane mode when the vault opens",
+  "shouldEnterAirplaneMode": "Enter airplane mode when the chest opens",
   "whatShouldBeDoneAfterUnfocus": "What should we do when the application is paused",
   "doNothing": "Do nothing",
   "notify": "Notify you",
@@ -27,7 +28,7 @@
   "appLegalese": "The application \"Life Chest\" has been made by Theskyblockman with a ❤️ and a \uD83D\uDDA5️ under the MIT License, ©️ 2023 Haroun El Omri",
   "noChestsCreatedYet": "No chests created yet",
   "noFilesCreatedYet": "No files added yet",
-  "enterTheChestPassword": "Please enter the password of this vault",
+  "enterTheChestPassword": "Please enter the password of this chest",
   "validate": "Validate",
   "delete": "Delete",
   "deleteAllChests": "Delete all the chests",
@@ -62,5 +63,14 @@
   "newFolder": "New folder",
   "sortBy": "Sort by...",
   "numberSortName": "First detected number",
-  "nameSortName": "Alphabetical order"
+  "nameSortName": "Alphabetical order",
+  "password": "Password",
+  "pinCode": "PIN code",
+  "scheme": "Pattern (WIP)",
+  "chestPinCode": "Chest PIN code",
+  "enterTheChestScheme": "Please enter the unlocking pattern of this chest",
+  "enterThePinCode": "Please enter the pin code of this chest",
+  "wrongPinCode": "Wrong PIN code",
+  "errorChestPinCodeShouldNotBeEmpty": "The chest PIN code shouldn't be empty",
+  "errorChestPinCodeMoreCharacters": "The chest PIN code should be at least 4 digits long"
 }

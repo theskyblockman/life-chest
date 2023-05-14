@@ -35,6 +35,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "chestName": MessageLookupByLibrary.simpleMessage("Nom du coffre"),
         "chestPassword":
             MessageLookupByLibrary.simpleMessage("Mot de passe du coffre"),
+        "chestPinCode":
+            MessageLookupByLibrary.simpleMessage("Code PIN du coffre"),
         "closeChest": MessageLookupByLibrary.simpleMessage("Fermer le coffre"),
         "closeChestNotificationContent": MessageLookupByLibrary.simpleMessage(
             "Appuiez sur le bouton ci-dessous pour le fermer"),
@@ -52,6 +54,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "doNothing": MessageLookupByLibrary.simpleMessage("Ne rien faire"),
         "enterTheChestPassword": MessageLookupByLibrary.simpleMessage(
             "Veuillez entrer le mot de passe de ce coffre"),
+        "enterTheChestScheme": MessageLookupByLibrary.simpleMessage(
+            "Veuiller rentrer le modèle du coffre"),
+        "enterThePinCode": MessageLookupByLibrary.simpleMessage(
+            "Veuillez rentrer le code PIN du coffre"),
         "errorChestNameShouldNotBeEmpty": MessageLookupByLibrary.simpleMessage(
             "Le nom du coffre ne dois pas être vide"),
         "errorChestPasswordMoreCharacters":
@@ -92,11 +98,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "numberSortName":
             MessageLookupByLibrary.simpleMessage("Premier nombre détecté"),
         "ok": MessageLookupByLibrary.simpleMessage("OK"),
+        "password": MessageLookupByLibrary.simpleMessage("Mot de passe"),
         "pickFilesDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Choisissez les fichiers que vous voulez ajouter"),
         "pickFolderDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Choisissez le dossier que vous voulez ajouter"),
+        "pinCode": MessageLookupByLibrary.simpleMessage("Code PIN"),
         "rename": MessageLookupByLibrary.simpleMessage("Renommer"),
+        "scheme": MessageLookupByLibrary.simpleMessage("Modèle (WIP)"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
         "selected": m0,
         "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
@@ -120,6 +129,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Que devons-nous faire si l\'application est mise en pause"),
         "wrongPassword":
             MessageLookupByLibrary.simpleMessage("Mauvais mot de passe"),
+        "wrongPinCode":
+            MessageLookupByLibrary.simpleMessage("Code PIN incorrect"),
         "yes": MessageLookupByLibrary.simpleMessage("Oui")
       };
 }

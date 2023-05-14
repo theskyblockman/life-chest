@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:life_chest/generated/l10n.dart';
 
 /// The file sorter class with some util methods
 class FileSortMethod {
   static final FileSortMethod name = FileSortMethod((context) {
-    return AppLocalizations.of(context)!.nameSortName;
+    return S.of(context).nameSortName;
   }, (a, b) {
     return a.compareTo(b);
   }, 'by_name');
@@ -28,7 +28,7 @@ class FileSortMethod {
   }
 
   static final FileSortMethod number = FileSortMethod((context) {
-    return AppLocalizations.of(context)!.numberSortName;
+    return S.of(context).numberSortName;
   }, (a, b) {
     return (_getFirstInteger(a) ?? -1).compareTo(_getFirstInteger(b) ?? -1);
   }, 'by_number');
