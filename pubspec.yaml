@@ -24,7 +24,7 @@ dependencies:
   encrypt: ^5.0.1
   crypto: ^3.0.2
   audio_service: ^0.18.9
-  just_audio: ^0.9.32
+  just_audio: ^0.9.33
   mime: ^1.0.4
   chewie: ^1.4.0
   test: ^1.24.1
