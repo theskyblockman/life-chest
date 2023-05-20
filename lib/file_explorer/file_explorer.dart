@@ -524,7 +524,7 @@ class FileExplorerState extends State<FileExplorer> {
           onLongPress: () {
             saveFolder(context);
           },
-          child: FloatingActionButton.large(
+          child: FloatingActionButton(
               onPressed: () {
                 saveFiles(context);
               },

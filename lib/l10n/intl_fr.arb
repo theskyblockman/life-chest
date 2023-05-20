@@ -14,9 +14,11 @@
   "chestPassword": "Mot de passe du coffre",
   "errorChestPasswordShouldNotBeEmpty": "Le mot de passe ne doit pas être vide",
   "errorChestPasswordMoreCharacters": "Le mot de passe doit contenir au moins 8 caractères",
+  "errorChestPinCodeMoreCharacters": "Le code PIN dois contenir au moins 4 charactères",
   "errorChestPasswordMoreUppercaseLetter": "Le mot de passe doit contenir au moins une lettre majuscule",
   "errorChestPasswordMoreLowercaseLetter": "Le mot de passe doit contenir au moins une lettre minuscule",
   "errorChestPasswordMoreDigits": "Le mot de passe doit contenir au moins un chiffre",
+  "errorChestSchemeShouldNotBeEmpty": "Le schéma ne dois pas être vide",
   "shouldEnterAirplaneMode": "Activer le mode avion lorsque le coffre s'ouvre",
   "whatShouldBeDoneAfterUnfocus": "Que devons-nous faire si l'application est mise en pause",
   "doNothing": "Ne rien faire",
@@ -58,9 +60,14 @@
   "nameSortName": "Ordre alphabétique",
   "password": "Mot de passe",
   "pinCode": "Code PIN",
-  "scheme": "Modèle (WIP)",
+  "scheme": "Modèle",
   "chestPinCode": "Code PIN du coffre",
   "enterTheChestScheme": "Veuiller rentrer le modèle du coffre",
   "enterThePinCode": "Veuillez rentrer le code PIN du coffre",
-  "wrongPinCode": "Code PIN incorrect"
+  "wrongPinCode": "Code PIN incorrect",
+  "unlockChest": "Veuillez déverrouiller le coffre",
+  "pleaseUseBiometrics": "Veuillez utiliser votre empreinte digitale pour débloquer le coffre",
+  "defineScheme": "Définir le schéma",
+  "errorChestPinCodeShouldNotBeEmpty": "Le code PIN ne dois pas être vide",
+  "biometrics": "Empreinte digitale"
 }

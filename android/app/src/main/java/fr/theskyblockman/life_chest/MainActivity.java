@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.ryanheise.audioservice.AudioServiceActivity;
+import com.ryanheise.audioservice.AudioServiceFragmentActivity;
 
 import java.util.Map;
 import java.util.Objects;
@@ -20,7 +20,7 @@ import java.util.Objects;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
 
-public class MainActivity extends AudioServiceActivity {
+public class MainActivity extends AudioServiceFragmentActivity {
     private MethodChannel channel;
     public static FlutterEngine engine;
 

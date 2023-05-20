@@ -220,6 +220,16 @@ class S {
     );
   }
 
+  /// `The scheme must not be empty`
+  String get errorChestSchemeShouldNotBeEmpty {
+    return Intl.message(
+      'The scheme must not be empty',
+      name: 'errorChestSchemeShouldNotBeEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Enter airplane mode when the chest opens`
   String get shouldEnterAirplaneMode {
     return Intl.message(
@@ -460,7 +470,7 @@ class S {
     );
   }
 
-  /// `{count} {count, plural, =1{selected} other{selected}}`
+  /// `{count} selected`
   String selected(num count) {
     final NumberFormat countNumberFormat = NumberFormat.compact(
       locale: Intl.getCurrentLocale(),
@@ -468,7 +478,7 @@ class S {
     final String countString = countNumberFormat.format(count);
 
     return Intl.message(
-      '$countString ${Intl.plural(count, one: 'selected', other: 'selected')}',
+      '$countString selected',
       name: 'selected',
       desc: '',
       args: [countString],
@@ -635,10 +645,10 @@ class S {
     );
   }
 
-  /// `Pattern (WIP)`
+  /// `Pattern`
   String get scheme {
     return Intl.message(
-      'Pattern (WIP)',
+      'Pattern',
       name: 'scheme',
       desc: '',
       args: [],
@@ -700,6 +710,46 @@ class S {
     return Intl.message(
       'The chest PIN code should be at least 4 digits long',
       name: 'errorChestPinCodeMoreCharacters',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unlock the chest`
+  String get unlockChest {
+    return Intl.message(
+      'Unlock the chest',
+      name: 'unlockChest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please use your biometrics to unlock the chest`
+  String get pleaseUseBiometrics {
+    return Intl.message(
+      'Please use your biometrics to unlock the chest',
+      name: 'pleaseUseBiometrics',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Define the scheme`
+  String get defineScheme {
+    return Intl.message(
+      'Define the scheme',
+      name: 'defineScheme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Biometrics`
+  String get biometrics {
+    return Intl.message(
+      'Biometrics',
+      name: 'biometrics',
       desc: '',
       args: [],
     );

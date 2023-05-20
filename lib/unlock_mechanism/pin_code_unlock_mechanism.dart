@@ -14,7 +14,7 @@ class PinUnlockMechanism extends UnlockMechanism {
   FocusNode pinNode = FocusNode();
 
   @override
-  void build(BuildContext context) {
+  void build(BuildContext context, Map<String, dynamic> additionalUnlockData) {
     showDialog(
         context: context,
         builder: (context) {
@@ -50,7 +50,7 @@ class PinUnlockMechanism extends UnlockMechanism {
                           onKeyRetrieved(SecretKey(
                               passwordToCryptKey(
                                   pinField
-                                      .text)));
+                                      .text)), true);
                         },
                         child: Text(
                             S.of(
@@ -108,14 +108,13 @@ class PinUnlockMechanism extends UnlockMechanism {
   }
 
   @override
-  (SecretKey? createdKEy, String reason) createKey(BuildContext context, VaultPolicy policy) {
+  Future<(SecretKey? createdKey, String reason, Map<String, dynamic> additionalUnlockData)> createKey(BuildContext context, VaultPolicy policy) {
     if(policy.vaultUnlockAdditionalData['pin'] != null) {
-      return (SecretKey(
+      return Future.value((SecretKey(
           passwordToCryptKey(
-              pinField
-                  .text)), 'OK');
+              policy.vaultUnlockAdditionalData['pin'])), 'OK', <String, dynamic>{}));
     }
-    return (null, S.of(context).errorChestPinCodeShouldNotBeEmpty);
+    return Future.value((null, S.of(context).errorChestPinCodeShouldNotBeEmpty, <String, dynamic>{}));
   }
 
   @override

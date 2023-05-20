@@ -17,6 +17,7 @@
   "errorChestPasswordMoreUppercaseLetter": "The password must contain at least one uppercase character",
   "errorChestPasswordMoreLowercaseLetter": "The password must contain at least one lowercase character",
   "errorChestPasswordMoreDigits": "The password must contain at least one digit",
+  "errorChestSchemeShouldNotBeEmpty": "The scheme must not be empty",
   "shouldEnterAirplaneMode": "Enter airplane mode when the chest opens",
   "whatShouldBeDoneAfterUnfocus": "What should we do when the application is paused",
   "doNothing": "Do nothing",
@@ -41,7 +42,7 @@
   "loadingAudioTrack": "Loading audio track",
   "pickFilesDialogTitle": "Pick the files you want to add",
   "pickFolderDialogTitle": "Pick the folder you want to add",
-  "selected": "{count} {count, plural, =1{selected} other{selected}}",
+  "selected": "{count} selected",
   "@selected": {
     "placeholders": {
       "count": {
@@ -66,11 +67,15 @@
   "nameSortName": "Alphabetical order",
   "password": "Password",
   "pinCode": "PIN code",
-  "scheme": "Pattern (WIP)",
+  "scheme": "Pattern",
   "chestPinCode": "Chest PIN code",
   "enterTheChestScheme": "Please enter the unlocking pattern of this chest",
   "enterThePinCode": "Please enter the pin code of this chest",
   "wrongPinCode": "Wrong PIN code",
   "errorChestPinCodeShouldNotBeEmpty": "The chest PIN code shouldn't be empty",
-  "errorChestPinCodeMoreCharacters": "The chest PIN code should be at least 4 digits long"
+  "errorChestPinCodeMoreCharacters": "The chest PIN code should be at least 4 digits long",
+  "unlockChest": "Unlock the chest",
+  "pleaseUseBiometrics": "Please use your biometrics to unlock the chest",
+  "defineScheme": "Define the scheme",
+  "biometrics": "Biometrics"
 }

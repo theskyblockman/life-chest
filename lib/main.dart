@@ -163,7 +163,11 @@ class ChestMainPageState extends State<ChestMainPage> {
                     if (kDebugMode)
                       PopupMenuItem(
                         child: const Text('Debug button'),
-                        onTap: () { },
+                        onTap: () {
+                          WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => UnlockChooser(onKeyIssued: (issuedKey, didPushed) => null)));
+                          });
+                        },
                       )
                   ];
                 })
@@ -255,30 +259,34 @@ class ChestMainPageState extends State<ChestMainPage> {
                                 ];
                               }),
                           onTap: () {
-                            UnlockTester tester = UnlockTester(chest, onKeyIssued: (issuedKey) => onKeyIssued(chest, issuedKey));
+                            UnlockTester tester = UnlockTester(chest, onKeyIssued: (issuedKey, didPushed) => onKeyIssued(chest, issuedKey, didPushed));
                             if(tester.shouldUseChooser(context)) {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => UnlockChooser(onKeyIssued: (issuedKey) => onKeyIssued(chest, issuedKey))));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => UnlockChooser(onKeyIssued: (issuedKey, didPushed) => onKeyIssued(chest, issuedKey, didPushed))));
                             }
                           }));
                 },
                 itemCount: VaultsManager.storedVaults.length));
   }
 
-  void onKeyIssued(Vault chest, SecretKey issuedKey) async {
+  void onKeyIssued(Vault chest, SecretKey issuedKey, bool didPush) async {
     chest.encryptionKey = issuedKey;
     chest.locked = !(await VaultsManager.testVaultKey(chest));
     if (!chest.locked) {
       if (context.mounted) {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    FileExplorer(chest))).then((_) {
-          if (context.mounted) {
-            setState(() => {});
-          }
+        if(didPush) {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      FileExplorer(chest)));
+        } else {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      FileExplorer(chest)));
         }
-        );
+
       }
     }
   }

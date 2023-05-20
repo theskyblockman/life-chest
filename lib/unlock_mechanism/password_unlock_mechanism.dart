@@ -13,7 +13,7 @@ class PasswordUnlockMechanism extends UnlockMechanism {
   FocusNode passwordNode = FocusNode();
 
   @override
-  void build(BuildContext context) {
+  void build(BuildContext context, Map<String, dynamic> additionalUnlockData) {
     showDialog(
         context: context,
         builder: (context) {
@@ -44,7 +44,7 @@ class PasswordUnlockMechanism extends UnlockMechanism {
                           onKeyRetrieved(SecretKey(
                               passwordToCryptKey(
                                   passwordField
-                                      .text)));
+                                      .text)), true);
                         },
                         child: Text(
                             S.of(
@@ -111,13 +111,13 @@ class PasswordUnlockMechanism extends UnlockMechanism {
   }
 
   @override
-  (SecretKey? createdKEy, String reason) createKey(BuildContext context, VaultPolicy policy) {
+  Future<(SecretKey? createdKey, String reason, Map<String, dynamic> additionalUnlockData)> createKey(BuildContext context, VaultPolicy policy) {
     if(policy.vaultUnlockAdditionalData['password'] != null) {
-      return (SecretKey(
+      return Future.value((SecretKey(
           passwordToCryptKey(
-              policy.vaultUnlockAdditionalData['password'])), 'OK');
+              policy.vaultUnlockAdditionalData['password'])), 'OK', <String, dynamic>{}));
     }
-    return (null, S.of(context).errorChestNameShouldNotBeEmpty);
+    return Future.value((null, S.of(context).errorChestNameShouldNotBeEmpty, <String, dynamic>{}));
   }
 
   @override

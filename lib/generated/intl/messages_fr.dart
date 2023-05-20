@@ -31,6 +31,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "appLegalese": MessageLookupByLibrary.simpleMessage(
             "L\'application \"Life Chest\" a été crée par Theskyblockman avec du ❤️ et un 🖥️ sous la licence MIT, ©️ 2023 Haroun El Omri"),
         "areYouSure": MessageLookupByLibrary.simpleMessage("Êtes-vous sûr?"),
+        "biometrics":
+            MessageLookupByLibrary.simpleMessage("Empreinte digitale"),
         "cancel": MessageLookupByLibrary.simpleMessage("Annuler"),
         "chestName": MessageLookupByLibrary.simpleMessage("Nom du coffre"),
         "chestPassword":
@@ -48,6 +50,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Créer un nouveau dossier"),
         "createTheNewChest":
             MessageLookupByLibrary.simpleMessage("Créer le coffre"),
+        "defineScheme":
+            MessageLookupByLibrary.simpleMessage("Définir le schéma"),
         "delete": MessageLookupByLibrary.simpleMessage("Supprimer"),
         "deleteAllChests":
             MessageLookupByLibrary.simpleMessage("Supprimer tous les coffres"),
@@ -74,6 +78,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "errorChestPasswordShouldNotBeEmpty":
             MessageLookupByLibrary.simpleMessage(
                 "Le mot de passe ne doit pas être vide"),
+        "errorChestPinCodeMoreCharacters": MessageLookupByLibrary.simpleMessage(
+            "Le code PIN dois contenir au moins 4 charactères"),
+        "errorChestPinCodeShouldNotBeEmpty":
+            MessageLookupByLibrary.simpleMessage(
+                "Le code PIN ne dois pas être vide"),
+        "errorChestSchemeShouldNotBeEmpty":
+            MessageLookupByLibrary.simpleMessage(
+                "Le schéma ne dois pas être vide"),
         "errorDurationMustBeFormatted": MessageLookupByLibrary.simpleMessage(
             "La durée doit être au format HH:MM"),
         "errorDurationMustNotBeEmpty": MessageLookupByLibrary.simpleMessage(
@@ -104,13 +116,17 @@ class MessageLookup extends MessageLookupByLibrary {
         "pickFolderDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Choisissez le dossier que vous voulez ajouter"),
         "pinCode": MessageLookupByLibrary.simpleMessage("Code PIN"),
+        "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
+            "Veuillez utiliser votre empreinte digitale pour débloquer le coffre"),
         "rename": MessageLookupByLibrary.simpleMessage("Renommer"),
-        "scheme": MessageLookupByLibrary.simpleMessage("Modèle (WIP)"),
+        "scheme": MessageLookupByLibrary.simpleMessage("Modèle"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
         "selected": m0,
         "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
             "Activer le mode avion lorsque le coffre s\'ouvre"),
         "sortBy": MessageLookupByLibrary.simpleMessage("Trier par..."),
+        "unlockChest": MessageLookupByLibrary.simpleMessage(
+            "Veuillez déverrouiller le coffre"),
         "validate": MessageLookupByLibrary.simpleMessage("Valider"),
         "welcomeNext": MessageLookupByLibrary.simpleMessage("Suivant"),
         "welcomePage1Content": MessageLookupByLibrary.simpleMessage(

@@ -20,8 +20,7 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(count) =>
-      "${count} ${Intl.plural(count, one: 'selected', other: 'selected')}";
+  static String m0(count) => "${count} selected";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -30,6 +29,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "appLegalese": MessageLookupByLibrary.simpleMessage(
             "The application \"Life Chest\" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT License, ©️ 2023 Haroun El Omri"),
         "areYouSure": MessageLookupByLibrary.simpleMessage("Are you sure?"),
+        "biometrics": MessageLookupByLibrary.simpleMessage("Biometrics"),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "chestName": MessageLookupByLibrary.simpleMessage("Chest name"),
         "chestPassword": MessageLookupByLibrary.simpleMessage("Chest password"),
@@ -45,6 +45,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Create a new folder"),
         "createTheNewChest":
             MessageLookupByLibrary.simpleMessage("Create the chest"),
+        "defineScheme":
+            MessageLookupByLibrary.simpleMessage("Define the scheme"),
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),
         "deleteAllChests":
             MessageLookupByLibrary.simpleMessage("Delete all the chests"),
@@ -76,6 +78,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "errorChestPinCodeShouldNotBeEmpty":
             MessageLookupByLibrary.simpleMessage(
                 "The chest PIN code shouldn\'t be empty"),
+        "errorChestSchemeShouldNotBeEmpty":
+            MessageLookupByLibrary.simpleMessage(
+                "The scheme must not be empty"),
         "errorDurationMustBeFormatted": MessageLookupByLibrary.simpleMessage(
             "The duration must be in the HH:MM format"),
         "errorDurationMustNotBeEmpty": MessageLookupByLibrary.simpleMessage(
@@ -105,13 +110,16 @@ class MessageLookup extends MessageLookupByLibrary {
         "pickFolderDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Pick the folder you want to add"),
         "pinCode": MessageLookupByLibrary.simpleMessage("PIN code"),
+        "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
+            "Please use your biometrics to unlock the chest"),
         "rename": MessageLookupByLibrary.simpleMessage("Rename"),
-        "scheme": MessageLookupByLibrary.simpleMessage("Pattern (WIP)"),
+        "scheme": MessageLookupByLibrary.simpleMessage("Pattern"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
         "selected": m0,
         "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
             "Enter airplane mode when the chest opens"),
         "sortBy": MessageLookupByLibrary.simpleMessage("Sort by..."),
+        "unlockChest": MessageLookupByLibrary.simpleMessage("Unlock the chest"),
         "validate": MessageLookupByLibrary.simpleMessage("Validate"),
         "welcomeNext": MessageLookupByLibrary.simpleMessage("Next"),
         "welcomePage1Content": MessageLookupByLibrary.simpleMessage(

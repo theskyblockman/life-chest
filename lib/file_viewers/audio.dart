@@ -241,6 +241,7 @@ class AudioListener extends FileViewer {
 
   @override
   void dispose() {
+    loadingMusic = null;
     audioHandler.stop();
   }
 
@@ -286,12 +287,8 @@ class AudioListener extends FileViewer {
             : null,
         albumName: fileData['audioData']['albumName'],
         albumArtistName: fileData['audioData']['albumArtistName'],
-        trackNumber: fileData['audioData']['trackNumber'] != null
-            ? int.parse(fileData['audioData']['trackNumber'])
-            : null,
-        albumLength: fileData['audioData']['albumLength'] != null
-            ? int.parse(fileData['audioData']['albumLength'])
-            : null,
+        trackNumber: fileData['audioData']['trackNumber'],
+        albumLength: fileData['audioData']['albumLength'],
         year: fileData['audioData']['year'],
         genre: fileData['audioData']['genre'],
         authorName: fileData['audioData']['authorName'],
@@ -361,6 +358,7 @@ class EncryptedAudioSource extends StreamAudioSource {
       offset: start,
       stream: Stream.value(bufferedData.sublist(start, end)),
       contentType: mimeType,
+      rangeRequestsSupported: true
     );
   }
 }

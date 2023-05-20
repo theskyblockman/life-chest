@@ -25,7 +25,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
 
   @override
   Widget build(BuildContext context) {
-    currentMechanism ??= PasswordUnlockMechanism(onKeyRetrieved: (retrievedKey) => null);
+    currentMechanism ??= PasswordUnlockMechanism(onKeyRetrieved: (retrievedKey, didPushed) => null);
     return Scaffold(
       appBar:
           AppBar(title: Text(S.of(context).createANewChest)),
@@ -64,17 +64,23 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
               child: Wrap(spacing: 5.0, clipBehavior: Clip.none, children: [
                 ...List.generate(UnlockMechanism.unlockMechanisms.length, (index) {
                   dynamic mechanismBuilder = List.from(UnlockMechanism.unlockMechanisms.keys)[index]!;
-                  UnlockMechanism mechanism = mechanismBuilder((retrievedKey) => null);
+                  UnlockMechanism mechanism = mechanismBuilder((retrievedKey, didPushed) => null);
                   if(mechanism.runtimeType == currentMechanism?.runtimeType) {
                     mechanism = currentMechanism!;
                   }
 
-                  return ChoiceChip(label: Text(mechanism.getName(context)), selected: mechanism == currentMechanism, onSelected: (value) {
-                    setState(() {
-                      currentMechanism = mechanism;
-                      policy.unlockType = UnlockMechanism.unlockMechanisms[mechanismBuilder]!;
-                    });
-                  },);
+                  return FutureBuilder<bool>(future: mechanism.isAvailable(), initialData: false, builder: (context, snapshot) {
+                    return ChoiceChip(label: Text(mechanism.getName(context)), selected: mechanism == currentMechanism, onSelected: snapshot.data! ? (value) {
+                      setState(() {
+                        currentMechanism = mechanism;
+                        policy.unlockType = UnlockMechanism.unlockMechanisms[mechanismBuilder]!;
+                      });
+                    } : null);
+                  });
+
+
+
+
                 })
               ]),
             ),
@@ -122,9 +128,11 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           if (formState.currentState!.validate()) {
-            policy.key = currentMechanism!.createKey(context, policy).$1;
+            var createdKey = await currentMechanism!.createKey(context, policy);
+            policy.key = createdKey.$1;
             Vault createdVault =
                 await VaultsManager.createVaultFromPolicy(policy);
+            createdVault.additionalUnlockData = createdKey.$3;
             VaultsManager.storedVaults.add(createdVault);
             VaultsManager.saveVaults();
             if (context.mounted) Navigator.pop(context);

@@ -226,6 +226,7 @@ class Vault {
         storedData['should_disconnect_when_vault_opened'];
     securityLevel = storedData['security_level'];
     unlockMechanismType = storedData['unlock_mechanism_type'] ?? 'password';
+    additionalUnlockData = storedData['additional_unlock_data'] ?? {};
   }
 
   Map<String, dynamic> toJson() {
@@ -237,7 +238,8 @@ class Vault {
       'name': name,
       'should_disconnect_when_vault_opened': shouldDisconnectWhenVaultOpened,
       'security_level': securityLevel,
-      'unlock_mechanism_type': unlockMechanismType
+      'unlock_mechanism_type': unlockMechanismType,
+      'additional_unlock_data': additionalUnlockData
     };
   }
 
@@ -270,4 +272,6 @@ class Vault {
   late SecretKey? encryptionKey;
 
   late String unlockMechanismType;
+
+  late Map<String, dynamic> additionalUnlockData;
 }
