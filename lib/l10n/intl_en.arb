@@ -46,8 +46,7 @@
   "@selected": {
     "placeholders": {
       "count": {
-        "type": "num",
-        "format": "compact"
+        "type": "int"
       }
     }
   },

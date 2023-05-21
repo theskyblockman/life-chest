@@ -32,6 +32,15 @@ class SingleThreadedRecovery {
         mac: Mac.empty);
   }
 
+  /// Selects the portion to decrypt and decrypts it (maybe the file reading part could be worked on)
+  static Future<Stream<List<int>>> loadAndDecryptPartialFile(
+      SecretKey encryptionKey, File fileToRead, int startByte, int endByte) async {
+    return VaultsManager.cipher.decryptStream(
+        fileToRead.openRead(startByte, endByte),
+      mac: Mac.empty,
+      secretKey: encryptionKey, nonce: Uint8List(VaultsManager.cipher.nonceLength));
+  }
+
   /// Encrypts the file in a specific location with the [encryptionKey] in the ChaCha20 algorithm
   static Future<MapEntry<String, Map<String, dynamic>>?> saveFile(
       SecretKey encryptionKey,

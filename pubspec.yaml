@@ -1,6 +1,7 @@
 name: life_chest
 description: A safe container for your data
 publish_to: 'none'
+homepage: https://github.com/theskyblockman/life-chest
 
 version: 1.0.0+1
 
@@ -32,6 +33,7 @@ dependencies:
   flutter_media_metadata: ^1.0.0+1
   local_auth_crypto: ^1.1.0
   pattern_lock: ^2.0.0
+  local_auth: ^2.1.6
 
 dev_dependencies:
   flutter_test:

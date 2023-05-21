@@ -1,8 +1,10 @@
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:life_chest/unlock_mechanism/unlock_mechanism.dart';
 import 'package:life_chest/vault.dart';
 import 'package:life_chest/generated/l10n.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:local_auth_crypto/local_auth_crypto.dart';
 
 class BiometricsUnlockMechanism extends UnlockMechanism {
@@ -24,7 +26,7 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
         String decryptedString = (await localAuthCryptoInstance.authenticate(
             promptInfo,
             encryptedString))!;
-
+        HapticFeedback.heavyImpact();
         onKeyRetrieved(SecretKey(decryptedString.codeUnits), false);
       } catch(e) {
         // IGNORE (probably failed/cancelled)
@@ -51,8 +53,6 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
 
   @override
   Future<bool> isAvailable() async {
-    return await localAuthCryptoInstance
-            .evaluatePolicy('Enable or not biometrics authentication') ??
-        false;
+    return await LocalAuthentication().canCheckBiometrics && (await LocalAuthentication().getAvailableBiometrics()).contains(BiometricType.strong);
   }
 }

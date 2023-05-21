@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:just_audio/just_audio.dart';
@@ -140,7 +142,6 @@ class SeekBarState extends State<SeekBar> {
 }
 
 class AudioListener extends FileViewer {
-  Stream<List<int>>? loadingMusic;
   EncryptedAudioSource? audioSource;
   final AudioPlayer player = AudioPlayer();
   static late final AudioPlayerHandler audioHandler;
@@ -191,13 +192,13 @@ class AudioListener extends FileViewer {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _button(context, Icons.fast_rewind, audioHandler.rewind),
+                  _button(context, Icons.replay_10, audioHandler.rewind),
                   if (playing)
                     _button(context, Icons.pause, audioHandler.pause)
                   else
                     _button(context, Icons.play_arrow, audioHandler.play),
                   _button(
-                      context, Icons.fast_forward, audioHandler.fastForward),
+                      context, Icons.forward_10, audioHandler.fastForward),
                 ],
               );
             },
@@ -216,7 +217,6 @@ class AudioListener extends FileViewer {
               );
             },
           ),
-          if (kDebugMode)
             // Display the processing state.
             StreamBuilder<AudioProcessingState>(
               stream: audioHandler.playbackState
@@ -241,7 +241,6 @@ class AudioListener extends FileViewer {
 
   @override
   void dispose() {
-    loadingMusic = null;
     audioHandler.stop();
   }
 
@@ -274,10 +273,9 @@ class AudioListener extends FileViewer {
 
   @override
   Future<void> onFocus() async {
-    loadingMusic ??= SingleThreadedRecovery.loadAndDecryptFile(
-        fileVault.encryptionKey!, fileToRead);
     audioSource ??= EncryptedAudioSource(
-        loadingMusic!,
+        fileToRead,
+        fileVault.encryptionKey!,
         fileData['audioData']['mimeType'],
         fileData['audioData']['initialSize']);
     Metadata parsedMetadata = Metadata(
@@ -326,37 +324,26 @@ class MediaState {
 }
 
 class EncryptedAudioSource extends StreamAudioSource {
-  final Stream<List<int>> streamedData;
   List<int> bufferedData = [];
   Completer? targetCompleter;
   int? currentTarget;
   final String mimeType;
   final int fileByteLength;
+  final File fileToRead;
+  final SecretKey encryptionKey;
 
-  EncryptedAudioSource(this.streamedData, this.mimeType, this.fileByteLength,
-      {super.tag = 'EncryptedAudioSource'}) {
-    streamedData.listen((receivedData) {
-      bufferedData += receivedData;
-      if (currentTarget != null && bufferedData.length >= currentTarget!) {
-        if (targetCompleter != null) {
-          targetCompleter!.complete();
-        }
-        currentTarget = null;
-      }
-    });
-  }
+  EncryptedAudioSource(this.fileToRead, this.encryptionKey, this.mimeType, this.fileByteLength);
 
   @override
   Future<StreamAudioResponse> request([int? start, int? end]) async {
-    debugPrint('asked for $start to $end length is $fileByteLength');
     start ??= 0;
-    end ??= bufferedData.length;
+    end ??= fileByteLength;
 
     return StreamAudioResponse(
       sourceLength: fileByteLength,
       contentLength: end - start,
       offset: start,
-      stream: Stream.value(bufferedData.sublist(start, end)),
+      stream: await SingleThreadedRecovery.loadAndDecryptPartialFile(encryptionKey, fileToRead, start, end),
       contentType: mimeType,
       rangeRequestsSupported: true
     );

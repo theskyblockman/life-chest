@@ -471,17 +471,12 @@ class S {
   }
 
   /// `{count} selected`
-  String selected(num count) {
-    final NumberFormat countNumberFormat = NumberFormat.compact(
-      locale: Intl.getCurrentLocale(),
-    );
-    final String countString = countNumberFormat.format(count);
-
+  String selected(int count) {
     return Intl.message(
-      '$countString selected',
+      '$count selected',
       name: 'selected',
       desc: '',
-      args: [countString],
+      args: [count],
     );
   }
 

@@ -22,9 +22,17 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
   GlobalKey<FormState> formState = GlobalKey();
   TextEditingController timeoutController = TextEditingController();
   UnlockMechanism? currentMechanism;
+  List<(String, int)> onPausePossibilities = [
+  ];
 
   @override
   Widget build(BuildContext context) {
+    onPausePossibilities = [
+      (S.of(context).doNothing, 0),
+      (S.of(context).notify, 1),
+      (S.of(context).closeChest, 2)
+    ];
+
     currentMechanism ??= PasswordUnlockMechanism(onKeyRetrieved: (retrievedKey, didPushed) => null);
     return Scaffold(
       appBar:
@@ -69,18 +77,14 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                     mechanism = currentMechanism!;
                   }
 
-                  return FutureBuilder<bool>(future: mechanism.isAvailable(), initialData: false, builder: (context, snapshot) {
-                    return ChoiceChip(label: Text(mechanism.getName(context)), selected: mechanism == currentMechanism, onSelected: snapshot.data! ? (value) {
+                  return FutureBuilder<bool>(future: mechanism.isAvailable(), builder: (context, snapshot) {
+                    return ChoiceChip(label: Text(mechanism.getName(context)), selected: mechanism == currentMechanism, onSelected: snapshot.data != null && snapshot.data! ? (value) {
                       setState(() {
                         currentMechanism = mechanism;
                         policy.unlockType = UnlockMechanism.unlockMechanisms[mechanismBuilder]!;
                       });
                     } : null);
                   });
-
-
-
-
                 })
               ]),
             ),
@@ -100,28 +104,19 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
               title: Text(
                   S.of(context).whatShouldBeDoneAfterUnfocus)),
           ListTile(
-            title: SegmentedButton<int>(
-                segments: [
-                  ButtonSegment(
-                      value: 0,
-                      label: Text(S.of(context).doNothing)),
-                  ButtonSegment(
-                      value: 1,
-                      label: Text(S.of(context).notify)),
-                  ButtonSegment(
-                      value: 2,
-                      label: Text(S.of(context).closeChest)),
-                ],
-                selected: {
-                  policy.securityLevel
-                },
-                multiSelectionEnabled: false,
-                emptySelectionAllowed: false,
-                onSelectionChanged: (newSet) {
-                  setState(() {
-                    policy.securityLevel = newSet.first;
-                  });
-                }),
+            title: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Wrap(spacing: 5.0, clipBehavior: Clip.none, children: [
+                  ...List<Widget>.generate(3, (index) {
+                    return ChoiceChip(label: Text(onPausePossibilities[index].$1), selected: policy.securityLevel == onPausePossibilities[index].$2, onSelected: (value) {
+                      setState(() {
+                        policy.securityLevel = onPausePossibilities[index].$2;
+                      });
+                    });
+                  })
+                ]
+              ),
+            )
           )
         ]),
       )),

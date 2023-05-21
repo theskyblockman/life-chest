@@ -23,7 +23,7 @@ class ImageViewer extends FileViewer {
         child: InteractiveViewer(
             clipBehavior: Clip.none, constrained: true, transformationController: controller, onInteractionEnd: (details) {
                 explorerState.isPagingEnabled = controller.value.getMaxScaleOnAxis() <= 1.0;
-            }, child: loadedImage!)
+            }, child: loadedImage ?? Container())
     );
   }
 
@@ -45,5 +45,9 @@ class ImageViewer extends FileViewer {
       S.of(context).loadingImage;
 
   @override
-  Future<void> onFocus() async {}
+  Future<void> onFocus() async {
+    loadedImage = Image.memory(
+        await SingleThreadedRecovery.loadAndDecryptFullFile(
+            fileVault.encryptionKey!, fileToRead));
+  }
 }
