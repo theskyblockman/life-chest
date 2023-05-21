@@ -14,17 +14,16 @@ An app to securely store your data for Android and iOS.
 - Remaking file cards in the ``GridView``
 - Chaining file players with a ``PageView``
 - File renaming
+- Lazy loading
 
 ## WIP
 
 - Video playing
 - Audio playing
 
-
 ## TODO
 
 - Export files/vaults to their original file or to a new file format (.lcvf or Life Chest Vault
   File)
-- Lazy loading
   
 :copyright: Haroun El Omri, 2023
