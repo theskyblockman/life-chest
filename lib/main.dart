@@ -36,8 +36,8 @@ void main() async {
       builder: () => AudioPlayerHandler(),
       config: const AudioServiceConfig(
           androidNotificationChannelId:
-              'fr.theskyblockman.life_chest.channel.audio',
-          androidNotificationChannelName: 'Audio player',
+              'fr.theskyblockman.life_chest.audio',
+          androidNotificationChannelName: 'Life chest audio player',
           androidNotificationOngoing: true,
           androidStopForegroundOnPause: true));
 

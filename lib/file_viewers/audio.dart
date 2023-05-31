@@ -176,7 +176,7 @@ class AudioListener extends FileViewer {
                         )
                       : Container(),
                   Text(
-                      mediaItem?.title ?? p.basenameWithoutExtension(fileName)),
+                      mediaItem?.title ?? p.basenameWithoutExtension(fileName), textAlign: TextAlign.center),
                   const Padding(padding: EdgeInsets.only(top: 15))
                 ],
               );
