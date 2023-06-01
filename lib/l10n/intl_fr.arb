@@ -73,5 +73,9 @@
   "detectedExportedFile": "Nous avons détecté {count, plural, =1{un fichier} other{des fichiers}} provenant d'un coffre. Pour accéder à {count, plural, =1{son} other{leur}} contenu, vous devez les déverrouiller.",
   "unlockFile": "Déverrouiller le fichier",
   "useUnlockWizard": "Utiliser l'assistant de déverrouillage",
-  "ignore": "Ignorer"
+  "ignore": "Ignorer",
+  "exportAsCleartext": "Exporter entant que fichier lisible (fichier non encrypté)",
+  "exportAsEncrypted": "Exporter entant que fichier encrypté",
+  "lifeChestBulkSave": "Sauvegarde de fichier en masse",
+  "savedToFolder": "Le(s) fichier(s) a/ont été sauvegardé(s) dans {path}"
 }

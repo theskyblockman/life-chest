@@ -20,42 +20,29 @@ class PasswordUnlockMechanism extends UnlockMechanism {
           return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                  title: Text(
-                      S.of(context)
-                          .enterTheChestPassword),
+                  title: Text(S.of(context).enterTheChestPassword),
                   content: TextField(
                       autofocus: true,
                       controller: passwordField,
-                      focusNode:
-                      passwordFieldFocusNode,
+                      focusNode: passwordFieldFocusNode,
                       obscureText: true,
                       decoration: InputDecoration(
-                          border:
-                          const OutlineInputBorder(),
-                          errorText:
-                          failedPasswordForVault
-                              ? S
-                              .of(context)
-                              .wrongPassword
+                          border: const OutlineInputBorder(),
+                          errorText: failedPasswordForVault
+                              ? S.of(context).wrongPassword
                               : null)),
                   actions: [
                     TextButton(
                         onPressed: () async {
-                          onKeyRetrieved(SecretKey(
-                              passwordToCryptKey(
-                                  passwordField
-                                      .text)), true);
+                          onKeyRetrieved(
+                              SecretKey(passwordToCryptKey(passwordField.text)),
+                              true);
                         },
-                        child: Text(
-                            S.of(
-                                context)
-                                .validate))
+                        child: Text(S.of(context).validate))
                   ]);
             },
           );
-        })
-        .then(
-            (value) => failedPasswordForVault = false);
+        }).then((value) => failedPasswordForVault = false);
   }
 
   @override
@@ -73,24 +60,19 @@ class PasswordUnlockMechanism extends UnlockMechanism {
         focusNode: passwordNode,
         validator: (value) {
           if (value == null || value.trim().isEmpty) {
-            return S.of(context)
-                .errorChestPasswordShouldNotBeEmpty;
+            return S.of(context).errorChestPasswordShouldNotBeEmpty;
           }
           if (value.length < 8 && !kDebugMode) {
-            return S.of(context)
-                .errorChestPasswordMoreCharacters;
+            return S.of(context).errorChestPasswordMoreCharacters;
           }
           if (!value.contains(RegExp(r'[A-Z]')) && !kDebugMode) {
-            return S.of(context)
-                .errorChestPasswordMoreUppercaseLetter;
+            return S.of(context).errorChestPasswordMoreUppercaseLetter;
           }
           if (!value.contains(RegExp(r'[a-z]')) && !kDebugMode) {
-            return S.of(context)
-                .errorChestPasswordMoreLowercaseLetter;
+            return S.of(context).errorChestPasswordMoreLowercaseLetter;
           }
           if (!value.contains(RegExp(r'\d')) && !kDebugMode) {
-            return S.of(context)
-                .errorChestPasswordMoreDigits;
+            return S.of(context).errorChestPasswordMoreDigits;
           }
 
           return null;
@@ -111,13 +93,25 @@ class PasswordUnlockMechanism extends UnlockMechanism {
   }
 
   @override
-  Future<(SecretKey? createdKey, String reason, Map<String, dynamic> additionalUnlockData)> createKey(BuildContext context, VaultPolicy policy) {
-    if(policy.vaultUnlockAdditionalData['password'] != null) {
-      return Future.value((SecretKey(
-          passwordToCryptKey(
-              policy.vaultUnlockAdditionalData['password'])), 'OK', <String, dynamic>{}));
+  Future<
+      (
+        SecretKey? createdKey,
+        String reason,
+        Map<String, dynamic> additionalUnlockData
+      )> createKey(BuildContext context, VaultPolicy policy) {
+    if (policy.vaultUnlockAdditionalData['password'] != null) {
+      return Future.value((
+        SecretKey(
+            passwordToCryptKey(policy.vaultUnlockAdditionalData['password'])),
+        'OK',
+        <String, dynamic>{}
+      ));
     }
-    return Future.value((null, S.of(context).errorChestNameShouldNotBeEmpty, <String, dynamic>{}));
+    return Future.value((
+      null,
+      S.of(context).errorChestNameShouldNotBeEmpty,
+      <String, dynamic>{}
+    ));
   }
 
   @override
@@ -126,4 +120,3 @@ class PasswordUnlockMechanism extends UnlockMechanism {
   @override
   bool canBeFocused() => true;
 }
-

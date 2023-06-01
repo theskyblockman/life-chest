@@ -23,7 +23,7 @@ An app to securely store your data for Android and iOS.
 
 ## TODO
 
-- Export files/vaults to their original file or to a new file format (.lcvf or Life Chest Vault
+- Export files/vaults to their original file or to a new file format (.lcef or Life Chest Encrypted
   File)
 - Lazy loading
   

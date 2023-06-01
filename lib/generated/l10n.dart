@@ -60,10 +60,10 @@ class S {
     );
   }
 
-  /// `Welcome to your life chest ! Here you will be able to create chests to store your data privately without compromising over usability.`
+  /// `Welcome to your life chest! Here you will be able to create chests to store your data privately without compromising over usability.`
   String get welcomePage1Content {
     return Intl.message(
-      'Welcome to your life chest ! Here you will be able to create chests to store your data privately without compromising over usability.',
+      'Welcome to your life chest! Here you will be able to create chests to store your data privately without compromising over usability.',
       name: 'welcomePage1Content',
       desc: '',
       args: [],
@@ -100,10 +100,10 @@ class S {
     );
   }
 
-  /// `You'll see, it's fast, easy and secure!`
+  /// `You'll see, it's fast, easy, and secure!`
   String get welcomePage3Content {
     return Intl.message(
-      'You\'ll see, it\'s fast, easy and secure!',
+      'You\'ll see, it\'s fast, easy, and secure!',
       name: 'welcomePage3Content',
       desc: '',
       args: [],
@@ -747,6 +747,86 @@ class S {
       name: 'biometrics',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Export as a clear file (not encrypted)`
+  String get exportAsCleartext {
+    return Intl.message(
+      'Export as a clear file (not encrypted)',
+      name: 'exportAsCleartext',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export as an encrypted file`
+  String get exportAsEncrypted {
+    return Intl.message(
+      'Export as an encrypted file',
+      name: 'exportAsEncrypted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We detected {count, plural, =1{a file} other{multiple files}} who comes from a vault, to access {count, plural, =1{its} other{their}} content, you must unlock them.`
+  String detectedExportedFile(int count) {
+    return Intl.message(
+      'We detected ${Intl.plural(count, one: 'a file', other: 'multiple files')} who comes from a vault, to access ${Intl.plural(count, one: 'its', other: 'their')} content, you must unlock them.',
+      name: 'detectedExportedFile',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Unlock the file`
+  String get unlockFile {
+    return Intl.message(
+      'Unlock the file',
+      name: 'unlockFile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use the unlock wizard`
+  String get useUnlockWizard {
+    return Intl.message(
+      'Use the unlock wizard',
+      name: 'useUnlockWizard',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ignore`
+  String get ignore {
+    return Intl.message(
+      'Ignore',
+      name: 'ignore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Life Chest bulk file export`
+  String get lifeChestBulkSave {
+    return Intl.message(
+      'Life Chest bulk file export',
+      name: 'lifeChestBulkSave',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved the file(s) to {path}`
+  String savedToFolder(String path) {
+    return Intl.message(
+      'Saved the file(s) to $path',
+      name: 'savedToFolder',
+      desc: '',
+      args: [path],
     );
   }
 }

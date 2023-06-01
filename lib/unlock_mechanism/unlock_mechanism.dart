@@ -8,12 +8,20 @@ import 'package:life_chest/vault.dart';
 
 abstract class UnlockMechanism {
   const UnlockMechanism({required this.onKeyRetrieved});
+
   /// Once published, these fields shouldn't be edited.
-  static final Map<UnlockMechanism Function(void Function(SecretKey retrievedKey, bool didPushed) onKeyRetrieved), String> unlockMechanisms = {
-    (retrievedKey) => PasswordUnlockMechanism(onKeyRetrieved: retrievedKey): 'password',
-    (retrievedKey) => PinUnlockMechanism(onKeyRetrieved: retrievedKey): 'pin code',
-    (retrievedKey) => SchemeUnlockMechanism(onKeyRetrieved: retrievedKey): 'scheme',
-    (retrievedKey) => BiometricsUnlockMechanism(onKeyRetrieved: retrievedKey): 'biometrics'
+  static final Map<
+      UnlockMechanism Function(
+          void Function(SecretKey retrievedKey, bool didPushed) onKeyRetrieved),
+      String> unlockMechanisms = {
+    (retrievedKey) => PasswordUnlockMechanism(onKeyRetrieved: retrievedKey):
+        'password',
+    (retrievedKey) => PinUnlockMechanism(onKeyRetrieved: retrievedKey):
+        'pin code',
+    (retrievedKey) => SchemeUnlockMechanism(onKeyRetrieved: retrievedKey):
+        'scheme',
+    (retrievedKey) => BiometricsUnlockMechanism(onKeyRetrieved: retrievedKey):
+        'biometrics'
   };
 
   final Function(SecretKey retrievedKey, bool didPushed) onKeyRetrieved;
@@ -26,7 +34,12 @@ abstract class UnlockMechanism {
 
   void creationFocus() {}
 
-  Future<(SecretKey? createdKey, String reason, Map<String, dynamic> additionalUnlockData)> createKey(BuildContext context, VaultPolicy policy);
+  Future<
+      (
+        SecretKey? createdKey,
+        String reason,
+        Map<String, dynamic> additionalUnlockData
+      )> createKey(BuildContext context, VaultPolicy policy);
 
   String getName(BuildContext context);
 

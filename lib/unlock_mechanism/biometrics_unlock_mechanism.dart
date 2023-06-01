@@ -14,23 +14,22 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
       LocalAuthCrypto.instance;
 
   @override
-  void build(BuildContext context, Map<String, dynamic> additionalUnlockData) async {
+  void build(
+      BuildContext context, Map<String, dynamic> additionalUnlockData) async {
     BiometricPromptInfo promptInfo = BiometricPromptInfo(
-      title: S.of(context).pleaseUseBiometrics,
-      negativeButton: S.of(context).cancel,
-      description: S.of(context).unlockChest
-    );
+        title: S.of(context).pleaseUseBiometrics,
+        negativeButton: S.of(context).cancel,
+        description: S.of(context).unlockChest);
     String? encryptedString = additionalUnlockData['encryptedKey'];
     if (encryptedString != null) {
       try {
         String decryptedString = (await localAuthCryptoInstance.authenticate(
-            promptInfo,
-            encryptedString))!;
+            promptInfo, encryptedString))!;
         HapticFeedback.heavyImpact();
         onKeyRetrieved(SecretKey(decryptedString.codeUnits), false);
-      } catch(e) {
+      } catch (e) {
         // IGNORE (probably failed/cancelled)
-    }
+      }
     }
   }
 
@@ -38,9 +37,18 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
   bool canBeFocused() => false;
 
   @override
-  Future<(SecretKey? createdKey, String reason, Map<String, dynamic> additionalUnlockData)> createKey(BuildContext context, VaultPolicy policy) async {
+  Future<
+      (
+        SecretKey? createdKey,
+        String reason,
+        Map<String, dynamic> additionalUnlockData
+      )> createKey(BuildContext context, VaultPolicy policy) async {
     String plainKey = md5RandomFileName().substring(0, 32);
-    return (SecretKey(plainKey.codeUnits), 'OK', {'encryptedKey': (await localAuthCryptoInstance.encrypt(plainKey))});
+    return (
+      SecretKey(plainKey.codeUnits),
+      'OK',
+      {'encryptedKey': (await localAuthCryptoInstance.encrypt(plainKey))}
+    );
   }
 
   @override
@@ -53,6 +61,8 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
 
   @override
   Future<bool> isAvailable() async {
-    return await LocalAuthentication().canCheckBiometrics && (await LocalAuthentication().getAvailableBiometrics()).contains(BiometricType.strong);
+    return await LocalAuthentication().canCheckBiometrics &&
+        (await LocalAuthentication().getAvailableBiometrics())
+            .contains(BiometricType.strong);
   }
 }

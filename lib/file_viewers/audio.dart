@@ -175,8 +175,8 @@ class AudioListener extends FileViewer {
                           ],
                         )
                       : Container(),
-                  Text(
-                      mediaItem?.title ?? p.basenameWithoutExtension(fileName), textAlign: TextAlign.center),
+                  Text(mediaItem?.title ?? p.basenameWithoutExtension(fileName),
+                      textAlign: TextAlign.center),
                   const Padding(padding: EdgeInsets.only(top: 15))
                 ],
               );
@@ -197,8 +197,7 @@ class AudioListener extends FileViewer {
                     _button(context, Icons.pause, audioHandler.pause)
                   else
                     _button(context, Icons.play_arrow, audioHandler.play),
-                  _button(
-                      context, Icons.forward_10, audioHandler.fastForward),
+                  _button(context, Icons.forward_10, audioHandler.fastForward),
                 ],
               );
             },
@@ -217,18 +216,17 @@ class AudioListener extends FileViewer {
               );
             },
           ),
-            // Display the processing state.
-            StreamBuilder<AudioProcessingState>(
-              stream: audioHandler.playbackState
-                  .map((state) => state.processingState)
-                  .distinct(),
-              builder: (context, snapshot) {
-                final processingState =
-                    snapshot.data ?? AudioProcessingState.idle;
-                return Text(
-                    "Processing state: ${describeEnum(processingState)}");
-              },
-            ),
+          // Display the processing state.
+          StreamBuilder<AudioProcessingState>(
+            stream: audioHandler.playbackState
+                .map((state) => state.processingState)
+                .distinct(),
+            builder: (context, snapshot) {
+              final processingState =
+                  snapshot.data ?? AudioProcessingState.idle;
+              return Text("Processing state: ${describeEnum(processingState)}");
+            },
+          ),
         ],
       ),
     );
@@ -332,7 +330,8 @@ class EncryptedAudioSource extends StreamAudioSource {
   final File fileToRead;
   final SecretKey encryptionKey;
 
-  EncryptedAudioSource(this.fileToRead, this.encryptionKey, this.mimeType, this.fileByteLength);
+  EncryptedAudioSource(
+      this.fileToRead, this.encryptionKey, this.mimeType, this.fileByteLength);
 
   @override
   Future<StreamAudioResponse> request([int? start, int? end]) async {
@@ -340,13 +339,13 @@ class EncryptedAudioSource extends StreamAudioSource {
     end ??= fileByteLength;
 
     return StreamAudioResponse(
-      sourceLength: fileByteLength,
-      contentLength: end - start,
-      offset: start,
-      stream: await SingleThreadedRecovery.loadAndDecryptPartialFile(encryptionKey, fileToRead, start, end),
-      contentType: mimeType,
-      rangeRequestsSupported: true
-    );
+        sourceLength: fileByteLength,
+        contentLength: end - start,
+        offset: start,
+        stream: await SingleThreadedRecovery.loadAndDecryptPartialFile(
+            encryptionKey, fileToRead, start, end),
+        contentType: mimeType,
+        rangeRequestsSupported: true);
   }
 }
 

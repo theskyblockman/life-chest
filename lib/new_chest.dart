@@ -22,8 +22,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
   GlobalKey<FormState> formState = GlobalKey();
   TextEditingController timeoutController = TextEditingController();
   UnlockMechanism? currentMechanism;
-  List<(String, int)> onPausePossibilities = [
-  ];
+  List<(String, int)> onPausePossibilities = [];
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +32,10 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
       (S.of(context).closeChest, 2)
     ];
 
-    currentMechanism ??= PasswordUnlockMechanism(onKeyRetrieved: (retrievedKey, didPushed) => null);
+    currentMechanism ??= PasswordUnlockMechanism(
+        onKeyRetrieved: (retrievedKey, didPushed) => null);
     return Scaffold(
-      appBar:
-          AppBar(title: Text(S.of(context).createANewChest)),
+      appBar: AppBar(title: Text(S.of(context).createANewChest)),
       body: SingleChildScrollView(
           child: Form(
         key: formState,
@@ -55,8 +54,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                   labelText: S.of(context).chestName),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return S.of(context)
-                      .errorChestNameShouldNotBeEmpty;
+                  return S.of(context).errorChestNameShouldNotBeEmpty;
                 }
 
                 return null;
@@ -70,26 +68,39 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
             title: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Wrap(spacing: 5.0, clipBehavior: Clip.none, children: [
-                ...List.generate(UnlockMechanism.unlockMechanisms.length, (index) {
-                  dynamic mechanismBuilder = List.from(UnlockMechanism.unlockMechanisms.keys)[index]!;
-                  UnlockMechanism mechanism = mechanismBuilder((retrievedKey, didPushed) => null);
-                  if(mechanism.runtimeType == currentMechanism?.runtimeType) {
+                ...List.generate(UnlockMechanism.unlockMechanisms.length,
+                    (index) {
+                  dynamic mechanismBuilder =
+                      List.from(UnlockMechanism.unlockMechanisms.keys)[index]!;
+                  UnlockMechanism mechanism =
+                      mechanismBuilder((retrievedKey, didPushed) => null);
+                  if (mechanism.runtimeType == currentMechanism?.runtimeType) {
                     mechanism = currentMechanism!;
                   }
 
-                  return FutureBuilder<bool>(future: mechanism.isAvailable(), builder: (context, snapshot) {
-                    return ChoiceChip(label: Text(mechanism.getName(context)), selected: mechanism == currentMechanism, onSelected: snapshot.data != null && snapshot.data! ? (value) {
-                      setState(() {
-                        currentMechanism = mechanism;
-                        policy.unlockType = UnlockMechanism.unlockMechanisms[mechanismBuilder]!;
+                  return FutureBuilder<bool>(
+                      future: mechanism.isAvailable(),
+                      builder: (context, snapshot) {
+                        return ChoiceChip(
+                            label: Text(mechanism.getName(context)),
+                            selected: mechanism == currentMechanism,
+                            onSelected: snapshot.data != null && snapshot.data!
+                                ? (value) {
+                                    setState(() {
+                                      currentMechanism = mechanism;
+                                      policy.unlockType = UnlockMechanism
+                                          .unlockMechanisms[mechanismBuilder]!;
+                                    });
+                                  }
+                                : null);
                       });
-                    } : null);
-                  });
                 })
               ]),
             ),
           ),
-          currentMechanism != null ? currentMechanism!.keyCreationBuild(context, policy) : Container(),
+          currentMechanism != null
+              ? currentMechanism!.keyCreationBuild(context, policy)
+              : Container(),
           const Divider(),
           ListTile(
             trailing: Switch(
@@ -100,24 +111,24 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
             title: Text(S.of(context).shouldEnterAirplaneMode),
           ),
           const Divider(),
+          ListTile(title: Text(S.of(context).whatShouldBeDoneAfterUnfocus)),
           ListTile(
-              title: Text(
-                  S.of(context).whatShouldBeDoneAfterUnfocus)),
-          ListTile(
-            title: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Wrap(spacing: 5.0, clipBehavior: Clip.none, children: [
-                  ...List<Widget>.generate(3, (index) {
-                    return ChoiceChip(label: Text(onPausePossibilities[index].$1), selected: policy.securityLevel == onPausePossibilities[index].$2, onSelected: (value) {
+              title: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Wrap(spacing: 5.0, clipBehavior: Clip.none, children: [
+              ...List<Widget>.generate(3, (index) {
+                return ChoiceChip(
+                    label: Text(onPausePossibilities[index].$1),
+                    selected:
+                        policy.securityLevel == onPausePossibilities[index].$2,
+                    onSelected: (value) {
                       setState(() {
                         policy.securityLevel = onPausePossibilities[index].$2;
                       });
                     });
-                  })
-                ]
-              ),
-            )
-          )
+              })
+            ]),
+          ))
         ]),
       )),
       floatingActionButton: FloatingActionButton.extended(

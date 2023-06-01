@@ -27,8 +27,7 @@ class VideoViewer extends FileViewer {
   }
 
   @override
-  String loadingMessage(BuildContext context) =>
-      S.of(context).loadingImage;
+  String loadingMessage(BuildContext context) => S.of(context).loadingImage;
 
   @override
   Future<void> onFocus() async {}

@@ -22,46 +22,31 @@ class PinUnlockMechanism extends UnlockMechanism {
           return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                  title: Text(
-                      S.of(context)
-                          .enterThePinCode),
+                  title: Text(S.of(context).enterThePinCode),
                   content: TextField(
                       autofocus: true,
                       controller: pinField,
-                      focusNode:
-                      pinFieldFocusNode,
+                      focusNode: pinFieldFocusNode,
                       obscureText: true,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                          border:
-                          const OutlineInputBorder(),
-                          errorText:
-                          failedPinForVault
-                              ? S
-                              .of(context)
-                              .wrongPinCode
+                          border: const OutlineInputBorder(),
+                          errorText: failedPinForVault
+                              ? S.of(context).wrongPinCode
                               : null)),
                   actions: [
                     TextButton(
                         onPressed: () async {
-                          onKeyRetrieved(SecretKey(
-                              passwordToCryptKey(
-                                  pinField
-                                      .text)), true);
+                          onKeyRetrieved(
+                              SecretKey(passwordToCryptKey(pinField.text)),
+                              true);
                         },
-                        child: Text(
-                            S.of(
-                                context)
-                                .validate))
+                        child: Text(S.of(context).validate))
                   ]);
             },
           );
-        })
-        .then(
-            (value) => failedPinForVault = false);
+        }).then((value) => failedPinForVault = false);
   }
 
   @override
@@ -77,18 +62,14 @@ class PinUnlockMechanism extends UnlockMechanism {
             labelText: S.of(context).chestPinCode),
         obscureText: true,
         focusNode: pinNode,
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly
-        ],
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         keyboardType: TextInputType.number,
         validator: (value) {
           if (value == null || value.trim().isEmpty) {
-            return S.of(context)
-                .errorChestPinCodeShouldNotBeEmpty;
+            return S.of(context).errorChestPinCodeShouldNotBeEmpty;
           }
           if (value.length < 4 && !kDebugMode) {
-            return S.of(context)
-                .errorChestPinCodeMoreCharacters;
+            return S.of(context).errorChestPinCodeMoreCharacters;
           }
           return null;
         },
@@ -108,13 +89,24 @@ class PinUnlockMechanism extends UnlockMechanism {
   }
 
   @override
-  Future<(SecretKey? createdKey, String reason, Map<String, dynamic> additionalUnlockData)> createKey(BuildContext context, VaultPolicy policy) {
-    if(policy.vaultUnlockAdditionalData['pin'] != null) {
-      return Future.value((SecretKey(
-          passwordToCryptKey(
-              policy.vaultUnlockAdditionalData['pin'])), 'OK', <String, dynamic>{}));
+  Future<
+      (
+        SecretKey? createdKey,
+        String reason,
+        Map<String, dynamic> additionalUnlockData
+      )> createKey(BuildContext context, VaultPolicy policy) {
+    if (policy.vaultUnlockAdditionalData['pin'] != null) {
+      return Future.value((
+        SecretKey(passwordToCryptKey(policy.vaultUnlockAdditionalData['pin'])),
+        'OK',
+        <String, dynamic>{}
+      ));
     }
-    return Future.value((null, S.of(context).errorChestPinCodeShouldNotBeEmpty, <String, dynamic>{}));
+    return Future.value((
+      null,
+      S.of(context).errorChestPinCodeShouldNotBeEmpty,
+      <String, dynamic>{}
+    ));
   }
 
   @override

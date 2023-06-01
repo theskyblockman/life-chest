@@ -34,11 +34,15 @@ class SingleThreadedRecovery {
 
   /// Selects the portion to decrypt and decrypts it (maybe the file reading part could be worked on)
   static Future<Stream<List<int>>> loadAndDecryptPartialFile(
-      SecretKey encryptionKey, File fileToRead, int startByte, int endByte) async {
+      SecretKey encryptionKey,
+      File fileToRead,
+      int startByte,
+      int endByte) async {
     return VaultsManager.cipher.decryptStream(
         fileToRead.openRead(startByte, endByte),
-      mac: Mac.empty,
-      secretKey: encryptionKey, nonce: Uint8List(VaultsManager.cipher.nonceLength));
+        mac: Mac.empty,
+        secretKey: encryptionKey,
+        nonce: Uint8List(VaultsManager.cipher.nonceLength));
   }
 
   /// Encrypts the file in a specific location with the [encryptionKey] in the ChaCha20 algorithm
@@ -143,8 +147,7 @@ class SingleThreadedRecovery {
   /// Incrementally save files provided, with the [encryptionKey] and returns its map value
   static Stream<MapEntry<String, Map<String, dynamic>>> progressivelySaveFiles(
       SecretKey encryptionKey, String vaultPath, String localPath,
-      {required List<File> filesToSave,
-      String? rootFolderPath}) async* {
+      {required List<File> filesToSave, String? rootFolderPath}) async* {
     for (File createdFile in filesToSave) {
       yield (await saveFile(
           encryptionKey, vaultPath, createdFile, localPath, rootFolderPath))!;

@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:life_chest/vault.dart';
 
 class FileExporter {
-  static List<List<int>> _splitListBySeparator(List<int> list, int separator, [int? maxLength]) {
+  static List<List<int>> _splitListBySeparator(List<int> list, int separator,
+      [int? maxLength]) {
     List<List<int>> result = [];
     List<int> currentList = [];
 
@@ -24,7 +25,8 @@ class FileExporter {
     }
 
     if (maxLength != null && result.length > maxLength) {
-      Iterable<List<int>> resultToPutBackTogether = result.getRange(maxLength, result.length);
+      Iterable<List<int>> resultToPutBackTogether =
+          result.getRange(maxLength, result.length);
       List<int> newElement = [...result[maxLength - 1], separator];
 
       for (List<int> element in resultToPutBackTogether) {
@@ -39,15 +41,23 @@ class FileExporter {
     return result;
   }
 
-
-  static Future<List<int>> exportFile(String fileFakeName, SecretKey encryptionKey, Map<String, dynamic> fileMapData, List<int> encryptedFileContentToExport, String unlockMethodID) async {
+  static Future<List<int>> exportFile(
+      String fileFakeName,
+      SecretKey encryptionKey,
+      Map<String, dynamic> fileMapData,
+      List<int> encryptedFileContentToExport,
+      String unlockMethodID) async {
     List<int> finalExportedFile = [];
 
     // Signature
     finalExportedFile.addAll('Life Chest Encrypted File'.codeUnits);
 
     String encodedMetadata = jsonEncode(fileMapData);
-    List<int> encryptedMetadata = (await VaultsManager.cipher.encrypt(encodedMetadata.codeUnits, secretKey: encryptionKey, nonce: Uint8List(VaultsManager.cipher.nonceLength))).cipherText;
+    List<int> encryptedMetadata = (await VaultsManager.cipher.encrypt(
+            encodedMetadata.codeUnits,
+            secretKey: encryptionKey,
+            nonce: Uint8List(VaultsManager.cipher.nonceLength)))
+        .cipherText;
 
     // The unlock method of the file to use to find its secret key
     finalExportedFile.addAll(unlockMethodID.codeUnits);
@@ -59,7 +69,11 @@ class FileExporter {
 
     // The file fake name used internally by the app to identify it without giving its clear name, logically this isn't sensitive information so we can give the encrypted and clear file fake name so the app can say if a file is valid or not by detecting the "|" char and dividing the file name length by 2.
     finalExportedFile.addAll(fileFakeName.codeUnits);
-    finalExportedFile.addAll((await VaultsManager.cipher.encrypt(fileFakeName.codeUnits, secretKey: encryptionKey, nonce: Uint8List(VaultsManager.cipher.nonceLength))).cipherText);
+    finalExportedFile.addAll((await VaultsManager.cipher.encrypt(
+            fileFakeName.codeUnits,
+            secretKey: encryptionKey,
+            nonce: Uint8List(VaultsManager.cipher.nonceLength)))
+        .cipherText);
 
     // The encrypted metadata
     finalExportedFile.addAll(encryptedMetadata);
@@ -84,34 +98,55 @@ class FileExporter {
   }
 
   static String? determineExportedFileUnlockMethod(List<int> exportedFile) {
-    if(!isExportedFile(exportedFile)) return null;
+    if (!isExportedFile(exportedFile)) return null;
 
-    List<List<int>> elements = _splitListBySeparator(exportedFile.sublist(25), '|'.codeUnits[0], 3);
+    List<List<int>> elements =
+        _splitListBySeparator(exportedFile.sublist(25), '|'.codeUnits[0], 3);
     return String.fromCharCodes(elements[0]);
   }
 
-  static Future<bool?> testExportedFileEncryption(List<int> exportedFile, SecretKey encryptionKey) async {
-    if(!isExportedFile(exportedFile)) return null;
-    List<List<int>> elements = _splitListBySeparator(exportedFile, '|'.codeUnits[0], 3);
+  static Future<bool?> testExportedFileEncryption(
+      List<int> exportedFile, SecretKey encryptionKey) async {
+    if (!isExportedFile(exportedFile)) return null;
+    List<List<int>> elements =
+        _splitListBySeparator(exportedFile, '|'.codeUnits[0], 3);
     // No need to round, the length is even whatever happening because of the source multiplication by 2 rule
-    SecretBox encryptedName = SecretBox(List.from(elements[2].sublist(32, 64)), nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty);
-    return listEquals(await VaultsManager.cipher.decrypt(encryptedName, secretKey: encryptionKey), elements[2].sublist(0, 32));
+    SecretBox encryptedName = SecretBox(List.from(elements[2].sublist(32, 64)),
+        nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty);
+    return listEquals(
+        await VaultsManager.cipher
+            .decrypt(encryptedName, secretKey: encryptionKey),
+        elements[2].sublist(0, 32));
   }
 
-  static Future<(Map<String, dynamic> fileMetadata, List<int> decryptedContent)?> importFile(List<int> exportedFile, SecretKey encryptionKey) async {
-    if(await testExportedFileEncryption(exportedFile, encryptionKey) != true) return null;
-    List<List<int>> elements = _splitListBySeparator(exportedFile, '|'.codeUnits[0], 3);
+  static Future<
+          (Map<String, dynamic> fileMetadata, List<int> decryptedContent)?>
+      importFile(List<int> exportedFile, SecretKey encryptionKey) async {
+    if (await testExportedFileEncryption(exportedFile, encryptionKey) != true)
+      return null;
+    List<List<int>> elements =
+        _splitListBySeparator(exportedFile, '|'.codeUnits[0], 3);
 
     int metadataLength = int.parse(String.fromCharCodes(elements[1]));
 
-    Map<String, dynamic> metadata = jsonDecode(String.fromCharCodes(await VaultsManager.cipher.decrypt(SecretBox(elements[2].sublist(64, 64 + metadataLength), nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty), secretKey: encryptionKey)));
+    Map<String, dynamic> metadata = jsonDecode(String.fromCharCodes(
+        await VaultsManager.cipher.decrypt(
+            SecretBox(elements[2].sublist(64, 64 + metadataLength),
+                nonce: Uint8List(VaultsManager.cipher.nonceLength),
+                mac: Mac.empty),
+            secretKey: encryptionKey)));
 
-    List<int> fileData = await VaultsManager.cipher.decrypt(SecretBox(elements[2].sublist(64 + metadataLength), nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty), secretKey: encryptionKey);
+    List<int> fileData = await VaultsManager.cipher.decrypt(
+        SecretBox(elements[2].sublist(64 + metadataLength),
+            nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty),
+        secretKey: encryptionKey);
 
     return (metadata, fileData);
   }
 
   static bool isExportedFile(List<int> fileContent) {
-    return fileContent.length >= 25 && listEquals('Life Chest Encrypted File'.codeUnits, fileContent.sublist(0, 25));
+    return fileContent.length >= 25 &&
+        listEquals(
+            'Life Chest Encrypted File'.codeUnits, fileContent.sublist(0, 25));
   }
 }

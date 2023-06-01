@@ -20,7 +20,12 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(count) => "${count} selected";
+  static String m0(count) =>
+      "We detected ${Intl.plural(count, one: 'a file', other: 'multiple files')} who comes from a vault, to access ${Intl.plural(count, one: 'its', other: 'their')} content, you must unlock them.";
+
+  static String m1(path) => "Saved the file(s) to ${path}";
+
+  static String m2(count) => "${count} selected";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -50,6 +55,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),
         "deleteAllChests":
             MessageLookupByLibrary.simpleMessage("Delete all the chests"),
+        "detectedExportedFile": m0,
         "doNothing": MessageLookupByLibrary.simpleMessage("Do nothing"),
         "enterTheChestPassword": MessageLookupByLibrary.simpleMessage(
             "Please enter the password of this chest"),
@@ -85,6 +91,13 @@ class MessageLookup extends MessageLookupByLibrary {
             "The duration must be in the HH:MM format"),
         "errorDurationMustNotBeEmpty": MessageLookupByLibrary.simpleMessage(
             "The duration must not be empty"),
+        "exportAsCleartext": MessageLookupByLibrary.simpleMessage(
+            "Export as a clear file (not encrypted)"),
+        "exportAsEncrypted":
+            MessageLookupByLibrary.simpleMessage("Export as an encrypted file"),
+        "ignore": MessageLookupByLibrary.simpleMessage("Ignore"),
+        "lifeChestBulkSave":
+            MessageLookupByLibrary.simpleMessage("Life Chest bulk file export"),
         "loadingAudioTrack":
             MessageLookupByLibrary.simpleMessage("Loading audio track"),
         "loadingDocuments":
@@ -113,17 +126,21 @@ class MessageLookup extends MessageLookupByLibrary {
         "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
             "Please use your biometrics to unlock the chest"),
         "rename": MessageLookupByLibrary.simpleMessage("Rename"),
+        "savedToFolder": m1,
         "scheme": MessageLookupByLibrary.simpleMessage("Pattern"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
-        "selected": m0,
+        "selected": m2,
         "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
             "Enter airplane mode when the chest opens"),
         "sortBy": MessageLookupByLibrary.simpleMessage("Sort by..."),
         "unlockChest": MessageLookupByLibrary.simpleMessage("Unlock the chest"),
+        "unlockFile": MessageLookupByLibrary.simpleMessage("Unlock the file"),
+        "useUnlockWizard":
+            MessageLookupByLibrary.simpleMessage("Use the unlock wizard"),
         "validate": MessageLookupByLibrary.simpleMessage("Validate"),
         "welcomeNext": MessageLookupByLibrary.simpleMessage("Next"),
         "welcomePage1Content": MessageLookupByLibrary.simpleMessage(
-            "Welcome to your life chest ! Here you will be able to create chests to store your data privately without compromising over usability."),
+            "Welcome to your life chest! Here you will be able to create chests to store your data privately without compromising over usability."),
         "welcomePage1Title":
             MessageLookupByLibrary.simpleMessage("Hello there!"),
         "welcomePage2Content": MessageLookupByLibrary.simpleMessage(
@@ -131,7 +148,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "welcomePage2Title": MessageLookupByLibrary.simpleMessage(
             "Here, our main priority is your security"),
         "welcomePage3Content": MessageLookupByLibrary.simpleMessage(
-            "You\'ll see, it\'s fast, easy and secure!"),
+            "You\'ll see, it\'s fast, easy, and secure!"),
         "welcomePage3Title": MessageLookupByLibrary.simpleMessage(
             "Let\'s create your first chest!"),
         "welcomeSkip": MessageLookupByLibrary.simpleMessage("Skip"),

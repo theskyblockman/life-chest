@@ -35,14 +35,14 @@ void main() async {
   AudioListener.audioHandler = await AudioService.init(
       builder: () => AudioPlayerHandler(),
       config: const AudioServiceConfig(
-          androidNotificationChannelId:
-              'fr.theskyblockman.life_chest.audio',
+          androidNotificationChannelId: 'fr.theskyblockman.life_chest.audio',
           androidNotificationChannelName: 'Life chest audio player',
           androidNotificationOngoing: true,
           androidStopForegroundOnPause: true));
 
   runApp(LifeChestApp(firstLaunch: firstLaunch)); //firstLaunch || kDebugMode
 }
+
 /// The app root widget
 class LifeChestApp extends StatelessWidget {
   const LifeChestApp({super.key, required this.firstLaunch});
@@ -114,8 +114,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                             applicationVersion: '1.0.0',
                             applicationIcon:
                                 Image.asset('logo.png', height: 64, width: 64),
-                            applicationLegalese:
-                                S.of(context).appLegalese,
+                            applicationLegalese: S.of(context).appLegalese,
                           );
                         });
                       },
@@ -129,22 +128,16 @@ class ChestMainPageState extends State<ChestMainPage> {
                               showDialog(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                          title: Text(
-                                              S.of(context)
-                                                  .areYouSure),
+                                          title: Text(S.of(context).areYouSure),
                                           actions: [
                                             TextButton(
                                                 onPressed: () => Navigator.pop(
                                                     context, false),
-                                                child: Text(S.of(
-                                                        context)
-                                                    .no)),
+                                                child: Text(S.of(context).no)),
                                             TextButton(
                                                 onPressed: () => Navigator.pop(
                                                     context, true),
-                                                child: Text(S.of(
-                                                        context)
-                                                    .yes))
+                                                child: Text(S.of(context).yes))
                                           ])).then((value) {
                                 if (value == true) {
                                   setState(() {
@@ -158,14 +151,19 @@ class ChestMainPageState extends State<ChestMainPage> {
                               });
                             });
                           },
-                          child: Text(
-                              S.of(context).deleteAllChests)),
+                          child: Text(S.of(context).deleteAllChests)),
                     if (kDebugMode)
                       PopupMenuItem(
                         child: const Text('Debug button'),
                         onTap: () {
-                          WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => UnlockChooser(onKeyIssued: (issuedKey, didPushed) => null)));
+                          WidgetsBinding.instance
+                              .addPostFrameCallback((timeStamp) async {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UnlockChooser(
+                                        onKeyIssued: (issuedKey, didPushed) =>
+                                            null)));
                           });
                         },
                       )
@@ -219,8 +217,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                                         });
                                       });
                                     },
-                                    child: Text(
-                                        S.of(context).delete),
+                                    child: Text(S.of(context).delete),
                                   ),
                                   PopupMenuItem(
                                     onTap: () {
@@ -253,15 +250,22 @@ class ChestMainPageState extends State<ChestMainPage> {
                                         });
                                       });
                                     },
-                                    child: Text(
-                                        S.of(context).rename),
+                                    child: Text(S.of(context).rename),
                                   )
                                 ];
                               }),
                           onTap: () {
-                            UnlockTester tester = UnlockTester(chest, onKeyIssued: (issuedKey, didPushed) => onKeyIssued(chest, issuedKey, didPushed));
-                            if(tester.shouldUseChooser(context)) {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => UnlockChooser(onKeyIssued: (issuedKey, didPushed) => onKeyIssued(chest, issuedKey, didPushed))));
+                            UnlockTester tester = UnlockTester(chest,
+                                onKeyIssued: (issuedKey, didPushed) =>
+                                    onKeyIssued(chest, issuedKey, didPushed));
+                            if (tester.shouldUseChooser(context)) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => UnlockChooser(
+                                          onKeyIssued: (issuedKey, didPushed) =>
+                                              onKeyIssued(chest, issuedKey,
+                                                  didPushed))));
                             }
                           }));
                 },
@@ -273,20 +277,13 @@ class ChestMainPageState extends State<ChestMainPage> {
     chest.locked = !(await VaultsManager.testVaultKey(chest));
     if (!chest.locked) {
       if (context.mounted) {
-        if(didPush) {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      FileExplorer(chest)));
+        if (didPush) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => FileExplorer(chest)));
         } else {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      FileExplorer(chest)));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => FileExplorer(chest)));
         }
-
       }
     }
   }
@@ -306,12 +303,9 @@ class ChestMainPageState extends State<ChestMainPage> {
         if (FileExplorerState.shouldNotificationBeSent) {
           const MethodChannel('theskyblockman.fr/channel')
               .invokeMethod('sendVaultNotification', {
-            'notification_title':
-                S.of(context).closeChestNotificationTitle,
-            'notification_content':
-                S.of(context).closeChestNotificationContent,
-            'notification_close_button_content':
-                S.of(context).closeChest
+            'notification_title': S.of(context).closeChestNotificationTitle,
+            'notification_content': S.of(context).closeChestNotificationContent,
+            'notification_close_button_content': S.of(context).closeChest
           });
           return true;
         }

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:life_chest/file_exporter.dart';
 import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/file_explorer/file_placeholder.dart';
 import 'package:life_chest/file_explorer/file_sort_methods.dart';
@@ -12,6 +13,7 @@ import 'package:life_chest/file_explorer/file_thumbnail.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// The file reader, this enable the user to see file and to browse between them while keeping a cache of them
 class FileReader extends StatefulWidget {
@@ -81,7 +83,9 @@ class FileReaderState extends State<FileReader> {
   @override
   Widget build(BuildContext context) {
     return PageView.builder(
-      physics: isPagingEnabled ? const PageScrollPhysics() : const NeverScrollableScrollPhysics(),
+        physics: isPagingEnabled
+            ? const PageScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           FileThumbnail currentThumbnail = widget.thumbnails()[index];
           return Scaffold(
@@ -368,27 +372,24 @@ class FileExplorerState extends State<FileExplorer> {
                                     onCancelButtonPressed: () {
                                       Navigator.of(context).pop(false);
                                     },
-                                    initialName: S.of(context)
-                                        .newFolder);
+                                    initialName: S.of(context).newFolder);
                               },
                             );
                           });
                         },
-                        child: Text(
-                            S.of(context).createANewFolder)),
+                        child: Text(S.of(context).createANewFolder)),
                     PopupMenuItem(
                         onTap: () {
                           setState(() {
                             isSelectionMode = true;
                             for (FileThumbnail thumbnail
-                            in List.from(thumbnails)) {
+                                in List.from(thumbnails)) {
                               if (!thumbnail.isSelected) {
                                 thumbnails[thumbnails.indexOf(thumbnail)] =
                                     FileThumbnail(
                                         localPath: thumbnail.localPath,
                                         name: thumbnail.name,
-                                        fullLocalPath:
-                                        thumbnail.fullLocalPath,
+                                        fullLocalPath: thumbnail.fullLocalPath,
                                         placeholder: thumbnail.placeholder,
                                         file: thumbnail.file,
                                         vault: thumbnail.vault,
@@ -403,6 +404,139 @@ class FileExplorerState extends State<FileExplorer> {
                         },
                         child: Text(S.of(context).selectAll)),
                     if (isSelectionMode) ...[
+                      PopupMenuItem(
+                          child: Text(S.of(context).exportAsEncrypted),
+                          onTap: () async {
+                            List<FileThumbnail> filesToExport = [];
+
+                            for (FileThumbnail thumbnail in thumbnails) {
+                              if (thumbnail.isSelected) {
+                                filesToExport.add(thumbnail);
+                              }
+                            }
+                            String validDirectoryName =
+                                S.of(context).lifeChestBulkSave;
+                            Directory? downloadDirectory;
+                            if (Platform.isIOS) {
+                              downloadDirectory = await getDownloadsDirectory();
+
+                              if (downloadDirectory == null) return;
+                            } else {
+                              downloadDirectory =
+                                  Directory('/storage/emulated/0/Download');
+                              // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
+                              // ignore: avoid_slow_async_io
+                              if (!await downloadDirectory.exists())
+                                downloadDirectory =
+                                    await getExternalStorageDirectory();
+                            }
+
+                            Directory saveLocation = downloadDirectory!;
+
+                            if (filesToExport.length > 1) {
+                              String currentSuffix = '';
+                              int currentDirID = 2;
+                              List<FileSystemEntity> dirFiles =
+                                  downloadDirectory.listSync();
+                              while (dirFiles.any((element) =>
+                                  basename(element.path) ==
+                                  validDirectoryName + currentSuffix)) {
+                                currentSuffix = ' ($currentDirID)';
+                                currentDirID++;
+                              }
+                              validDirectoryName =
+                                  validDirectoryName + currentSuffix;
+
+                              saveLocation = Directory(
+                                  join(saveLocation.path, validDirectoryName));
+                              saveLocation.createSync();
+                            }
+
+                            for (FileThumbnail thumbnail in filesToExport) {
+                              List<int> exportedFile =
+                                  await FileExporter.exportFile(
+                                      basename(thumbnail.file.path),
+                                      widget.vault.encryptionKey!,
+                                      thumbnail.data,
+                                      await thumbnail.file.openRead().last,
+                                      widget.vault.unlockMechanismType);
+                              File fileToSaveTo = File(join(saveLocation.path,
+                                  'Life_Chest_${md5RandomFileName()}.lcef'));
+                              fileToSaveTo.createSync();
+                              fileToSaveTo.writeAsBytesSync(exportedFile);
+                            }
+                            if (context.mounted)
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(S.of(context).savedToFolder(
+                                          basename(saveLocation.path)))));
+                          }),
+                      PopupMenuItem(
+                          onTap: () async {
+                            List<FileThumbnail> filesToExport = [];
+
+                            for (FileThumbnail thumbnail in thumbnails) {
+                              if (thumbnail.isSelected) {
+                                filesToExport.add(thumbnail);
+                              }
+                            }
+                            String validDirectoryName =
+                                S.of(context).lifeChestBulkSave;
+                            Directory? downloadDirectory;
+                            if (Platform.isIOS) {
+                              downloadDirectory = await getDownloadsDirectory();
+
+                              if (downloadDirectory == null) return;
+                            } else {
+                              downloadDirectory =
+                                  Directory('/storage/emulated/0/Download');
+                              // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
+                              // ignore: avoid_slow_async_io
+                              if (!await downloadDirectory.exists()) {
+                                downloadDirectory =
+                                    await getExternalStorageDirectory();
+                              }
+                            }
+
+                            Directory saveLocation = downloadDirectory!;
+
+                            if (filesToExport.length > 1) {
+                              String currentSuffix = '';
+                              int currentDirID = 2;
+                              List<FileSystemEntity> dirFiles =
+                                  downloadDirectory.listSync();
+                              while (dirFiles.any((element) =>
+                                  basename(element.path) ==
+                                  validDirectoryName + currentSuffix)) {
+                                currentSuffix = ' ($currentDirID)';
+                                currentDirID++;
+                              }
+                              validDirectoryName =
+                                  validDirectoryName + currentSuffix;
+
+                              saveLocation = Directory(
+                                  join(saveLocation.path, validDirectoryName));
+                              saveLocation.createSync();
+                            }
+
+                            for (FileThumbnail thumbnail in filesToExport) {
+                              List<int> exportedFile =
+                                  await SingleThreadedRecovery
+                                      .loadAndDecryptFullFile(
+                                          widget.vault.encryptionKey!,
+                                          thumbnail.file);
+                              File fileToSaveTo =
+                                  File(join(saveLocation.path, thumbnail.name));
+                              fileToSaveTo.createSync();
+                              fileToSaveTo.writeAsBytesSync(exportedFile);
+                            }
+                            if (context.mounted)
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(S.of(context).savedToFolder(
+                                          basename(saveLocation.path)))));
+                          },
+                          child: Text(S.of(context).exportAsCleartext)),
                       PopupMenuItem(
                           onTap: () async {
                             for (FileThumbnail thumbnail in thumbnails) {
@@ -510,7 +644,9 @@ class FileExplorerState extends State<FileExplorer> {
                     : const Icon(Icons.arrow_back)),
             title: Text(isSelectionMode
                 ? S.of(context).selected(amountOfFilesSelected)
-                : (currentLocalPath.isNotEmpty ? basenameWithoutExtension(currentLocalPath) : widget.vault.name)),
+                : (currentLocalPath.isNotEmpty
+                    ? basenameWithoutExtension(currentLocalPath)
+                    : widget.vault.name)),
             bottom: loaderTarget == null || loaderCurrentLoad == null
                 ? null
                 : PreferredSize(

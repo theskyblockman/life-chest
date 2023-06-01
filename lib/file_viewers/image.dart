@@ -13,7 +13,8 @@ class ImageViewer extends FileViewer {
       {required super.fileVault,
       required super.fileToRead,
       required super.fileName,
-      required super.fileData, required this.explorerState});
+      required super.fileData,
+      required this.explorerState});
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +22,14 @@ class ImageViewer extends FileViewer {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: InteractiveViewer(
-            clipBehavior: Clip.none, constrained: true, transformationController: controller, onInteractionEnd: (details) {
-                explorerState.isPagingEnabled = controller.value.getMaxScaleOnAxis() <= 1.0;
-            }, child: loadedImage ?? Container())
-    );
+            clipBehavior: Clip.none,
+            constrained: true,
+            transformationController: controller,
+            onInteractionEnd: (details) {
+              explorerState.isPagingEnabled =
+                  controller.value.getMaxScaleOnAxis() <= 1.0;
+            },
+            child: loadedImage ?? Container()));
   }
 
   @override
@@ -41,8 +46,7 @@ class ImageViewer extends FileViewer {
   }
 
   @override
-  String loadingMessage(BuildContext context) =>
-      S.of(context).loadingImage;
+  String loadingMessage(BuildContext context) => S.of(context).loadingImage;
 
   @override
   Future<void> onFocus() async {

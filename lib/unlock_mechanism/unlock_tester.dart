@@ -10,15 +10,16 @@ class UnlockTester {
   final Vault chest;
 
   bool shouldUseChooser(BuildContext context) {
-
-    for(var unlockMechanismType in UnlockMechanism.unlockMechanisms.entries) {
-      if(unlockMechanismType.value == chest.unlockMechanismType) {
-        UnlockMechanism mechanism = unlockMechanismType.key(
-                (SecretKey retrievedKey, bool didPushed) {
-              onKeyIssued(retrievedKey, didPushed);
-              if(kDebugMode) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('the retriever issued a key: ${retrievedKey.toString()}')));
-            }
-        );
+    for (var unlockMechanismType in UnlockMechanism.unlockMechanisms.entries) {
+      if (unlockMechanismType.value == chest.unlockMechanismType) {
+        UnlockMechanism mechanism =
+            unlockMechanismType.key((SecretKey retrievedKey, bool didPushed) {
+          onKeyIssued(retrievedKey, didPushed);
+          if (kDebugMode)
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                    'the retriever issued a key: ${retrievedKey.toString()}')));
+        });
         mechanism.build(context, chest.additionalUnlockData);
         return false;
       }
@@ -34,20 +35,29 @@ class UnlockChooser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text('Unlock tester')), body: ListView.builder(itemBuilder: (context, index) {
-      UnlockMechanism mechanism = List.from(UnlockMechanism.unlockMechanisms.keys)[index]!(
-              (SecretKey retrievedKey, bool didPushed) {
-            onKeyIssued(retrievedKey, didPushed);
-            if(kDebugMode) {
-              retrievedKey.extractBytes().then((value) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('the retriever issued a key, hash is ${String.fromCharCodes(value)}')));
+    return Scaffold(
+        appBar: AppBar(title: const Text('Unlock tester')),
+        body: ListView.builder(
+            itemBuilder: (context, index) {
+              UnlockMechanism mechanism =
+                  List.from(UnlockMechanism.unlockMechanisms.keys)[index]!(
+                      (SecretKey retrievedKey, bool didPushed) {
+                onKeyIssued(retrievedKey, didPushed);
+                if (kDebugMode) {
+                  retrievedKey.extractBytes().then((value) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                            'the retriever issued a key, hash is ${String.fromCharCodes(value)}')));
+                  });
+                }
               });
-            }
-          }
-      );
-      return ListTile(title: Text('Mechanism n.${index + 1}'), onTap: () {
-        mechanism.build(context, {});
-      },);
-    }, itemCount: UnlockMechanism.unlockMechanisms.length));
+              return ListTile(
+                title: Text('Mechanism n.${index + 1}'),
+                onTap: () {
+                  mechanism.build(context, {});
+                },
+              );
+            },
+            itemCount: UnlockMechanism.unlockMechanisms.length));
   }
 }

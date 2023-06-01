@@ -36,8 +36,11 @@ class FileThumbnailsPlaceholder {
       FileThumbnailsPlaceholder.multipleSignatures(
           const Icon(Icons.description, color: Colors.redAccent, size: 128),
           ['text', 'pdf'],
-          (Vault vault, File fileToRead, String fileName,
-                  Map<String, dynamic> fileData, FileReaderState explorerState) =>
+          (Vault vault,
+                  File fileToRead,
+                  String fileName,
+                  Map<String, dynamic> fileData,
+                  FileReaderState explorerState) =>
               DocumentViewer(
                   fileVault: vault,
                   fileToRead: fileToRead,

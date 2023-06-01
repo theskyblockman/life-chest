@@ -88,8 +88,7 @@ class VaultsManager {
         shouldDisconnectWhenVaultOpened: policy.shouldDisconnectWhenVaultOpened,
         securityLevel: policy.securityLevel,
         encryptionKey: cryptKey,
-        unlockMechanismType: policy.unlockType
-    );
+        unlockMechanismType: policy.unlockType);
 
     File mapFile = File(p.join(path, '.map'));
     mapFile.createSync(recursive: true);
@@ -179,15 +178,14 @@ class VaultPolicy {
   SecretKey? key;
   String unlockType;
 
-  VaultPolicy({
-    this.isInternalVault = true,
-    this.vaultName = 'Unnamed vault',
-    required this.vaultUnlockAdditionalData,
-    this.shouldDisconnectWhenVaultOpened = false,
-    this.securityLevel = 2,
-    this.unlockType = 'password',
-    this.key
-  });
+  VaultPolicy(
+      {this.isInternalVault = true,
+      this.vaultName = 'Unnamed vault',
+      required this.vaultUnlockAdditionalData,
+      this.shouldDisconnectWhenVaultOpened = false,
+      this.securityLevel = 2,
+      this.unlockType = 'password',
+      this.key});
 }
 
 String md5RandomFileName() {
@@ -212,8 +210,7 @@ class Vault {
       required this.shouldDisconnectWhenVaultOpened,
       required this.securityLevel,
       required this.unlockMechanismType,
-      this.encryptionKey
-      });
+      this.encryptionKey});
 
   Vault.fromJson(Map<String, dynamic> storedData) {
     locked = storedData['locked'];

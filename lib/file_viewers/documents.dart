@@ -48,8 +48,7 @@ class DocumentViewer extends FileViewer {
   }
 
   @override
-  String loadingMessage(BuildContext context) =>
-      S.of(context).loadingDocuments;
+  String loadingMessage(BuildContext context) => S.of(context).loadingDocuments;
 
   @override
   Future<void> onFocus() async {}

@@ -77,7 +77,8 @@
   "pleaseUseBiometrics": "Please use your biometrics to unlock the chest",
   "defineScheme": "Define the scheme",
   "biometrics": "Biometrics",
-  "export": "Export",
+  "exportAsCleartext": "Export as a clear file (not encrypted)",
+  "exportAsEncrypted": "Export as an encrypted file",
   "@detectedExportedFile": {
     "placeholders": {
       "count": {
@@ -85,8 +86,17 @@
       }
     }
   },
-  "detectedExportedFile": "We detected {count, plural, =1{a file} other{multiple files}} who comes from a vault, to access {count, plural, =1{its} =other{their}} content, you must unlock them.",
+  "detectedExportedFile": "We detected {count, plural, =1{a file} other{multiple files}} who comes from a vault, to access {count, plural, =1{its} other{their}} content, you must unlock them.",
   "unlockFile": "Unlock the file",
   "useUnlockWizard": "Use the unlock wizard",
-  "ignore": "Ignore"
+  "ignore": "Ignore",
+  "lifeChestBulkSave": "Life Chest bulk file export",
+  "@savedToFolder": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "savedToFolder": "Saved the file(s) to {path}"
 }
