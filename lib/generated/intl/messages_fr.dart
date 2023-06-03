@@ -23,7 +23,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m0(count) =>
       "Nous avons détecté ${Intl.plural(count, one: 'un fichier', other: 'des fichiers')} provenant d\'un coffre. Pour accéder à ${Intl.plural(count, one: 'son', other: 'leur')} contenu, vous devez ${Intl.plural(count, one: 'le', other: 'les')} déverrouiller.";
 
-  static String m1(group_id) => "Groupe n°${group_id}";
+  static String m1(groupID) => "Groupe n°${groupID}";
 
   static String m2(path) =>
       "Le(s) fichier(s) a/ont été sauvegardé(s) dans ${path}";
@@ -31,8 +31,8 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m3(count) =>
       "${count} ${Intl.plural(count, one: 'fichier sélectionné', other: 'fichiers sélectionnés')}";
 
-  static String m4(unlock_name) =>
-      "Ce groupe peut être débloquer grâce à : ${unlock_name}.";
+  static String m4(unlockName) =>
+      "Ce groupe peut être débloquer grâce à : ${unlockName}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{

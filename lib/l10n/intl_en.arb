@@ -103,19 +103,19 @@
   "import": "Import",
   "@group": {
     "placeholders": {
-      "group_id": {
+      "groupID": {
         "type": "int"
       }
     }
   },
-  "group": "Group n.{group_id}",
+  "group": "Group n.{groupID}",
   "@unlockAbleBy": {
     "placeholders": {
-      "unlock_name": {
+      "unlockName": {
         "type": "String"
       }
     }
   },
-  "unlockAbleBy": "This group can be unlocked with: {unlock_name}.",
+  "unlockAbleBy": "This group can be unlocked with: {unlockName}.",
   "exportedFileDescription": "A file exported from the Life Chest app and who needs to be unlocked to get more information about it."
 }

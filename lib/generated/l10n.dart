@@ -850,23 +850,23 @@ class S {
     );
   }
 
-  /// `Group n.{group_id}`
-  String group(int group_id) {
+  /// `Group n.{groupID}`
+  String group(int groupID) {
     return Intl.message(
-      'Group n.$group_id',
+      'Group n.$groupID',
       name: 'group',
       desc: '',
-      args: [group_id],
+      args: [groupID],
     );
   }
 
-  /// `This group can be unlocked with: {unlock_name}.`
-  String unlockAbleBy(String unlock_name) {
+  /// `This group can be unlocked with: {unlockName}.`
+  String unlockAbleBy(String unlockName) {
     return Intl.message(
-      'This group can be unlocked with: $unlock_name.',
+      'This group can be unlocked with: $unlockName.',
       name: 'unlockAbleBy',
       desc: '',
-      args: [unlock_name],
+      args: [unlockName],
     );
   }
 

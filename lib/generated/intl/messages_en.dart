@@ -23,14 +23,14 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m0(count) =>
       "We detected ${Intl.plural(count, one: 'a file', other: 'multiple files')} that come from a vault. To access ${Intl.plural(count, one: 'its', other: 'their')} content, you must unlock them.";
 
-  static String m1(group_id) => "Group n.${group_id}";
+  static String m1(groupID) => "Group n.${groupID}";
 
   static String m2(path) => "Saved the file(s) to ${path}";
 
   static String m3(count) => "${count} selected";
 
-  static String m4(unlock_name) =>
-      "This group can be unlocked with: ${unlock_name}.";
+  static String m4(unlockName) =>
+      "This group can be unlocked with: ${unlockName}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
