@@ -26,4 +26,6 @@ An app to securely store your data for Android and iOS.
 - Export files/vaults to their original file or to a new file format (.lcvf or Life Chest Vault
   File)
   
+**NOTE: I wasn't aware of the reauirement of a SyncFusion license for the PDF reader, I am currently in the process of acquiring one.**
+  
 :copyright: Haroun El Omri, 2023
