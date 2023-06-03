@@ -73,10 +73,11 @@ class SchemeUnlockMechanism extends UnlockMechanism {
                                     style: const TextStyle(fontSize: 24))),
                             Flexible(
                                 child: PatternFormField(validator: (value) {
-                              if (value == null || value.isEmpty)
+                              if (value == null || value.isEmpty) {
                                 return S
                                     .of(context)
                                     .errorChestSchemeShouldNotBeEmpty;
+                              }
                               return null;
                             }, onCodeCreated: (code) {
                               policy.vaultUnlockAdditionalData['scheme'] = code;

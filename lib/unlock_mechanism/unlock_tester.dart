@@ -2,25 +2,26 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:life_chest/unlock_mechanism/unlock_mechanism.dart';
-import 'package:life_chest/vault.dart';
 
 class UnlockTester {
-  const UnlockTester(this.chest, {required this.onKeyIssued});
+  const UnlockTester(this.unlockMechanism, this.additionalUnlockData, {required this.onKeyIssued});
   final Function(SecretKey issuedKey, bool didPushed) onKeyIssued;
-  final Vault chest;
+  final String unlockMechanism;
+  final Map<String, dynamic> additionalUnlockData;
 
   bool shouldUseChooser(BuildContext context) {
     for (var unlockMechanismType in UnlockMechanism.unlockMechanisms.entries) {
-      if (unlockMechanismType.value == chest.unlockMechanismType) {
+      if (unlockMechanismType.value == unlockMechanism) {
         UnlockMechanism mechanism =
             unlockMechanismType.key((SecretKey retrievedKey, bool didPushed) {
           onKeyIssued(retrievedKey, didPushed);
-          if (kDebugMode)
+          if (kDebugMode) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(
                     'the retriever issued a key: ${retrievedKey.toString()}')));
+          }
         });
-        mechanism.build(context, chest.additionalUnlockData);
+        mechanism.build(context, additionalUnlockData);
         return false;
       }
     }

@@ -46,54 +46,71 @@ class SingleThreadedRecovery {
   }
 
   /// Encrypts the file in a specific location with the [encryptionKey] in the ChaCha20 algorithm
-  static Future<MapEntry<String, Map<String, dynamic>>?> saveFile(
+  static Future<(String, Map<String, dynamic>)?> saveFile(
       SecretKey encryptionKey,
       String vaultPath,
-      File createdFile,
       String localPath,
-      String? rootFolderPath) async {
+      String? rootFolderPath,
+  {File? createdFile, (Map<String, dynamic> metadata, List<int> data)? importedFile}) async {
     String fileName = md5RandomFileName();
     File fileToCreate = File(join(vaultPath, fileName));
     await fileToCreate.create(recursive: true);
-    IOSink fileToCreateSink = fileToCreate.openWrite();
-    try {
-      final clearTextStream = createdFile.openRead();
-      final encryptedStream = VaultsManager.cipher.encryptStream(
+    if(createdFile != null) {
+      IOSink fileToCreateSink = fileToCreate.openWrite();
+      try {
+        final clearTextStream = createdFile.openRead();
+        final encryptedStream = VaultsManager.cipher.encryptStream(
           clearTextStream,
           secretKey: encryptionKey,
           nonce: Uint8List(VaultsManager.cipher.nonceLength),
           onMac: (Mac mac) {});
-      await fileToCreateSink.addStream(encryptedStream);
-    } finally {
-      fileToCreateSink.close();
+          await fileToCreateSink.addStream(encryptedStream);
+      } finally {
+        fileToCreateSink.close();
+      }
+    } else {
+      fileToCreate.writeAsBytesSync(importedFile!.$2);
     }
-    String type = lookupMimeType(createdFile.path,
-            headerBytes: createdFile.readAsBytesSync()) ??
+
+    String? type;
+
+    if(createdFile != null) {
+      type = lookupMimeType(createdFile.path,
+        headerBytes: createdFile.readAsBytesSync()) ??
         '*/*';
+    } else {
+      type = importedFile!.$1['type'];
+    }
+
     String finalName = join(
         localPath,
         rootFolderPath == null
-            ? basename(createdFile.path)
-            : relative(createdFile.path, from: rootFolderPath));
+            ? basename(createdFile != null ? createdFile.path : importedFile!.$1['name'])
+            : createdFile != null ? relative(createdFile.path, from: rootFolderPath) : relative(importedFile!.$1['name'], from: rootFolderPath));
     Map<String, dynamic> finalData = {'name': finalName, 'type': type};
     if (FileThumbnailsPlaceholder.getPlaceholderFromFileName(
             [finalData])[finalName] ==
         FileThumbnailsPlaceholder.audio) {
-      Metadata foundData = await MetadataRetriever.fromFile(createdFile);
-      finalData['audioData'] = foundData.toJson();
-      finalData['audioData']['trackCover'] = foundData.albumArt != null
-          ? base64.encode(foundData.albumArt!)
-          : null;
-      finalData['audioData']['initialSize'] = createdFile.lengthSync();
+      if(createdFile != null) {
+        Metadata foundData = await MetadataRetriever.fromFile(createdFile);
+        finalData['audioData'] = foundData.toJson();
+        finalData['audioData']['trackCover'] = foundData.albumArt != null
+            ? base64.encode(foundData.albumArt!)
+            : null;
+        finalData['audioData']['initialSize'] = createdFile.lengthSync();
+      } else {
+        finalData['audioData'] = importedFile!.$1['audioData'];
+      }
+
     }
 
     try {
-      createdFile.deleteSync(recursive: true);
+      createdFile?.deleteSync(recursive: true);
     } catch (e) {
       // Ignore
     }
 
-    return MapEntry(fileName, finalData);
+    return (fileName, finalData);
   }
 
   /// Encrypts multiple files at once
@@ -118,9 +135,9 @@ class SingleThreadedRecovery {
     final Map<String, Map<String, dynamic>> additionalFiles = {};
 
     for (File createdFile in filesToSave) {
-      MapEntry<String, Map<String, dynamic>> savedFile = (await saveFile(
-          encryptionKey, vaultPath, createdFile, localPath, rootFolderPath))!;
-      additionalFiles[savedFile.key] = savedFile.value;
+      (String, Map<String, dynamic>) savedFile = (await saveFile(
+          encryptionKey, vaultPath, localPath, rootFolderPath, createdFile: createdFile))!;
+      additionalFiles[savedFile.$1] = savedFile.$2;
     }
     return additionalFiles;
   }
@@ -145,12 +162,21 @@ class SingleThreadedRecovery {
   }
 
   /// Incrementally save files provided, with the [encryptionKey] and returns its map value
-  static Stream<MapEntry<String, Map<String, dynamic>>> progressivelySaveFiles(
+  static Stream<(String, Map<String, dynamic>)> progressivelySaveFiles(
       SecretKey encryptionKey, String vaultPath, String localPath,
-      {required List<File> filesToSave, String? rootFolderPath}) async* {
-    for (File createdFile in filesToSave) {
-      yield (await saveFile(
-          encryptionKey, vaultPath, createdFile, localPath, rootFolderPath))!;
+      {List<File>? filesToSave, List<(Map<String, dynamic> metadata, List<int> data)>? importedFilesToSave, String? rootFolderPath}) async* {
+
+    if(filesToSave != null) {
+      for (File createdFile in filesToSave) {
+        yield (await saveFile(
+            encryptionKey, vaultPath, localPath, rootFolderPath, createdFile: createdFile))!;
+      }
+    } else {
+      for ((Map<String, dynamic> metadata, List<int> data) importedFile in importedFilesToSave!) {
+        yield (await saveFile(
+            encryptionKey, vaultPath, localPath, rootFolderPath, importedFile: importedFile))!;
+      }
     }
+
   }
 }

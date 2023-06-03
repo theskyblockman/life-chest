@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:life_chest/vault.dart';
@@ -46,21 +47,27 @@ class FileExporter {
       SecretKey encryptionKey,
       Map<String, dynamic> fileMapData,
       List<int> encryptedFileContentToExport,
-      String unlockMethodID) async {
+      String unlockMethodID,
+      Map<String, dynamic> additionalUnlockData) async {
     List<int> finalExportedFile = [];
 
     // Signature
     finalExportedFile.addAll('Life Chest Encrypted File'.codeUnits);
-
     String encodedMetadata = jsonEncode(fileMapData);
     List<int> encryptedMetadata = (await VaultsManager.cipher.encrypt(
-            encodedMetadata.codeUnits,
+            utf8.encode(encodedMetadata),
             secretKey: encryptionKey,
             nonce: Uint8List(VaultsManager.cipher.nonceLength)))
         .cipherText;
+    // The hash of the key to check if 2 files were encrypted using the same key (Always 64 chars long)
+    finalExportedFile.addAll(sha256.convert(await encryptionKey.extractBytes()).toString().codeUnits);
 
     // The unlock method of the file to use to find its secret key
     finalExportedFile.addAll(unlockMethodID.codeUnits);
+    finalExportedFile.addAll('|'.codeUnits);
+
+    // The additional unlock data which are required for biometrics for example
+    finalExportedFile.addAll(jsonEncode(additionalUnlockData).codeUnits);
     finalExportedFile.addAll('|'.codeUnits);
 
     // The file metadata length so that no overflow can be made.
@@ -82,7 +89,10 @@ class FileExporter {
     /*
     Im sum, the file structure is:
     - Signature (Life Chest Encrypted File)
+    - Key SHA256 hash
     - Unlock method
+    - Separator (|)
+    - Additional unlock data
     - Separator (|)
     - Metadata length
     - Separator (|)
@@ -99,45 +109,52 @@ class FileExporter {
 
   static String? determineExportedFileUnlockMethod(List<int> exportedFile) {
     if (!isExportedFile(exportedFile)) return null;
-
     List<List<int>> elements =
-        _splitListBySeparator(exportedFile.sublist(25), '|'.codeUnits[0], 3);
-    return String.fromCharCodes(elements[0]);
+        _splitListBySeparator(exportedFile.sublist(25), '|'.codeUnits[0], 4);
+    return String.fromCharCodes(elements[0].sublist(64));
+  }
+
+  static List<int>? getFileKeyHash(List<int> exportedFile) {
+    if (!isExportedFile(exportedFile)) return null;
+    List<List<int>> elements =
+    _splitListBySeparator(exportedFile.sublist(25), '|'.codeUnits[0], 4);
+    return elements[0].sublist(0, 64);
   }
 
   static Future<bool?> testExportedFileEncryption(
       List<int> exportedFile, SecretKey encryptionKey) async {
     if (!isExportedFile(exportedFile)) return null;
     List<List<int>> elements =
-        _splitListBySeparator(exportedFile, '|'.codeUnits[0], 3);
+        _splitListBySeparator(exportedFile, '|'.codeUnits[0], 4);
     // No need to round, the length is even whatever happening because of the source multiplication by 2 rule
-    SecretBox encryptedName = SecretBox(List.from(elements[2].sublist(32, 64)),
+    SecretBox encryptedName = SecretBox(List.from(elements[3].sublist(32, 64)),
         nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty);
     return listEquals(
         await VaultsManager.cipher
             .decrypt(encryptedName, secretKey: encryptionKey),
-        elements[2].sublist(0, 32));
+        elements[3].sublist(0, 32));
   }
 
   static Future<
           (Map<String, dynamic> fileMetadata, List<int> decryptedContent)?>
       importFile(List<int> exportedFile, SecretKey encryptionKey) async {
-    if (await testExportedFileEncryption(exportedFile, encryptionKey) != true)
+    if (await testExportedFileEncryption(exportedFile, encryptionKey) != true) {
       return null;
+    }
     List<List<int>> elements =
-        _splitListBySeparator(exportedFile, '|'.codeUnits[0], 3);
+        _splitListBySeparator(exportedFile, '|'.codeUnits[0], 4);
 
-    int metadataLength = int.parse(String.fromCharCodes(elements[1]));
+    int metadataLength = int.parse(String.fromCharCodes(elements[2]));
 
     Map<String, dynamic> metadata = jsonDecode(String.fromCharCodes(
-        await VaultsManager.cipher.decrypt(
-            SecretBox(elements[2].sublist(64, 64 + metadataLength),
+        utf8.decode(await VaultsManager.cipher.decrypt(
+            SecretBox(elements[3].sublist(64, 64 + metadataLength),
                 nonce: Uint8List(VaultsManager.cipher.nonceLength),
                 mac: Mac.empty),
-            secretKey: encryptionKey)));
+            secretKey: encryptionKey)).codeUnits));
 
     List<int> fileData = await VaultsManager.cipher.decrypt(
-        SecretBox(elements[2].sublist(64 + metadataLength),
+        SecretBox(elements[3].sublist(64 + metadataLength),
             nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty),
         secretKey: encryptionKey);
 
@@ -148,5 +165,14 @@ class FileExporter {
     return fileContent.length >= 25 &&
         listEquals(
             'Life Chest Encrypted File'.codeUnits, fileContent.sublist(0, 25));
+  }
+
+  static Map<String, dynamic>? getAdditionalUnlockData(List<int> fileContent) {
+    if (!isExportedFile(fileContent)) return null;
+
+    List<List<int>> elements =
+    _splitListBySeparator(fileContent, '|'.codeUnits[0], 4);
+
+    return jsonDecode(String.fromCharCodes(elements[1]));
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -60,21 +61,27 @@ class LifeChestApp extends StatelessWidget {
       colorScheme: darkColorScheme,
     );
 
-    return MaterialApp(
-      title: 'Life Chest',
-      localizationsDelegates: const [
-        S.delegate,
-        SfGlobalLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate
-      ],
-      supportedLocales: S.delegate.supportedLocales,
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
-    );
+    return DynamicColorBuilder(builder: (lightDynamic, darkDynamic) {
+      return MaterialApp(
+        title: 'Life Chest',
+        localizationsDelegates: const [
+          S.delegate,
+          SfGlobalLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          DefaultCupertinoLocalizations.delegate
+        ],
+        supportedLocales: S.delegate.supportedLocales,
+        theme: lightDynamic != null ? ThemeData(colorScheme: lightDynamic, useMaterial3: true) : lightTheme,
+        darkTheme: darkDynamic != null ? ThemeData(colorScheme: darkDynamic, useMaterial3: true) : darkTheme,
+        home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
+      );
+    });
+
+
+
+
   }
 }
 
@@ -199,6 +206,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                 itemBuilder: (context, index) {
                   Vault chest = VaultsManager.storedVaults[index];
                   return Card(
+                    shadowColor: Colors.transparent,
                       child: ListTile(
                           title: Text(chest.name),
                           trailing: PopupMenuButton(
@@ -243,7 +251,6 @@ class ChestMainPageState extends State<ChestMainPage> {
                                                 initialName: chest.name);
                                           },
                                         ).then((value) {
-                                          // NOTE: Do not edit this, as the value can be null it is easier to try to put value as true as to verify that it isn't null and to then verify it's bool value
                                           if (value == true) {
                                             setState(() {});
                                           }
@@ -255,7 +262,8 @@ class ChestMainPageState extends State<ChestMainPage> {
                                 ];
                               }),
                           onTap: () {
-                            UnlockTester tester = UnlockTester(chest,
+                            UnlockTester tester = UnlockTester(chest.unlockMechanismType,
+                                chest.additionalUnlockData,
                                 onKeyIssued: (issuedKey, didPushed) =>
                                     onKeyIssued(chest, issuedKey, didPushed));
                             if (tester.shouldUseChooser(context)) {

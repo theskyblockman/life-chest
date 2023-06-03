@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'fr';
 
   static String m0(count) =>
-      "Nous avons détecté ${Intl.plural(count, one: 'un fichier', other: 'des fichiers')} provenant d\'un coffre. Pour accéder à ${Intl.plural(count, one: 'son', other: 'leur')} contenu, vous devez les déverrouiller.";
+      "Nous avons détecté ${Intl.plural(count, one: 'un fichier', other: 'des fichiers')} provenant d\'un coffre. Pour accéder à ${Intl.plural(count, one: 'son', other: 'leur')} contenu, vous devez ${Intl.plural(count, one: 'le', other: 'les')} déverrouiller.";
 
   static String m1(path) =>
       "Le(s) fichier(s) a/ont été sauvegardé(s) dans ${path}";
@@ -98,12 +98,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "errorDurationMustNotBeEmpty": MessageLookupByLibrary.simpleMessage(
             "La durée ne doit pas être vide"),
         "exportAsCleartext": MessageLookupByLibrary.simpleMessage(
-            "Exporter entant que fichier lisible (fichier non encrypté)"),
+            "Exporter en tant que fichier lisible (fichier non encrypté)"),
         "exportAsEncrypted": MessageLookupByLibrary.simpleMessage(
-            "Exporter entant que fichier encrypté"),
+            "Exporter en tant que fichier encrypté"),
         "ignore": MessageLookupByLibrary.simpleMessage("Ignorer"),
+        "import": MessageLookupByLibrary.simpleMessage("Importer"),
         "lifeChestBulkSave": MessageLookupByLibrary.simpleMessage(
-            "Sauvegarde de fichier en masse"),
+            "Sauvegarde de fichiers en masse"),
         "loadingAudioTrack": MessageLookupByLibrary.simpleMessage(
             "Chargement de la piste audio"),
         "loadingDocuments":
@@ -144,6 +145,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Veuillez déverrouiller le coffre"),
         "unlockFile":
             MessageLookupByLibrary.simpleMessage("Déverrouiller le fichier"),
+        "unlockWizard":
+            MessageLookupByLibrary.simpleMessage("Assistant de déverrouillage"),
         "useUnlockWizard": MessageLookupByLibrary.simpleMessage(
             "Utiliser l\'assistant de déverrouillage"),
         "validate": MessageLookupByLibrary.simpleMessage("Valider"),

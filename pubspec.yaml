@@ -23,7 +23,7 @@ dependencies:
   syncfusion_localizations: ^21.2.8
   video_player: ^2.6.1
   encrypt: ^5.0.1
-  crypto: ^3.0.2
+  crypto: ^3.0.3
   audio_service: ^0.18.9
   just_audio: ^0.9.32
   mime: ^1.0.4
@@ -33,13 +33,14 @@ dependencies:
   local_auth_crypto: ^1.1.0
   pattern_lock: ^2.0.0
   local_auth: ^2.1.6
+  dynamic_color: ^1.6.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^2.0.0
   intl_utils: any
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   generate: true
@@ -49,3 +50,10 @@ flutter:
     - logo.png
 flutter_intl:
   enabled: true
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "logo.png"
+  min_sdk_android: 23
+  remove_alpha_ios: true

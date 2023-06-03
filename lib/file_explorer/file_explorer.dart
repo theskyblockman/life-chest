@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:life_chest/file_exporter.dart';
+import 'package:life_chest/file_explorer/file_unlock_wizard.dart';
+import 'package:life_chest/file_recovery/file_exporter.dart';
 import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/file_explorer/file_placeholder.dart';
 import 'package:life_chest/file_explorer/file_sort_methods.dart';
@@ -425,10 +426,10 @@ class FileExplorerState extends State<FileExplorer> {
                               downloadDirectory =
                                   Directory('/storage/emulated/0/Download');
                               // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
-                              // ignore: avoid_slow_async_io
-                              if (!await downloadDirectory.exists())
+                              if (!await downloadDirectory.exists()) {
                                 downloadDirectory =
                                     await getExternalStorageDirectory();
+                              }
                             }
 
                             Directory saveLocation = downloadDirectory!;
@@ -459,17 +460,19 @@ class FileExplorerState extends State<FileExplorer> {
                                       widget.vault.encryptionKey!,
                                       thumbnail.data,
                                       await thumbnail.file.openRead().last,
-                                      widget.vault.unlockMechanismType);
+                                      widget.vault.unlockMechanismType,
+                                      widget.vault.additionalUnlockData);
                               File fileToSaveTo = File(join(saveLocation.path,
                                   'Life_Chest_${md5RandomFileName()}.lcef'));
                               fileToSaveTo.createSync();
                               fileToSaveTo.writeAsBytesSync(exportedFile);
                             }
-                            if (context.mounted)
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text(S.of(context).savedToFolder(
                                           basename(saveLocation.path)))));
+                            }
                           }),
                       PopupMenuItem(
                           onTap: () async {
@@ -491,7 +494,6 @@ class FileExplorerState extends State<FileExplorer> {
                               downloadDirectory =
                                   Directory('/storage/emulated/0/Download');
                               // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
-                              // ignore: avoid_slow_async_io
                               if (!await downloadDirectory.exists()) {
                                 downloadDirectory =
                                     await getExternalStorageDirectory();
@@ -530,11 +532,12 @@ class FileExplorerState extends State<FileExplorer> {
                               fileToSaveTo.createSync();
                               fileToSaveTo.writeAsBytesSync(exportedFile);
                             }
-                            if (context.mounted)
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text(S.of(context).savedToFolder(
                                           basename(saveLocation.path)))));
+                            }
                           },
                           child: Text(S.of(context).exportAsCleartext)),
                       PopupMenuItem(
@@ -735,18 +738,50 @@ class FileExplorerState extends State<FileExplorer> {
       if (selectedFiles == null || selectedFiles.isEmpty) {
         return;
       }
+
+      List<File> filesToDecrypt = [];
+      List<File> filesToSave = [];
+
+      for(File file in selectedFiles) {
+        if(FileExporter.isExportedFile(await file.openRead(0, 32).last)) {
+          filesToDecrypt.add(file);
+        } else {
+          filesToSave.add(file);
+        }
+      }
+
       setState(() {
-        loaderTarget = selectedFiles.length;
+        loaderTarget = filesToSave.length;
         loaderCurrentLoad = 0;
       });
-
+      if(context.mounted && filesToDecrypt.isNotEmpty) {
+        ScaffoldMessenger.of(context).showMaterialBanner(
+            MaterialBanner(content: Text(
+                S.of(context).detectedExportedFile(filesToDecrypt.length)),
+                actions: [
+                  TextButton(onPressed: () {
+                    ScaffoldMessenger.of(context).removeCurrentMaterialBanner();
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileUnlockWizard(filesToDecrypt: filesToDecrypt))).then((value) {
+                      if(value != null) saveFolder(context, value);
+                    });
+                  }, child: Text(S
+                      .of(context)
+                      .useUnlockWizard)),
+                  TextButton(onPressed: () {
+                    ScaffoldMessenger.of(context).removeCurrentMaterialBanner(reason: MaterialBannerClosedReason.dismiss);
+                  }, child: Text(S
+                      .of(context)
+                      .ignore))
+                ])
+        );
+      }
       Map<String, Map<String, dynamic>> savedFiles = {};
 
-      await for (MapEntry<String, Map<String, dynamic>> savedFile
+      await for ((String, Map<String, dynamic>) savedFile
           in SingleThreadedRecovery.progressivelySaveFiles(
               widget.vault.encryptionKey!, widget.vault.path, currentLocalPath,
-              filesToSave: selectedFiles)) {
-        savedFiles[savedFile.key] = savedFile.value;
+              filesToSave: filesToSave)) {
+        savedFiles[savedFile.$1] = savedFile.$2;
         setState(() {
           loaderCurrentLoad = loaderCurrentLoad! + 1;
         });
@@ -770,44 +805,91 @@ class FileExplorerState extends State<FileExplorer> {
   }
 
   /// Used to import a folder into the vault
-  Future<void> saveFolder(BuildContext context) async {
+  Future<void> saveFolder(BuildContext context, [List<(Map<String, dynamic> metadata, List<int> data)>? importedFilesToSave]) async {
     File mapFile = File(join(widget.vault.path, '.map'));
     mapFile.createSync(recursive: true);
+    List<File>? filesToSave;
+    String? rootFolderPath;
     try {
-      isPauseAllowed = false;
-      shouldNotificationBeSent = false;
-      Directory? pickedFolder = (await SingleThreadedRecovery.pickFolderToSave(
-          dialogTitle: S.of(context).pickFolderDialogTitle));
-      if (pickedFolder == null) {
-        return;
-      }
-      List<File> filesToSave = [];
-      for (FileSystemEntity entity in pickedFolder.listSync(recursive: true)) {
-        if (entity is File) {
-          filesToSave.add(entity);
-        } else {
-          map[md5RandomFileName()] = {
-            'name': join(currentLocalPath,
-                relative(entity.path, from: pickedFolder.path)),
-            'type': 'folder'
-          };
+      if(importedFilesToSave == null) {
+        isPauseAllowed = false;
+        shouldNotificationBeSent = false;
+        Directory? pickedFolder = (await SingleThreadedRecovery.pickFolderToSave(
+            dialogTitle: S.of(context).pickFolderDialogTitle));
+        if (pickedFolder == null) {
+          return;
         }
-      }
-      isPauseAllowed = widget.vault.securityLevel >= 2;
-      shouldNotificationBeSent = widget.vault.securityLevel == 1;
+        rootFolderPath = pickedFolder.path;
+        List<File> selectedFiles = [];
+        for (FileSystemEntity entity in pickedFolder.listSync(recursive: true)) {
+          if (entity is File) {
+            selectedFiles.add(entity);
+          } else {
+            map[md5RandomFileName()] = {
+              'name': join(currentLocalPath,
+                  relative(entity.path, from: pickedFolder.path)),
+              'type': 'folder'
+            };
+          }
+        }
 
-      setState(() {
-        loaderTarget = filesToSave.length;
-        loaderCurrentLoad = 0;
-      });
+
+        List<File> filesToDecrypt = [];
+        List<File> filesToSave = [];
+
+        for(File file in selectedFiles) {
+          if(FileExporter.isExportedFile(await file.openRead(0, 32).last)) {
+            filesToDecrypt.add(file);
+          } else {
+            selectedFiles.add(file);
+          }
+        }
+
+
+        isPauseAllowed = widget.vault.securityLevel >= 2;
+        shouldNotificationBeSent = widget.vault.securityLevel == 1;
+
+        setState(() {
+          loaderTarget = filesToSave.length;
+          loaderCurrentLoad = 0;
+        });
+
+        if(context.mounted && filesToDecrypt.isNotEmpty) {
+          ScaffoldMessenger.of(context).showMaterialBanner(
+              MaterialBanner(content: Text(
+                  S.of(context).detectedExportedFile(filesToDecrypt.length)),
+                  actions: [
+                    TextButton(onPressed: () {
+                      ScaffoldMessenger.of(context).removeCurrentMaterialBanner();
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileUnlockWizard(filesToDecrypt: filesToDecrypt))).then((value) {
+                        if(value != null) saveFolder(context, value);
+                      });
+                    }, child: Text(S
+                        .of(context)
+                        .useUnlockWizard)),
+                    TextButton(onPressed: () {
+                      ScaffoldMessenger.of(context).removeCurrentMaterialBanner(reason: MaterialBannerClosedReason.dismiss);
+                    }, child: Text(S
+                        .of(context)
+                        .ignore))
+                  ])
+          );
+        }
+      } else {
+        setState(() {
+          loaderTarget = importedFilesToSave.length;
+          loaderCurrentLoad = 0;
+        });
+      }
+
 
       Map<String, Map<String, dynamic>> savedFiles = {};
 
-      await for (MapEntry<String, Map<String, dynamic>> savedFile
+      await for ((String, Map<String, dynamic>) savedFile
           in SingleThreadedRecovery.progressivelySaveFiles(
               widget.vault.encryptionKey!, widget.vault.path, currentLocalPath,
-              filesToSave: filesToSave, rootFolderPath: pickedFolder.path)) {
-        savedFiles[savedFile.key] = savedFile.value;
+              filesToSave: filesToSave, rootFolderPath: rootFolderPath, importedFilesToSave: importedFilesToSave)) {
+        savedFiles[savedFile.$1] = savedFile.$2;
         setState(() {
           loaderCurrentLoad = loaderCurrentLoad! + 1;
         });

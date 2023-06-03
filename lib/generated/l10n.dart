@@ -770,10 +770,10 @@ class S {
     );
   }
 
-  /// `We detected {count, plural, =1{a file} other{multiple files}} who comes from a vault, to access {count, plural, =1{its} other{their}} content, you must unlock them.`
+  /// `We detected {count, plural, =1{a file} other{multiple files}} that come from a vault. To access {count, plural, =1{its} other{their}} content, you must unlock them.`
   String detectedExportedFile(int count) {
     return Intl.message(
-      'We detected ${Intl.plural(count, one: 'a file', other: 'multiple files')} who comes from a vault, to access ${Intl.plural(count, one: 'its', other: 'their')} content, you must unlock them.',
+      'We detected ${Intl.plural(count, one: 'a file', other: 'multiple files')} that come from a vault. To access ${Intl.plural(count, one: 'its', other: 'their')} content, you must unlock them.',
       name: 'detectedExportedFile',
       desc: '',
       args: [count],
@@ -795,6 +795,16 @@ class S {
     return Intl.message(
       'Use the unlock wizard',
       name: 'useUnlockWizard',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unlock wizard`
+  String get unlockWizard {
+    return Intl.message(
+      'Unlock wizard',
+      name: 'unlockWizard',
       desc: '',
       args: [],
     );
@@ -827,6 +837,16 @@ class S {
       name: 'savedToFolder',
       desc: '',
       args: [path],
+    );
+  }
+
+  /// `Import`
+  String get import {
+    return Intl.message(
+      'Import',
+      name: 'import',
+      desc: '',
+      args: [],
     );
   }
 }

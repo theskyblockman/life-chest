@@ -70,12 +70,13 @@
   "defineScheme": "Définir le modèle",
   "errorChestPinCodeShouldNotBeEmpty": "Le code PIN ne doit pas être vide",
   "biometrics": "Empreinte digitale",
-  "detectedExportedFile": "Nous avons détecté {count, plural, =1{un fichier} other{des fichiers}} provenant d'un coffre. Pour accéder à {count, plural, =1{son} other{leur}} contenu, vous devez les déverrouiller.",
-  "unlockFile": "Déverrouiller le fichier",
+  "detectedExportedFile": "Nous avons détecté {count, plural, =1{un fichier} other{des fichiers}} provenant d'un coffre. Pour accéder à {count, plural, =1{son} other{leur}} contenu, vous devez {count, plural, =1{le} other{les}} déverrouiller.",  "unlockFile": "Déverrouiller le fichier",
   "useUnlockWizard": "Utiliser l'assistant de déverrouillage",
+  "unlockWizard": "Assistant de déverrouillage",
   "ignore": "Ignorer",
-  "exportAsCleartext": "Exporter entant que fichier lisible (fichier non encrypté)",
-  "exportAsEncrypted": "Exporter entant que fichier encrypté",
-  "lifeChestBulkSave": "Sauvegarde de fichier en masse",
-  "savedToFolder": "Le(s) fichier(s) a/ont été sauvegardé(s) dans {path}"
+  "exportAsCleartext": "Exporter en tant que fichier lisible (fichier non encrypté)",
+  "exportAsEncrypted": "Exporter en tant que fichier encrypté",
+  "lifeChestBulkSave": "Sauvegarde de fichiers en masse",
+  "savedToFolder": "Le(s) fichier(s) a/ont été sauvegardé(s) dans {path}",
+  "import": "Importer"
 }

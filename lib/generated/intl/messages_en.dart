@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
   static String m0(count) =>
-      "We detected ${Intl.plural(count, one: 'a file', other: 'multiple files')} who comes from a vault, to access ${Intl.plural(count, one: 'its', other: 'their')} content, you must unlock them.";
+      "We detected ${Intl.plural(count, one: 'a file', other: 'multiple files')} that come from a vault. To access ${Intl.plural(count, one: 'its', other: 'their')} content, you must unlock them.";
 
   static String m1(path) => "Saved the file(s) to ${path}";
 
@@ -96,6 +96,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "exportAsEncrypted":
             MessageLookupByLibrary.simpleMessage("Export as an encrypted file"),
         "ignore": MessageLookupByLibrary.simpleMessage("Ignore"),
+        "import": MessageLookupByLibrary.simpleMessage("Import"),
         "lifeChestBulkSave":
             MessageLookupByLibrary.simpleMessage("Life Chest bulk file export"),
         "loadingAudioTrack":
@@ -135,6 +136,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "sortBy": MessageLookupByLibrary.simpleMessage("Sort by..."),
         "unlockChest": MessageLookupByLibrary.simpleMessage("Unlock the chest"),
         "unlockFile": MessageLookupByLibrary.simpleMessage("Unlock the file"),
+        "unlockWizard": MessageLookupByLibrary.simpleMessage("Unlock wizard"),
         "useUnlockWizard":
             MessageLookupByLibrary.simpleMessage("Use the unlock wizard"),
         "validate": MessageLookupByLibrary.simpleMessage("Validate"),

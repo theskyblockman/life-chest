@@ -86,9 +86,10 @@
       }
     }
   },
-  "detectedExportedFile": "We detected {count, plural, =1{a file} other{multiple files}} who comes from a vault, to access {count, plural, =1{its} other{their}} content, you must unlock them.",
+  "detectedExportedFile": "We detected {count, plural, =1{a file} other{multiple files}} that come from a vault. To access {count, plural, =1{its} other{their}} content, you must unlock them.",
   "unlockFile": "Unlock the file",
   "useUnlockWizard": "Use the unlock wizard",
+  "unlockWizard": "Unlock wizard",
   "ignore": "Ignore",
   "lifeChestBulkSave": "Life Chest bulk file export",
   "@savedToFolder": {
@@ -98,5 +99,6 @@
       }
     }
   },
-  "savedToFolder": "Saved the file(s) to {path}"
+  "savedToFolder": "Saved the file(s) to {path}",
+  "import": "Import"
 }

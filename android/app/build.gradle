@@ -36,6 +36,7 @@ repositories {
 }
 
 dependencies {
+    //noinspection GradleDependency
     implementation 'com.github.prongbang:android-secure-biometric:0.0.6'
 }
 
