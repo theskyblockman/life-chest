@@ -1,6 +1,6 @@
 import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_explorer/file_sort_methods.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('File sorting test', () {

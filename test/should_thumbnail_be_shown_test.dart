@@ -1,4 +1,4 @@
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
 
 void main() {
