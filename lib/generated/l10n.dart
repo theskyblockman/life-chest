@@ -860,10 +860,10 @@ class S {
     );
   }
 
-  /// `This group can be unlocked with: {unlock_name).`
+  /// `This group can be unlocked with: {unlock_name}.`
   String unlockAbleBy(String unlock_name) {
     return Intl.message(
-      'This group can be unlocked with: {unlock_name).',
+      'This group can be unlocked with: $unlock_name.',
       name: 'unlockAbleBy',
       desc: '',
       args: [unlock_name],

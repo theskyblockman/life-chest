@@ -32,7 +32,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "${count} ${Intl.plural(count, one: 'fichier sélectionné', other: 'fichiers sélectionnés')}";
 
   static String m4(unlock_name) =>
-      "Ce groupe peut être débloquer grâce à : {unlock_name).";
+      "Ce groupe peut être débloquer grâce à : ${unlock_name}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{

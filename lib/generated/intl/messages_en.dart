@@ -30,7 +30,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m3(count) => "${count} selected";
 
   static String m4(unlock_name) =>
-      "This group can be unlocked with: {unlock_name).";
+      "This group can be unlocked with: ${unlock_name}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
