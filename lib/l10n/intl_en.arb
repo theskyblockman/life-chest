@@ -100,5 +100,22 @@
     }
   },
   "savedToFolder": "Saved the file(s) to {path}",
-  "import": "Import"
+  "import": "Import",
+  "@group": {
+    "placeholders": {
+      "group_id": {
+        "type": "int"
+      }
+    }
+  },
+  "group": "Group n.{group_id}",
+  "@unlockAbleBy": {
+    "placeholders": {
+      "unlock_name": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockAbleBy": "This group can be unlocked with: {unlock_name).",
+  "exportedFileDescription": "A file exported from the Life Chest app and who needs to be unlocked to get more information about it."
 }

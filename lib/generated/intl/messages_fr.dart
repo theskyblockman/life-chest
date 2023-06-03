@@ -23,11 +23,16 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m0(count) =>
       "Nous avons détecté ${Intl.plural(count, one: 'un fichier', other: 'des fichiers')} provenant d\'un coffre. Pour accéder à ${Intl.plural(count, one: 'son', other: 'leur')} contenu, vous devez ${Intl.plural(count, one: 'le', other: 'les')} déverrouiller.";
 
-  static String m1(path) =>
+  static String m1(group_id) => "Groupe n°${group_id}";
+
+  static String m2(path) =>
       "Le(s) fichier(s) a/ont été sauvegardé(s) dans ${path}";
 
-  static String m2(count) =>
+  static String m3(count) =>
       "${count} ${Intl.plural(count, one: 'fichier sélectionné', other: 'fichiers sélectionnés')}";
+
+  static String m4(unlock_name) =>
+      "Ce groupe peut être débloquer grâce à : {unlock_name).";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -101,6 +106,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "Exporter en tant que fichier lisible (fichier non encrypté)"),
         "exportAsEncrypted": MessageLookupByLibrary.simpleMessage(
             "Exporter en tant que fichier encrypté"),
+        "exportedFileDescription": MessageLookupByLibrary.simpleMessage(
+            "Um fichier exporté depuis Life Chest qui est encrypté et qui a donc besoin d\'être décrypté pour être lu."),
+        "group": m1,
         "ignore": MessageLookupByLibrary.simpleMessage("Ignorer"),
         "import": MessageLookupByLibrary.simpleMessage("Importer"),
         "lifeChestBulkSave": MessageLookupByLibrary.simpleMessage(
@@ -134,13 +142,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
             "Veuillez utiliser votre empreinte digitale pour déverrouiller le coffre"),
         "rename": MessageLookupByLibrary.simpleMessage("Renommer"),
-        "savedToFolder": m1,
+        "savedToFolder": m2,
         "scheme": MessageLookupByLibrary.simpleMessage("Modèle"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
-        "selected": m2,
+        "selected": m3,
         "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
             "Activer le mode avion lorsque le coffre s\'ouvre"),
         "sortBy": MessageLookupByLibrary.simpleMessage("Trier par..."),
+        "unlockAbleBy": m4,
         "unlockChest": MessageLookupByLibrary.simpleMessage(
             "Veuillez déverrouiller le coffre"),
         "unlockFile":

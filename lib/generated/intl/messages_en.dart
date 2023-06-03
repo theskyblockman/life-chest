@@ -23,9 +23,14 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m0(count) =>
       "We detected ${Intl.plural(count, one: 'a file', other: 'multiple files')} that come from a vault. To access ${Intl.plural(count, one: 'its', other: 'their')} content, you must unlock them.";
 
-  static String m1(path) => "Saved the file(s) to ${path}";
+  static String m1(group_id) => "Group n.${group_id}";
 
-  static String m2(count) => "${count} selected";
+  static String m2(path) => "Saved the file(s) to ${path}";
+
+  static String m3(count) => "${count} selected";
+
+  static String m4(unlock_name) =>
+      "This group can be unlocked with: {unlock_name).";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -95,6 +100,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "Export as a clear file (not encrypted)"),
         "exportAsEncrypted":
             MessageLookupByLibrary.simpleMessage("Export as an encrypted file"),
+        "exportedFileDescription": MessageLookupByLibrary.simpleMessage(
+            "A file exported from the Life Chest app and who needs to be unlocked to get more information about it."),
+        "group": m1,
         "ignore": MessageLookupByLibrary.simpleMessage("Ignore"),
         "import": MessageLookupByLibrary.simpleMessage("Import"),
         "lifeChestBulkSave":
@@ -127,13 +135,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
             "Please use your biometrics to unlock the chest"),
         "rename": MessageLookupByLibrary.simpleMessage("Rename"),
-        "savedToFolder": m1,
+        "savedToFolder": m2,
         "scheme": MessageLookupByLibrary.simpleMessage("Pattern"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
-        "selected": m2,
+        "selected": m3,
         "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
             "Enter airplane mode when the chest opens"),
         "sortBy": MessageLookupByLibrary.simpleMessage("Sort by..."),
+        "unlockAbleBy": m4,
         "unlockChest": MessageLookupByLibrary.simpleMessage("Unlock the chest"),
         "unlockFile": MessageLookupByLibrary.simpleMessage("Unlock the file"),
         "unlockWizard": MessageLookupByLibrary.simpleMessage("Unlock wizard"),

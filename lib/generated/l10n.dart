@@ -849,6 +849,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Group n.{group_id}`
+  String group(int group_id) {
+    return Intl.message(
+      'Group n.$group_id',
+      name: 'group',
+      desc: '',
+      args: [group_id],
+    );
+  }
+
+  /// `This group can be unlocked with: {unlock_name).`
+  String unlockAbleBy(String unlock_name) {
+    return Intl.message(
+      'This group can be unlocked with: {unlock_name).',
+      name: 'unlockAbleBy',
+      desc: '',
+      args: [unlock_name],
+    );
+  }
+
+  /// `A file exported from the Life Chest app and who needs to be unlocked to get more information about it.`
+  String get exportedFileDescription {
+    return Intl.message(
+      'A file exported from the Life Chest app and who needs to be unlocked to get more information about it.',
+      name: 'exportedFileDescription',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

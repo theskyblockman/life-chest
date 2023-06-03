@@ -78,5 +78,8 @@
   "exportAsEncrypted": "Exporter en tant que fichier encrypté",
   "lifeChestBulkSave": "Sauvegarde de fichiers en masse",
   "savedToFolder": "Le(s) fichier(s) a/ont été sauvegardé(s) dans {path}",
-  "import": "Importer"
+  "import": "Importer",
+  "group": "Groupe n°{group_id}",
+  "unlockAbleBy": "Ce groupe peut être débloquer grâce à : {unlock_name).",
+  "exportedFileDescription": "Um fichier exporté depuis Life Chest qui est encrypté et qui a donc besoin d'être décrypté pour être lu."
 }

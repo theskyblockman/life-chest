@@ -86,9 +86,8 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
                     Card(
                         child: ListTile(
                       title: Text(
-                          'Group n.${List.from(currentStatus.keys).indexOf(fileGroup) + 1}'),
-                      subtitle: Text(
-                          'This group can be unlocked by using ${reverseMap(UnlockMechanism.unlockMechanisms)[FileExporter.determineExportedFileUnlockMethod(currentStatus[fileGroup]!.$1[0])!]!((SecretKey key, bool check) => null).getName(context)}.'),
+                          S.of(context).group(List.from(currentStatus.keys).indexOf(fileGroup) + 1)),
+                      subtitle: Text(S.of(context).unlockAbleBy(reverseMap(UnlockMechanism.unlockMechanisms)[FileExporter.determineExportedFileUnlockMethod(currentStatus[fileGroup]!.$1[0])!]!((SecretKey key, bool check) => null).getName(context))),
                       trailing: currentStatus[fileGroup]!.$2 == null ? const Icon(Icons.key) : IconButton(onPressed: () {
                         setState(() {
                           currentStatus[fileGroup] = (currentStatus[fileGroup]!.$1, null);
@@ -114,8 +113,7 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
                             return ListTile(
                                 title: Text(basename(snapshot.data!.$1['name'])),
                                 subtitle: snapshot.data!.$2.isEmpty
-                                    ? const Text(
-                                        'A file exported from the Life Chest app and who needs to be unlocked to get more information about it.')
+                                    ? Text(S.of(context).exportedFileDescription)
                                     : null);
                           }),
                   ]),
