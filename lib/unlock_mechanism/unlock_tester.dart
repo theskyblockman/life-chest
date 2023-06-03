@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:life_chest/unlock_mechanism/unlock_mechanism.dart';
 
 class UnlockTester {
-  const UnlockTester(this.unlockMechanism, this.additionalUnlockData, {required this.onKeyIssued});
+  const UnlockTester(this.unlockMechanism, this.additionalUnlockData,
+      {required this.onKeyIssued});
   final Function(SecretKey issuedKey, bool didPushed) onKeyIssued;
   final String unlockMechanism;
   final Map<String, dynamic> additionalUnlockData;

@@ -60,7 +60,10 @@ class FileExporter {
             nonce: Uint8List(VaultsManager.cipher.nonceLength)))
         .cipherText;
     // The hash of the key to check if 2 files were encrypted using the same key (Always 64 chars long)
-    finalExportedFile.addAll(sha256.convert(await encryptionKey.extractBytes()).toString().codeUnits);
+    finalExportedFile.addAll(sha256
+        .convert(await encryptionKey.extractBytes())
+        .toString()
+        .codeUnits);
 
     // The unlock method of the file to use to find its secret key
     finalExportedFile.addAll(unlockMethodID.codeUnits);
@@ -117,7 +120,7 @@ class FileExporter {
   static List<int>? getFileKeyHash(List<int> exportedFile) {
     if (!isExportedFile(exportedFile)) return null;
     List<List<int>> elements =
-    _splitListBySeparator(exportedFile.sublist(25), '|'.codeUnits[0], 4);
+        _splitListBySeparator(exportedFile.sublist(25), '|'.codeUnits[0], 4);
     return elements[0].sublist(0, 64);
   }
 
@@ -146,12 +149,13 @@ class FileExporter {
 
     int metadataLength = int.parse(String.fromCharCodes(elements[2]));
 
-    Map<String, dynamic> metadata = jsonDecode(String.fromCharCodes(
-        utf8.decode(await VaultsManager.cipher.decrypt(
+    Map<String, dynamic> metadata = jsonDecode(String.fromCharCodes(utf8
+        .decode(await VaultsManager.cipher.decrypt(
             SecretBox(elements[3].sublist(64, 64 + metadataLength),
                 nonce: Uint8List(VaultsManager.cipher.nonceLength),
                 mac: Mac.empty),
-            secretKey: encryptionKey)).codeUnits));
+            secretKey: encryptionKey))
+        .codeUnits));
 
     List<int> fileData = await VaultsManager.cipher.decrypt(
         SecretBox(elements[3].sublist(64 + metadataLength),
@@ -171,7 +175,7 @@ class FileExporter {
     if (!isExportedFile(fileContent)) return null;
 
     List<List<int>> elements =
-    _splitListBySeparator(fileContent, '|'.codeUnits[0], 4);
+        _splitListBySeparator(fileContent, '|'.codeUnits[0], 4);
 
     return jsonDecode(String.fromCharCodes(elements[1]));
   }

@@ -40,9 +40,22 @@ void main() {
     SecretKey secretKey = SecretKey('This is a secret key to test fil'
         .codeUnits); // This is a secret key to test file export/import
 
-    List<int> firstEncryptedFile = await FileExporter.exportFile(md5RandomFileName(), secretKey, {'data': 'yes'}, 'I never gonna give you up'.codeUnits, 'idk', {});
-    List<int> secondEncryptedFile = await FileExporter.exportFile(md5RandomFileName(), secretKey, {'data': 'no'}, 'I never gonna let you down'.codeUnits, 'no idea', {});
+    List<int> firstEncryptedFile = await FileExporter.exportFile(
+        md5RandomFileName(),
+        secretKey,
+        {'data': 'yes'},
+        'I never gonna give you up'.codeUnits,
+        'idk',
+        {});
+    List<int> secondEncryptedFile = await FileExporter.exportFile(
+        md5RandomFileName(),
+        secretKey,
+        {'data': 'no'},
+        'I never gonna let you down'.codeUnits,
+        'no idea',
+        {});
 
-    expect(FileExporter.getFileKeyHash(firstEncryptedFile), FileExporter.getFileKeyHash(secondEncryptedFile));
+    expect(FileExporter.getFileKeyHash(firstEncryptedFile),
+        FileExporter.getFileKeyHash(secondEncryptedFile));
   });
 }

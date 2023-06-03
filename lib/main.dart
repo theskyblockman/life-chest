@@ -73,15 +73,15 @@ class LifeChestApp extends StatelessWidget {
           DefaultCupertinoLocalizations.delegate
         ],
         supportedLocales: S.delegate.supportedLocales,
-        theme: lightDynamic != null ? ThemeData(colorScheme: lightDynamic, useMaterial3: true) : lightTheme,
-        darkTheme: darkDynamic != null ? ThemeData(colorScheme: darkDynamic, useMaterial3: true) : darkTheme,
+        theme: lightDynamic != null
+            ? ThemeData(colorScheme: lightDynamic, useMaterial3: true)
+            : lightTheme,
+        darkTheme: darkDynamic != null
+            ? ThemeData(colorScheme: darkDynamic, useMaterial3: true)
+            : darkTheme,
         home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
       );
     });
-
-
-
-
   }
 }
 
@@ -206,7 +206,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                 itemBuilder: (context, index) {
                   Vault chest = VaultsManager.storedVaults[index];
                   return Card(
-                    shadowColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
                       child: ListTile(
                           title: Text(chest.name),
                           trailing: PopupMenuButton(
@@ -262,7 +262,8 @@ class ChestMainPageState extends State<ChestMainPage> {
                                 ];
                               }),
                           onTap: () {
-                            UnlockTester tester = UnlockTester(chest.unlockMechanismType,
+                            UnlockTester tester = UnlockTester(
+                                chest.unlockMechanismType,
                                 chest.additionalUnlockData,
                                 onKeyIssued: (issuedKey, didPushed) =>
                                     onKeyIssued(chest, issuedKey, didPushed));

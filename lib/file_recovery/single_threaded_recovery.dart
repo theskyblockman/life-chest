@@ -51,20 +51,21 @@ class SingleThreadedRecovery {
       String vaultPath,
       String localPath,
       String? rootFolderPath,
-  {File? createdFile, (Map<String, dynamic> metadata, List<int> data)? importedFile}) async {
+      {File? createdFile,
+      (Map<String, dynamic> metadata, List<int> data)? importedFile}) async {
     String fileName = md5RandomFileName();
     File fileToCreate = File(join(vaultPath, fileName));
     await fileToCreate.create(recursive: true);
-    if(createdFile != null) {
+    if (createdFile != null) {
       IOSink fileToCreateSink = fileToCreate.openWrite();
       try {
         final clearTextStream = createdFile.openRead();
         final encryptedStream = VaultsManager.cipher.encryptStream(
-          clearTextStream,
-          secretKey: encryptionKey,
-          nonce: Uint8List(VaultsManager.cipher.nonceLength),
-          onMac: (Mac mac) {});
-          await fileToCreateSink.addStream(encryptedStream);
+            clearTextStream,
+            secretKey: encryptionKey,
+            nonce: Uint8List(VaultsManager.cipher.nonceLength),
+            onMac: (Mac mac) {});
+        await fileToCreateSink.addStream(encryptedStream);
       } finally {
         fileToCreateSink.close();
       }
@@ -74,10 +75,10 @@ class SingleThreadedRecovery {
 
     String? type;
 
-    if(createdFile != null) {
+    if (createdFile != null) {
       type = lookupMimeType(createdFile.path,
-        headerBytes: createdFile.readAsBytesSync()) ??
-        '*/*';
+              headerBytes: createdFile.readAsBytesSync()) ??
+          '*/*';
     } else {
       type = importedFile!.$1['type'];
     }
@@ -85,13 +86,17 @@ class SingleThreadedRecovery {
     String finalName = join(
         localPath,
         rootFolderPath == null
-            ? basename(createdFile != null ? createdFile.path : importedFile!.$1['name'])
-            : createdFile != null ? relative(createdFile.path, from: rootFolderPath) : relative(importedFile!.$1['name'], from: rootFolderPath));
+            ? basename(createdFile != null
+                ? createdFile.path
+                : importedFile!.$1['name'])
+            : createdFile != null
+                ? relative(createdFile.path, from: rootFolderPath)
+                : relative(importedFile!.$1['name'], from: rootFolderPath));
     Map<String, dynamic> finalData = {'name': finalName, 'type': type};
     if (FileThumbnailsPlaceholder.getPlaceholderFromFileName(
             [finalData])[finalName] ==
         FileThumbnailsPlaceholder.audio) {
-      if(createdFile != null) {
+      if (createdFile != null) {
         Metadata foundData = await MetadataRetriever.fromFile(createdFile);
         finalData['audioData'] = foundData.toJson();
         finalData['audioData']['trackCover'] = foundData.albumArt != null
@@ -101,7 +106,6 @@ class SingleThreadedRecovery {
       } else {
         finalData['audioData'] = importedFile!.$1['audioData'];
       }
-
     }
 
     try {
@@ -136,7 +140,8 @@ class SingleThreadedRecovery {
 
     for (File createdFile in filesToSave) {
       (String, Map<String, dynamic>) savedFile = (await saveFile(
-          encryptionKey, vaultPath, localPath, rootFolderPath, createdFile: createdFile))!;
+          encryptionKey, vaultPath, localPath, rootFolderPath,
+          createdFile: createdFile))!;
       additionalFiles[savedFile.$1] = savedFile.$2;
     }
     return additionalFiles;
@@ -164,19 +169,23 @@ class SingleThreadedRecovery {
   /// Incrementally save files provided, with the [encryptionKey] and returns its map value
   static Stream<(String, Map<String, dynamic>)> progressivelySaveFiles(
       SecretKey encryptionKey, String vaultPath, String localPath,
-      {List<File>? filesToSave, List<(Map<String, dynamic> metadata, List<int> data)>? importedFilesToSave, String? rootFolderPath}) async* {
-
-    if(filesToSave != null) {
+      {List<File>? filesToSave,
+      List<(Map<String, dynamic> metadata, List<int> data)>?
+          importedFilesToSave,
+      String? rootFolderPath}) async* {
+    if (filesToSave != null) {
       for (File createdFile in filesToSave) {
         yield (await saveFile(
-            encryptionKey, vaultPath, localPath, rootFolderPath, createdFile: createdFile))!;
+            encryptionKey, vaultPath, localPath, rootFolderPath,
+            createdFile: createdFile))!;
       }
     } else {
-      for ((Map<String, dynamic> metadata, List<int> data) importedFile in importedFilesToSave!) {
+      for ((Map<String, dynamic> metadata, List<int> data) importedFile
+          in importedFilesToSave!) {
         yield (await saveFile(
-            encryptionKey, vaultPath, localPath, rootFolderPath, importedFile: importedFile))!;
+            encryptionKey, vaultPath, localPath, rootFolderPath,
+            importedFile: importedFile))!;
       }
     }
-
   }
 }

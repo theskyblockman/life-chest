@@ -69,9 +69,21 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
 
     return Scaffold(
       appBar: AppBar(title: Text(S.of(context).unlockWizard)),
-      floatingActionButton: FilledButton(onPressed: List<(List<List<int>> fileContents, SecretKey? key)>.from(currentStatus.values).any((element) => element.$2 != null) ? () {
-        Navigator.pop(context, List<(Map<String, dynamic> metadata, List<int> data)>.from(unlockedMap.values));
-      } : null, child: Text(S.of(context).import)),
+      floatingActionButton: FilledButton(
+          onPressed: List<(List<List<int>> fileContents, SecretKey? key)>.from(
+                      currentStatus.values)
+                  .any((element) => element.$2 != null)
+              ? () {
+                  Navigator.pop(
+                      context,
+                      List<
+                          (
+                            Map<String, dynamic> metadata,
+                            List<int> data
+                          )>.from(unlockedMap.values));
+                }
+              : null,
+          child: Text(S.of(context).import)),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: SingleChildScrollView(
         child: Wrap(
@@ -85,24 +97,39 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
                   child: Column(children: [
                     Card(
                         child: ListTile(
-                      title: Text(
-                          S.of(context).group(List.from(currentStatus.keys).indexOf(fileGroup) + 1)),
-                      subtitle: Text(S.of(context).unlockAbleBy(reverseMap(UnlockMechanism.unlockMechanisms)[FileExporter.determineExportedFileUnlockMethod(currentStatus[fileGroup]!.$1[0])!]!((SecretKey key, bool check) => null).getName(context))),
-                      trailing: currentStatus[fileGroup]!.$2 == null ? const Icon(Icons.key) : IconButton(onPressed: () {
-                        setState(() {
-                          currentStatus[fileGroup] = (currentStatus[fileGroup]!.$1, null);
-                        });
-                      }, icon: const Icon(Icons.close)),
-                          onTap: () {
-                            UnlockTester tester = UnlockTester(FileExporter.determineExportedFileUnlockMethod(currentStatus[fileGroup]!.$1[0])!,
-                                FileExporter.getAdditionalUnlockData(currentStatus[fileGroup]!.$1[0])!,
-                                onKeyIssued: (issuedKey, didPushed) =>
-                                    onKeyIssued(context, fileGroup, issuedKey, didPushed));
+                      title: Text(S.of(context).group(
+                          List.from(currentStatus.keys).indexOf(fileGroup) +
+                              1)),
+                      subtitle: Text(S.of(context).unlockAbleBy(reverseMap(
+                                  UnlockMechanism.unlockMechanisms)[
+                              FileExporter.determineExportedFileUnlockMethod(
+                                  currentStatus[fileGroup]!.$1[0])!]!(
+                          (SecretKey key, bool check) =>
+                              null).getName(context))),
+                      trailing: currentStatus[fileGroup]!.$2 == null
+                          ? const Icon(Icons.key)
+                          : IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  currentStatus[fileGroup] =
+                                      (currentStatus[fileGroup]!.$1, null);
+                                });
+                              },
+                              icon: const Icon(Icons.close)),
+                      onTap: () {
+                        UnlockTester tester = UnlockTester(
+                            FileExporter.determineExportedFileUnlockMethod(
+                                currentStatus[fileGroup]!.$1[0])!,
+                            FileExporter.getAdditionalUnlockData(
+                                currentStatus[fileGroup]!.$1[0])!,
+                            onKeyIssued: (issuedKey, didPushed) => onKeyIssued(
+                                context, fileGroup, issuedKey, didPushed));
 
-                            tester.shouldUseChooser(context);
-                          },
+                        tester.shouldUseChooser(context);
+                      },
                     )),
-                    for (List<int> fileToDecrypt in currentStatus[fileGroup]!.$1)
+                    for (List<int> fileToDecrypt
+                        in currentStatus[fileGroup]!.$1)
                       FutureBuilder(
                           initialData: ({'name': 'Unknown file'}, []),
                           future: currentStatus[fileGroup]!.$2 == null
@@ -111,9 +138,11 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
                                   fileToDecrypt, currentStatus[fileGroup]!.$2!),
                           builder: (context, snapshot) {
                             return ListTile(
-                                title: Text(basename(snapshot.data!.$1['name'])),
+                                title:
+                                    Text(basename(snapshot.data!.$1['name'])),
                                 subtitle: snapshot.data!.$2.isEmpty
-                                    ? Text(S.of(context).exportedFileDescription)
+                                    ? Text(
+                                        S.of(context).exportedFileDescription)
                                     : null);
                           }),
                   ]),
@@ -123,22 +152,25 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
     );
   }
 
-  void onKeyIssued(BuildContext context, List<int> keyHash, SecretKey issuedKey, bool didPush) async {
+  void onKeyIssued(BuildContext context, List<int> keyHash, SecretKey issuedKey,
+      bool didPush) async {
     if (context.mounted && didPush) {
       Navigator.pop(context);
     }
     for (List<int> unlockedFile in currentStatus.keys) {
       if (listEquals(keyHash, unlockedFile)) {
-        if(await FileExporter.testExportedFileEncryption(currentStatus[unlockedFile]!.$1[0], issuedKey) == true) {
+        if (await FileExporter.testExportedFileEncryption(
+                currentStatus[unlockedFile]!.$1[0], issuedKey) ==
+            true) {
           setState(() {
-            currentStatus[unlockedFile] = (currentStatus[unlockedFile]!.$1, issuedKey);
+            currentStatus[unlockedFile] =
+                (currentStatus[unlockedFile]!.$1, issuedKey);
           });
 
           break;
         } else if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(S.of(context).wrongPassword))
-          );
+              SnackBar(content: Text(S.of(context).wrongPassword)));
 
           return;
         }
@@ -146,4 +178,3 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
     }
   }
 }
-

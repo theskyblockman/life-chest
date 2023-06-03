@@ -742,8 +742,8 @@ class FileExplorerState extends State<FileExplorer> {
       List<File> filesToDecrypt = [];
       List<File> filesToSave = [];
 
-      for(File file in selectedFiles) {
-        if(FileExporter.isExportedFile(await file.openRead(0, 32).last)) {
+      for (File file in selectedFiles) {
+        if (FileExporter.isExportedFile(await file.openRead(0, 32).last)) {
           filesToDecrypt.add(file);
         } else {
           filesToSave.add(file);
@@ -754,26 +754,30 @@ class FileExplorerState extends State<FileExplorer> {
         loaderTarget = filesToSave.length;
         loaderCurrentLoad = 0;
       });
-      if(context.mounted && filesToDecrypt.isNotEmpty) {
-        ScaffoldMessenger.of(context).showMaterialBanner(
-            MaterialBanner(content: Text(
-                S.of(context).detectedExportedFile(filesToDecrypt.length)),
-                actions: [
-                  TextButton(onPressed: () {
+      if (context.mounted && filesToDecrypt.isNotEmpty) {
+        ScaffoldMessenger.of(context).showMaterialBanner(MaterialBanner(
+            content:
+                Text(S.of(context).detectedExportedFile(filesToDecrypt.length)),
+            actions: [
+              TextButton(
+                  onPressed: () {
                     ScaffoldMessenger.of(context).removeCurrentMaterialBanner();
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileUnlockWizard(filesToDecrypt: filesToDecrypt))).then((value) {
-                      if(value != null) saveFolder(context, value);
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(
+                            builder: (context) => FileUnlockWizard(
+                                filesToDecrypt: filesToDecrypt)))
+                        .then((value) {
+                      if (value != null) saveFolder(context, value);
                     });
-                  }, child: Text(S
-                      .of(context)
-                      .useUnlockWizard)),
-                  TextButton(onPressed: () {
-                    ScaffoldMessenger.of(context).removeCurrentMaterialBanner(reason: MaterialBannerClosedReason.dismiss);
-                  }, child: Text(S
-                      .of(context)
-                      .ignore))
-                ])
-        );
+                  },
+                  child: Text(S.of(context).useUnlockWizard)),
+              TextButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).removeCurrentMaterialBanner(
+                        reason: MaterialBannerClosedReason.dismiss);
+                  },
+                  child: Text(S.of(context).ignore))
+            ]));
       }
       Map<String, Map<String, dynamic>> savedFiles = {};
 
@@ -805,23 +809,27 @@ class FileExplorerState extends State<FileExplorer> {
   }
 
   /// Used to import a folder into the vault
-  Future<void> saveFolder(BuildContext context, [List<(Map<String, dynamic> metadata, List<int> data)>? importedFilesToSave]) async {
+  Future<void> saveFolder(BuildContext context,
+      [List<(Map<String, dynamic> metadata, List<int> data)>?
+          importedFilesToSave]) async {
     File mapFile = File(join(widget.vault.path, '.map'));
     mapFile.createSync(recursive: true);
     List<File>? filesToSave;
     String? rootFolderPath;
     try {
-      if(importedFilesToSave == null) {
+      if (importedFilesToSave == null) {
         isPauseAllowed = false;
         shouldNotificationBeSent = false;
-        Directory? pickedFolder = (await SingleThreadedRecovery.pickFolderToSave(
-            dialogTitle: S.of(context).pickFolderDialogTitle));
+        Directory? pickedFolder =
+            (await SingleThreadedRecovery.pickFolderToSave(
+                dialogTitle: S.of(context).pickFolderDialogTitle));
         if (pickedFolder == null) {
           return;
         }
         rootFolderPath = pickedFolder.path;
         List<File> selectedFiles = [];
-        for (FileSystemEntity entity in pickedFolder.listSync(recursive: true)) {
+        for (FileSystemEntity entity
+            in pickedFolder.listSync(recursive: true)) {
           if (entity is File) {
             selectedFiles.add(entity);
           } else {
@@ -833,18 +841,16 @@ class FileExplorerState extends State<FileExplorer> {
           }
         }
 
-
         List<File> filesToDecrypt = [];
         List<File> filesToSave = [];
 
-        for(File file in selectedFiles) {
-          if(FileExporter.isExportedFile(await file.openRead(0, 32).last)) {
+        for (File file in selectedFiles) {
+          if (FileExporter.isExportedFile(await file.openRead(0, 32).last)) {
             filesToDecrypt.add(file);
           } else {
             selectedFiles.add(file);
           }
         }
-
 
         isPauseAllowed = widget.vault.securityLevel >= 2;
         shouldNotificationBeSent = widget.vault.securityLevel == 1;
@@ -854,26 +860,31 @@ class FileExplorerState extends State<FileExplorer> {
           loaderCurrentLoad = 0;
         });
 
-        if(context.mounted && filesToDecrypt.isNotEmpty) {
-          ScaffoldMessenger.of(context).showMaterialBanner(
-              MaterialBanner(content: Text(
+        if (context.mounted && filesToDecrypt.isNotEmpty) {
+          ScaffoldMessenger.of(context).showMaterialBanner(MaterialBanner(
+              content: Text(
                   S.of(context).detectedExportedFile(filesToDecrypt.length)),
-                  actions: [
-                    TextButton(onPressed: () {
-                      ScaffoldMessenger.of(context).removeCurrentMaterialBanner();
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileUnlockWizard(filesToDecrypt: filesToDecrypt))).then((value) {
-                        if(value != null) saveFolder(context, value);
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context)
+                          .removeCurrentMaterialBanner();
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(
+                              builder: (context) => FileUnlockWizard(
+                                  filesToDecrypt: filesToDecrypt)))
+                          .then((value) {
+                        if (value != null) saveFolder(context, value);
                       });
-                    }, child: Text(S
-                        .of(context)
-                        .useUnlockWizard)),
-                    TextButton(onPressed: () {
-                      ScaffoldMessenger.of(context).removeCurrentMaterialBanner(reason: MaterialBannerClosedReason.dismiss);
-                    }, child: Text(S
-                        .of(context)
-                        .ignore))
-                  ])
-          );
+                    },
+                    child: Text(S.of(context).useUnlockWizard)),
+                TextButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).removeCurrentMaterialBanner(
+                          reason: MaterialBannerClosedReason.dismiss);
+                    },
+                    child: Text(S.of(context).ignore))
+              ]));
         }
       } else {
         setState(() {
@@ -882,13 +893,14 @@ class FileExplorerState extends State<FileExplorer> {
         });
       }
 
-
       Map<String, Map<String, dynamic>> savedFiles = {};
 
       await for ((String, Map<String, dynamic>) savedFile
           in SingleThreadedRecovery.progressivelySaveFiles(
               widget.vault.encryptionKey!, widget.vault.path, currentLocalPath,
-              filesToSave: filesToSave, rootFolderPath: rootFolderPath, importedFilesToSave: importedFilesToSave)) {
+              filesToSave: filesToSave,
+              rootFolderPath: rootFolderPath,
+              importedFilesToSave: importedFilesToSave)) {
         savedFiles[savedFile.$1] = savedFile.$2;
         setState(() {
           loaderCurrentLoad = loaderCurrentLoad! + 1;
