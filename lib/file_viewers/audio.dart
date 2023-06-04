@@ -246,6 +246,9 @@ class AudioListener extends FileViewer {
   String loadingMessage(BuildContext context) =>
       S.of(context).loadingAudioTrack;
 
+  @override
+  bool extendBody() => true;
+
   /// A stream reporting the combined state of the current media item and its
   /// current position.
   Stream<MediaState> get _mediaStateStream =>

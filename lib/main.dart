@@ -52,16 +52,18 @@ class LifeChestApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData lightTheme = ThemeData(
-      useMaterial3: true,
-      colorScheme: lightColorScheme,
-    );
-    ThemeData darkTheme = ThemeData(
-      useMaterial3: true,
-      colorScheme: darkColorScheme,
-    );
+
 
     return DynamicColorBuilder(builder: (lightDynamic, darkDynamic) {
+      ThemeData lightTheme = ThemeData(
+        useMaterial3: true,
+        colorScheme: lightDynamic ?? lightColorScheme,
+      );
+      ThemeData darkTheme = ThemeData(
+        useMaterial3: true,
+        colorScheme: darkDynamic ?? darkColorScheme,
+      );
+
       return MaterialApp(
         title: 'Life Chest',
         localizationsDelegates: const [
@@ -73,12 +75,8 @@ class LifeChestApp extends StatelessWidget {
           DefaultCupertinoLocalizations.delegate
         ],
         supportedLocales: S.delegate.supportedLocales,
-        theme: lightDynamic != null
-            ? ThemeData(colorScheme: lightDynamic, useMaterial3: true)
-            : lightTheme,
-        darkTheme: darkDynamic != null
-            ? ThemeData(colorScheme: darkDynamic, useMaterial3: true)
-            : darkTheme,
+        theme: lightTheme,
+        darkTheme: darkTheme,
         home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
       );
     });

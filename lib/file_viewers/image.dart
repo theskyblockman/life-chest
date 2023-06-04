@@ -54,4 +54,7 @@ class ImageViewer extends FileViewer {
         await SingleThreadedRecovery.loadAndDecryptFullFile(
             fileVault.encryptionKey!, fileToRead));
   }
+
+  @override
+  bool extendBody() => true;
 }

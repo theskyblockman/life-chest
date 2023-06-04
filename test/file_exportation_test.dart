@@ -10,7 +10,7 @@ void main() {
         .codeUnits); // This is a secret key to test file export/import
     Map<String, dynamic> metadata = {"ping": "pong"};
     List<int> decryptedFileContent =
-        'This is the file content, I do whatever I want'.codeUnits;
+        'This is the file content, | \'\' I do whatever I want'.codeUnits;
     List<int> encryptedFileContent = (await VaultsManager.cipher.encrypt(
             decryptedFileContent,
             secretKey: secretKey,

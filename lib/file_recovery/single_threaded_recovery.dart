@@ -70,7 +70,13 @@ class SingleThreadedRecovery {
         fileToCreateSink.close();
       }
     } else {
-      fileToCreate.writeAsBytesSync(importedFile!.$2);
+      fileToCreate.writeAsBytesSync(
+          (await VaultsManager.cipher.encrypt(
+              importedFile!.$2,
+            secretKey: encryptionKey,
+              nonce: Uint8List(VaultsManager.cipher.nonceLength),
+          )).cipherText
+          );
     }
 
     String? type;

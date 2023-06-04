@@ -32,4 +32,7 @@ class FolderViewer extends FileViewer {
 
   @override
   Future<void> onFocus() async {}
+
+  @override
+  bool extendBody() => true;
 }

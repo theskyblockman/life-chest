@@ -39,7 +39,7 @@ class FileReaderState extends State<FileReader> {
   bool isPagingEnabled = true;
 
   /// Manages the file viewer for a file.
-  Widget readFile(
+  (Widget, bool) readFile(
       BuildContext context, FileThumbnail thumbnail, int fileIndex) {
     FileViewer viewer = thumbnail.placeholder.invokeData(
         widget.fileVault, thumbnail.file, thumbnail.name, thumbnail.data, this);
@@ -56,7 +56,7 @@ class FileReaderState extends State<FileReader> {
         viewer.onFocus();
       }
     });
-    return FutureBuilder(
+    return (FutureBuilder(
         future: viewer.load(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -77,7 +77,7 @@ class FileReaderState extends State<FileReader> {
                       ],
                     )));
           }
-        });
+        }), viewer.extendBody());
   }
 
   /// Build the [FileReader], this code is mostly made for loading times
@@ -89,6 +89,7 @@ class FileReaderState extends State<FileReader> {
             : const NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           FileThumbnail currentThumbnail = widget.thumbnails()[index];
+          var fileData = readFile(context, currentThumbnail, index);
           return Scaffold(
               appBar: AppBar(
                   title: Text(currentThumbnail.name,
@@ -106,13 +107,13 @@ class FileReaderState extends State<FileReader> {
                           icon:
                               const Icon(Icons.arrow_back, color: Colors.white))
                       : null),
-              body: readFile(context, currentThumbnail, index),
+              body: fileData.$1,
               backgroundColor: currentThumbnail.placeholder ==
                       FileThumbnailsPlaceholder.audio
                   ? Theme.of(context).colorScheme.tertiary
                   : Colors.black,
-              extendBodyBehindAppBar: true,
-              extendBody: true);
+              extendBodyBehindAppBar: fileData.$2,
+              extendBody: fileData.$2);
         },
         itemCount: widget.thumbnails().length,
         scrollDirection: Axis.horizontal,
@@ -459,7 +460,7 @@ class FileExplorerState extends State<FileExplorer> {
                                       basename(thumbnail.file.path),
                                       widget.vault.encryptionKey!,
                                       thumbnail.data,
-                                      await thumbnail.file.openRead().last,
+                                      thumbnail.file.readAsBytesSync(),
                                       widget.vault.unlockMechanismType,
                                       widget.vault.additionalUnlockData);
                               File fileToSaveTo = File(join(saveLocation.path,

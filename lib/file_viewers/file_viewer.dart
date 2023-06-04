@@ -9,6 +9,7 @@ abstract class FileViewer {
   Future<void> onFocus();
   void dispose();
   String loadingMessage(BuildContext context);
+  bool extendBody();
   final Vault fileVault;
   final File fileToRead;
   final String fileName;

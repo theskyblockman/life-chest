@@ -25,10 +25,11 @@ class DocumentViewer extends FileViewer {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(loadedDocument.toString());
     return Container(
       child: documentType == DocumentType.pdf
           ? SfPdfViewer.memory(loadedDocument!)
-          : SingleChildScrollView(child: Text(utf8.decode(loadedDocument!))),
+          : SingleChildScrollView(child: Text(utf8.decode(loadedDocument!), style: const TextStyle(color: Colors.white))),
     );
   }
 
@@ -52,4 +53,7 @@ class DocumentViewer extends FileViewer {
 
   @override
   Future<void> onFocus() async {}
+
+  @override
+  bool extendBody() => false;
 }
