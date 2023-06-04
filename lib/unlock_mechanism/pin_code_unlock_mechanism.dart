@@ -24,6 +24,7 @@ class PinUnlockMechanism extends UnlockMechanism {
               return AlertDialog(
                   title: Text(S.of(context).enterThePinCode),
                   content: TextField(
+                      key: const ValueKey('PASSCODE'),
                       autofocus: true,
                       controller: pinField,
                       focusNode: pinFieldFocusNode,
@@ -53,6 +54,7 @@ class PinUnlockMechanism extends UnlockMechanism {
   Widget keyCreationBuild(BuildContext context, VaultPolicy policy) {
     return ListTile(
       title: TextFormField(
+        key: const ValueKey('PASSCODE'),
         maxLines: 1,
         onChanged: (value) {
           policy.vaultUnlockAdditionalData['pin'] = value;

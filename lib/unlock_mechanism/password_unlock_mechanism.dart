@@ -22,6 +22,7 @@ class PasswordUnlockMechanism extends UnlockMechanism {
               return AlertDialog(
                   title: Text(S.of(context).enterTheChestPassword),
                   content: TextField(
+                    key: const ValueKey('PASSWORD'),
                       autofocus: true,
                       controller: passwordField,
                       focusNode: passwordFieldFocusNode,
@@ -49,6 +50,7 @@ class PasswordUnlockMechanism extends UnlockMechanism {
   Widget keyCreationBuild(BuildContext context, VaultPolicy policy) {
     return ListTile(
       title: TextFormField(
+        key: const ValueKey('PASSWORD'),
         maxLines: 1,
         onChanged: (value) {
           policy.vaultUnlockAdditionalData['password'] = value;
