@@ -139,8 +139,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "scheme": MessageLookupByLibrary.simpleMessage("Pattern"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
         "selected": m3,
-        "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
-            "Enter airplane mode when the chest opens"),
         "sortBy": MessageLookupByLibrary.simpleMessage("Sort by..."),
         "unlockAbleBy": m4,
         "unlockChest": MessageLookupByLibrary.simpleMessage("Unlock the chest"),

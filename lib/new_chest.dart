@@ -102,15 +102,6 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
               ? currentMechanism!.keyCreationBuild(context, policy)
               : Container(),
           const Divider(),
-          ListTile(
-            trailing: Switch(
-                onChanged: (value) => setState(() {
-                      policy.shouldDisconnectWhenVaultOpened = value;
-                    }),
-                value: policy.shouldDisconnectWhenVaultOpened),
-            title: Text(S.of(context).shouldEnterAirplaneMode),
-          ),
-          const Divider(),
           ListTile(title: Text(S.of(context).whatShouldBeDoneAfterUnfocus)),
           ListTile(
               title: SingleChildScrollView(

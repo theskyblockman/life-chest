@@ -19,7 +19,6 @@
   "errorChestPasswordMoreLowercaseLetter": "Le mot de passe doit contenir au moins une lettre minuscule",
   "errorChestPasswordMoreDigits": "Le mot de passe doit contenir au moins un chiffre",
   "errorChestSchemeShouldNotBeEmpty": "Le schéma ne doit pas être vide",
-  "shouldEnterAirplaneMode": "Activer le mode avion lorsque le coffre s'ouvre",
   "whatShouldBeDoneAfterUnfocus": "Que devons-nous faire si l'application est mise en pause",
   "doNothing": "Ne rien faire",
   "notify": "Vous notifier",

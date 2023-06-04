@@ -18,7 +18,6 @@
   "errorChestPasswordMoreLowercaseLetter": "The password must contain at least one lowercase character",
   "errorChestPasswordMoreDigits": "The password must contain at least one digit",
   "errorChestSchemeShouldNotBeEmpty": "The scheme must not be empty",
-  "shouldEnterAirplaneMode": "Enter airplane mode when the chest opens",
   "whatShouldBeDoneAfterUnfocus": "What should we do when the application is paused",
   "doNothing": "Do nothing",
   "notify": "Notify you",

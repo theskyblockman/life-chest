@@ -146,8 +146,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "scheme": MessageLookupByLibrary.simpleMessage("Modèle"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
         "selected": m3,
-        "shouldEnterAirplaneMode": MessageLookupByLibrary.simpleMessage(
-            "Activer le mode avion lorsque le coffre s\'ouvre"),
         "sortBy": MessageLookupByLibrary.simpleMessage("Trier par..."),
         "unlockAbleBy": m4,
         "unlockChest": MessageLookupByLibrary.simpleMessage(

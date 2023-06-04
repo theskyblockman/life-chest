@@ -230,16 +230,6 @@ class S {
     );
   }
 
-  /// `Enter airplane mode when the chest opens`
-  String get shouldEnterAirplaneMode {
-    return Intl.message(
-      'Enter airplane mode when the chest opens',
-      name: 'shouldEnterAirplaneMode',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `What should we do when the application is paused`
   String get whatShouldBeDoneAfterUnfocus {
     return Intl.message(

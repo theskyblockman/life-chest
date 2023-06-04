@@ -85,7 +85,6 @@ class VaultsManager {
         filesMetadataBankPath: p.join(path, '.${md5RandomFileName()}'),
         path: path,
         name: policy.vaultName,
-        shouldDisconnectWhenVaultOpened: policy.shouldDisconnectWhenVaultOpened,
         securityLevel: policy.securityLevel,
         encryptionKey: cryptKey,
         unlockMechanismType: policy.unlockType);
@@ -173,7 +172,6 @@ class VaultPolicy {
   bool isInternalVault;
   String vaultName;
   Map<String, dynamic> vaultUnlockAdditionalData;
-  bool shouldDisconnectWhenVaultOpened;
   int securityLevel;
   SecretKey? key;
   String unlockType;
@@ -182,7 +180,6 @@ class VaultPolicy {
       {this.isInternalVault = true,
       this.vaultName = 'Unnamed vault',
       required this.vaultUnlockAdditionalData,
-      this.shouldDisconnectWhenVaultOpened = false,
       this.securityLevel = 2,
       this.unlockType = 'password',
       this.key});
@@ -207,7 +204,6 @@ class Vault {
       required this.creationDate,
       required this.filesMetadataBankPath,
       required this.name,
-      required this.shouldDisconnectWhenVaultOpened,
       required this.securityLevel,
       required this.unlockMechanismType,
       this.encryptionKey});
@@ -219,8 +215,6 @@ class Vault {
         DateTime.fromMillisecondsSinceEpoch(storedData['creation_date']);
     filesMetadataBankPath = storedData['files_metadata_bank_path'];
     name = storedData['name'];
-    shouldDisconnectWhenVaultOpened =
-        storedData['should_disconnect_when_vault_opened'];
     securityLevel = storedData['security_level'];
     unlockMechanismType = storedData['unlock_mechanism_type'] ?? 'password';
     additionalUnlockData = storedData['additional_unlock_data'] ?? {};
@@ -233,7 +227,6 @@ class Vault {
       'creation_date': creationDate.millisecondsSinceEpoch,
       'files_metadata_bank_path': filesMetadataBankPath,
       'name': name,
-      'should_disconnect_when_vault_opened': shouldDisconnectWhenVaultOpened,
       'security_level': securityLevel,
       'unlock_mechanism_type': unlockMechanismType,
       'additional_unlock_data': additionalUnlockData
@@ -258,9 +251,6 @@ class Vault {
 
   /// The visual name of the chest
   late String name;
-
-  /// Should the phone enter airplane mode when the chest is opened
-  late bool shouldDisconnectWhenVaultOpened;
 
   /// The level of security the vault has
   late int securityLevel;
