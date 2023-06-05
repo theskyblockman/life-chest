@@ -869,6 +869,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Internal Error`
+  String get internalError {
+    return Intl.message(
+      'Internal Error',
+      name: 'internalError',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -82,7 +82,7 @@ class SingleThreadedRecovery {
     String? type;
 
     if (createdFile != null) {
-      type = lookupMimeType(createdFile.path,
+      type = lookupMimeType(basename(createdFile.path),
               headerBytes: createdFile.readAsBytesSync()) ??
           '*/*';
     } else {

@@ -16,11 +16,6 @@ class UnlockTester {
         UnlockMechanism mechanism =
             unlockMechanismType.key((SecretKey retrievedKey, bool didPushed) {
           onKeyIssued(retrievedKey, didPushed);
-          if (kDebugMode) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(
-                    'the retriever issued a key: ${retrievedKey.toString()}')));
-          }
         });
         mechanism.build(context, additionalUnlockData);
         return false;

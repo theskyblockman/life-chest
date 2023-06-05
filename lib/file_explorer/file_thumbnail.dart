@@ -38,6 +38,7 @@ class FileThumbnail extends StatelessWidget {
         child: GridTile(
             child: Container(
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
               color: isSelected
                   ? Theme.of(context).colorScheme.tertiary.withOpacity(.3)
                   : Theme.of(context).colorScheme.outline.withOpacity(.1)),

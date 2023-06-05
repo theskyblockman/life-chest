@@ -27,8 +27,13 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
             promptInfo, encryptedString))!;
         HapticFeedback.heavyImpact();
         onKeyRetrieved(SecretKey(decryptedString.codeUnits), false);
-      } catch (e) {
-        // IGNORE (probably failed/cancelled)
+      } on PlatformException catch(e, st) {
+        if(e.code != 'E05') {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).internalError)));
+          debugPrint('Failed authentication: ${e.message}, Stack trace:');
+          debugPrint(st.toString());
+        }
+
       }
     }
   }

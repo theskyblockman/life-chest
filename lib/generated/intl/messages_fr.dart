@@ -111,6 +111,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "group": m1,
         "ignore": MessageLookupByLibrary.simpleMessage("Ignorer"),
         "import": MessageLookupByLibrary.simpleMessage("Importer"),
+        "internalError": MessageLookupByLibrary.simpleMessage("Erreur interne"),
         "lifeChestBulkSave": MessageLookupByLibrary.simpleMessage(
             "Sauvegarde de fichiers en masse"),
         "loadingAudioTrack": MessageLookupByLibrary.simpleMessage(

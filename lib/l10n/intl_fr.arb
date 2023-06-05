@@ -80,5 +80,6 @@
   "import": "Importer",
   "group": "Groupe n°{groupID}",
   "unlockAbleBy": "Ce groupe peut être débloquer grâce à : {unlockName}.",
-  "exportedFileDescription": "Um fichier exporté depuis Life Chest qui est encrypté et qui a donc besoin d'être décrypté pour être lu."
+  "exportedFileDescription": "Um fichier exporté depuis Life Chest qui est encrypté et qui a donc besoin d'être décrypté pour être lu.",
+  "internalError": "Erreur interne"
 }

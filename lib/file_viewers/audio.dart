@@ -278,7 +278,7 @@ class AudioListener extends FileViewer {
         fileToRead,
         fileVault.encryptionKey!,
         fileData['audioData']['mimeType'],
-        fileData['audioData']['initialSize']);
+        fileToRead.statSync().size);
     Metadata parsedMetadata = Metadata(
         trackName: fileData['audioData']['trackName'],
         trackArtistNames: fileData['audioData']['trackArtistNames'] != null

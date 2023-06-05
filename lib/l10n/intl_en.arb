@@ -116,5 +116,6 @@
     }
   },
   "unlockAbleBy": "This group can be unlocked with: {unlockName}.",
-  "exportedFileDescription": "A file exported from the Life Chest app and who needs to be unlocked to get more information about it."
+  "exportedFileDescription": "A file exported from the Life Chest app and who needs to be unlocked to get more information about it.",
+  "internalError": "Internal Error"
 }

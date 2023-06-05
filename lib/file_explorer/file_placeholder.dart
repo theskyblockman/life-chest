@@ -13,7 +13,7 @@ import 'package:path/path.dart';
 /// All the types of thumbnail that can be detected
 class FileThumbnailsPlaceholder {
   static final FileThumbnailsPlaceholder folder = FileThumbnailsPlaceholder(
-      const Icon(Icons.folder, size: 128),
+      const Icon(Icons.folder, size: 128, color: Colors.amberAccent),
       'folder',
       (vault, fileToRead, fileName, fileData, explorerState) => FolderViewer(
           fileVault: vault,
