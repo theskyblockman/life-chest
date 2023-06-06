@@ -20,6 +20,8 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
         title: S.of(context).pleaseUseBiometrics,
         negativeButton: S.of(context).cancel,
         description: S.of(context).unlockChest);
+    debugPrint(VaultsManager.globalAdditionalUnlockData.toString());
+
     String? encryptedString = VaultsManager.globalAdditionalUnlockData['biometrics']['globalKey'];
     if (encryptedString != null) {
       try {
@@ -48,16 +50,42 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
         String reason,
         Map<String, dynamic> additionalUnlockData
       )> createKey(BuildContext context, VaultPolicy policy) async {
-
+    BiometricPromptInfo promptInfo = BiometricPromptInfo(
+        title: S.of(context).pleaseUseBiometrics,
+        negativeButton: S.of(context).cancel,
+        description: S.of(context).unlockChest);
     if(!VaultsManager.globalAdditionalUnlockData.containsKey('biometrics') || !VaultsManager.globalAdditionalUnlockData['biometrics'].containsKey('globalKey')) {
       String plainKey = md5RandomFileName().substring(0, 32);
+
+      if(!VaultsManager.globalAdditionalUnlockData.containsKey('biometrics')) VaultsManager.globalAdditionalUnlockData['biometrics'] = {};
+
       VaultsManager.globalAdditionalUnlockData['biometrics']['globalKey'] = await localAuthCryptoInstance.encrypt(plainKey);
     }
+
+    try {
+      String? plainKey = await localAuthCryptoInstance.authenticate(promptInfo, VaultsManager.globalAdditionalUnlockData['biometrics']['globalKey']);
+
+      return (
+        SecretKey(plainKey!.codeUnits),
+        'OK',
+        <String, dynamic>{}
+      );
+    } on PlatformException catch(e, st) {
+      if(e.code != 'E05' && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).wrongDevice)));
+        debugPrint('Failed authentication: ${e.message}, Stack trace:');
+        debugPrint(st.toString());
+      }
+    }
+
     return (
-      SecretKey(VaultsManager.globalAdditionalUnlockData['biometrics']['globalKey'].codeUnits),
-      'OK',
+      null,
+      'Authentication error',
       <String, dynamic>{}
     );
+
+
+
   }
 
   @override
