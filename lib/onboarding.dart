@@ -101,10 +101,13 @@ class WelcomePageState extends State<WelcomePage> {
         child: Stack(children: [
           PageView.builder(
               itemBuilder: (context, index) {
-                return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: welcomePages[index]);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: welcomePages[index]),
+                );
               },
               scrollDirection: Axis.horizontal,
               controller: controller,

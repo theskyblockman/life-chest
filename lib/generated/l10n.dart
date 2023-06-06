@@ -300,10 +300,10 @@ class S {
     );
   }
 
-  /// `The application "Life Chest" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT License, ©️ 2023 Haroun El Omri`
+  /// `The application "Life Chest" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri`
   String get appLegalese {
     return Intl.message(
-      'The application "Life Chest" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT License, ©️ 2023 Haroun El Omri',
+      'The application "Life Chest" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri',
       name: 'appLegalese',
       desc: '',
       args: [],
@@ -875,6 +875,16 @@ class S {
     return Intl.message(
       'Internal Error',
       name: 'internalError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wrong device, couldn't find the unlock data in the keystore`
+  String get wrongDevice {
+    return Intl.message(
+      'Wrong device, couldn\'t find the unlock data in the keystore',
+      name: 'wrongDevice',
       desc: '',
       args: [],
     );

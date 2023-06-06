@@ -1,5 +1,8 @@
 {
   "chests": [
   ],
-  "current_sort_method": "by_name"
+  "current_sort_method": "by_name",
+  "global_authentication_additional_data": {
+
+  }
 }

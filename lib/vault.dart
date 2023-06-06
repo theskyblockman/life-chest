@@ -26,11 +26,13 @@ class VaultsManager {
   static late final File mainConfigFile;
   static final cipher = Chacha20(macAlgorithm: MacAlgorithm.empty);
   static bool shouldUpdateVaultList = false;
+  static Map<String, dynamic> globalAdditionalUnlockData = {};
 
   static void saveVaults() {
     mainConfigFile.writeAsStringSync(jsonEncode({
       "chests": [for (Vault vault in storedVaults) vault.toJson()],
-      "current_sort_method": FileExplorerState.currentSortMethod.id
+      "current_sort_method": FileExplorerState.currentSortMethod.id,
+      "global_authentication_additional_data": globalAdditionalUnlockData
     }));
 
     for (Vault vault in storedVaults) {
@@ -40,7 +42,7 @@ class VaultsManager {
     }
   }
 
-  static void loadVaults() {
+  static void loadVaults() async {
     late Map<String, dynamic> chests;
 
     try {
@@ -48,10 +50,8 @@ class VaultsManager {
       FileExplorerState.currentSortMethod =
           FileSortMethod.fromID(chests['current_sort_method']!)!;
     } on FormatException {
-      chests = {
-        'chests': [],
-        "current_sort_method": FileExplorerState.currentSortMethod.id
-      };
+      chests = jsonDecode(await rootBundle
+          .loadString('file_settings/default_config.json', cache: false));
     }
 
     List<Vault> constructedVaults = [];
@@ -59,6 +59,8 @@ class VaultsManager {
       constructedVaults.add(Vault.fromJson(chest));
     }
     storedVaults = constructedVaults;
+    
+    globalAdditionalUnlockData = chests["global_authentication_additional_data"] ?? {};
   }
 
   static Future<Vault> createVaultFromPolicy(VaultPolicy policy) async {

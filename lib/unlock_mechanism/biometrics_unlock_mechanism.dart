@@ -20,7 +20,7 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
         title: S.of(context).pleaseUseBiometrics,
         negativeButton: S.of(context).cancel,
         description: S.of(context).unlockChest);
-    String? encryptedString = additionalUnlockData['encryptedKey'];
+    String? encryptedString = VaultsManager.globalAdditionalUnlockData['biometrics']['globalKey'];
     if (encryptedString != null) {
       try {
         String decryptedString = (await localAuthCryptoInstance.authenticate(
@@ -29,7 +29,7 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
         onKeyRetrieved(SecretKey(decryptedString.codeUnits), false);
       } on PlatformException catch(e, st) {
         if(e.code != 'E05') {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).internalError)));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).wrongDevice)));
           debugPrint('Failed authentication: ${e.message}, Stack trace:');
           debugPrint(st.toString());
         }
@@ -48,11 +48,15 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
         String reason,
         Map<String, dynamic> additionalUnlockData
       )> createKey(BuildContext context, VaultPolicy policy) async {
-    String plainKey = md5RandomFileName().substring(0, 32);
+
+    if(!VaultsManager.globalAdditionalUnlockData.containsKey('biometrics') || !VaultsManager.globalAdditionalUnlockData['biometrics'].containsKey('globalKey')) {
+      String plainKey = md5RandomFileName().substring(0, 32);
+      VaultsManager.globalAdditionalUnlockData['biometrics']['globalKey'] = await localAuthCryptoInstance.encrypt(plainKey);
+    }
     return (
-      SecretKey(plainKey.codeUnits),
+      SecretKey(VaultsManager.globalAdditionalUnlockData['biometrics']['globalKey'].codeUnits),
       'OK',
-      {'encryptedKey': (await localAuthCryptoInstance.encrypt(plainKey))}
+      <String, dynamic>{}
     );
   }
 

@@ -37,7 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "about": MessageLookupByLibrary.simpleMessage("About..."),
         "addFiles": MessageLookupByLibrary.simpleMessage("Add files"),
         "appLegalese": MessageLookupByLibrary.simpleMessage(
-            "The application \"Life Chest\" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT License, ©️ 2023 Haroun El Omri"),
+            "The application \"Life Chest\" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri"),
         "areYouSure": MessageLookupByLibrary.simpleMessage("Are you sure?"),
         "biometrics": MessageLookupByLibrary.simpleMessage("Biometrics"),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
@@ -164,6 +164,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "welcomeSkip": MessageLookupByLibrary.simpleMessage("Skip"),
         "whatShouldBeDoneAfterUnfocus": MessageLookupByLibrary.simpleMessage(
             "What should we do when the application is paused"),
+        "wrongDevice": MessageLookupByLibrary.simpleMessage(
+            "Wrong device, couldn\'t find the unlock data in the keystore"),
         "wrongPassword": MessageLookupByLibrary.simpleMessage("Wrong password"),
         "wrongPinCode": MessageLookupByLibrary.simpleMessage("Wrong PIN code"),
         "yes": MessageLookupByLibrary.simpleMessage("Yes")

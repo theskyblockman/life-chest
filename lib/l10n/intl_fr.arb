@@ -26,7 +26,7 @@
   "errorDurationMustNotBeEmpty": "La durée ne doit pas être vide",
   "errorDurationMustBeFormatted": "La durée doit être au format HH:MM",
   "createTheNewChest": "Créer le coffre",
-  "appLegalese": "L'application \"Life Chest\" a été créée par Theskyblockman avec ❤️ et un \uD83D\uDDA5️ sous la licence MIT, ©️ 2023 Haroun El Omri",
+  "appLegalese": "L'application \"Life Chest\" a été créée par Theskyblockman avec ❤️ et un \uD83D\uDDA5️ sous la licence MIT, Nous ne donnons aucune garantie, veuillez voir la license MIT pour plus d'informations ©️ 2023 Haroun El Omri",
   "noChestsCreatedYet": "Aucun coffre créé pour le moment",
   "noFilesCreatedYet": "Aucun fichier ajouté pour le moment",
   "enterTheChestPassword": "Veuillez entrer le mot de passe de ce coffre",
@@ -81,5 +81,6 @@
   "group": "Groupe n°{groupID}",
   "unlockAbleBy": "Ce groupe peut être débloquer grâce à : {unlockName}.",
   "exportedFileDescription": "Um fichier exporté depuis Life Chest qui est encrypté et qui a donc besoin d'être décrypté pour être lu.",
-  "internalError": "Erreur interne"
+  "internalError": "Erreur interne",
+  "wrongDevice": "Mauvais appareil, nous n'avons pas trouvé les donnés nécessaires pour déverouiller le coffre dans la collection de clés."
 }

@@ -110,21 +110,6 @@ class ChestMainPageState extends State<ChestMainPage> {
                     borderRadius: BorderRadius.circular(15)),
                 itemBuilder: (BuildContext context) {
                   return [
-                    PopupMenuItem(
-                      onTap: () {
-                        WidgetsBinding.instance
-                            .addPostFrameCallback((timeStamp) {
-                          showAboutDialog(
-                            context: context,
-                            applicationVersion: '1.0.0',
-                            applicationIcon:
-                                Image.asset('logo.png', height: 64, width: 64),
-                            applicationLegalese: S.of(context).appLegalese,
-                          );
-                        });
-                      },
-                      child: Text(S.of(context).about),
-                    ),
                     if (VaultsManager.storedVaults.isNotEmpty)
                       PopupMenuItem(
                           onTap: () {
@@ -157,6 +142,21 @@ class ChestMainPageState extends State<ChestMainPage> {
                             });
                           },
                           child: Text(S.of(context).deleteAllChests)),
+                    PopupMenuItem(
+                      onTap: () {
+                        WidgetsBinding.instance
+                            .addPostFrameCallback((timeStamp) {
+                          showAboutDialog(
+                            context: context,
+                            applicationVersion: '1.0.0',
+                            applicationIcon:
+                            Image.asset('logo.png', height: 64, width: 64),
+                            applicationLegalese: S.of(context).appLegalese,
+                          );
+                        });
+                      },
+                      child: Text(S.of(context).about),
+                    ),
                     if (kDebugMode)
                       PopupMenuItem(
                         child: const Text('Debug button'),
@@ -166,9 +166,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => UnlockChooser(
-                                        onKeyIssued: (issuedKey, didPushed) =>
-                                            null)));
+                                    builder: (context) => const WelcomePage()));
                           });
                         },
                       )

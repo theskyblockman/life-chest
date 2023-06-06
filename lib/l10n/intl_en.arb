@@ -25,7 +25,7 @@
   "errorDurationMustNotBeEmpty": "The duration must not be empty",
   "errorDurationMustBeFormatted": "The duration must be in the HH:MM format",
   "createTheNewChest": "Create the chest",
-  "appLegalese": "The application \"Life Chest\" has been made by Theskyblockman with a ❤️ and a \uD83D\uDDA5️ under the MIT License, ©️ 2023 Haroun El Omri",
+  "appLegalese": "The application \"Life Chest\" has been made by Theskyblockman with a ❤️ and a \uD83D\uDDA5️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri",
   "noChestsCreatedYet": "No chests created yet",
   "noFilesCreatedYet": "No files added yet",
   "enterTheChestPassword": "Please enter the password of this chest",
@@ -117,5 +117,6 @@
   },
   "unlockAbleBy": "This group can be unlocked with: {unlockName}.",
   "exportedFileDescription": "A file exported from the Life Chest app and who needs to be unlocked to get more information about it.",
-  "internalError": "Internal Error"
+  "internalError": "Internal Error",
+  "wrongDevice": "Wrong device, couldn't find the unlock data in the keystore"
 }

@@ -40,7 +40,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "addFiles":
             MessageLookupByLibrary.simpleMessage("Ajouter des fichiers"),
         "appLegalese": MessageLookupByLibrary.simpleMessage(
-            "L\'application \"Life Chest\" a été créée par Theskyblockman avec ❤️ et un 🖥️ sous la licence MIT, ©️ 2023 Haroun El Omri"),
+            "L\'application \"Life Chest\" a été créée par Theskyblockman avec ❤️ et un 🖥️ sous la licence MIT, Nous ne donnons aucune garantie, veuillez voir la license MIT pour plus d\'informations ©️ 2023 Haroun El Omri"),
         "areYouSure": MessageLookupByLibrary.simpleMessage("Êtes-vous sûr ?"),
         "biometrics":
             MessageLookupByLibrary.simpleMessage("Empreinte digitale"),
@@ -173,6 +173,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "welcomeSkip": MessageLookupByLibrary.simpleMessage("Passer"),
         "whatShouldBeDoneAfterUnfocus": MessageLookupByLibrary.simpleMessage(
             "Que devons-nous faire si l\'application est mise en pause"),
+        "wrongDevice": MessageLookupByLibrary.simpleMessage(
+            "Mauvais appareil, nous n\'avons pas trouvé les donnés nécessaires pour déverouiller le coffre dans la collection de clés."),
         "wrongPassword":
             MessageLookupByLibrary.simpleMessage("Mauvais mot de passe"),
         "wrongPinCode":

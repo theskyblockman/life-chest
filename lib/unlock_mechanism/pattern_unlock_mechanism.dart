@@ -13,6 +13,7 @@ class SchemeUnlockMechanism extends UnlockMechanism {
   void build(BuildContext context, Map<String, dynamic> additionalUnlockData) {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) {
       return Scaffold(
+          appBar: AppBar(),
           body: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
