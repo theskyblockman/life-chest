@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channel_description">My test notification channel</string>
+    <string name="channel_name">My test channel name</string>
+</resources>

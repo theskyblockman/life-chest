@@ -1,55 +1,60 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:life_chest/file_recovery/multithreaded_recovery.dart';
-import 'package:life_chest/vault.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:life_chest/generated/l10n.dart';
+import 'package:life_chest/file_explorer/file_explorer.dart';
+import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
+import 'package:life_chest/file_viewers/file_viewer.dart';
 
-class ImageViewer extends StatefulWidget {
-  final Vault fileVault;
-  final File fileToRead;
-  const ImageViewer({super.key, required this.fileVault, required this.fileToRead});
+class ImageViewer extends FileViewer {
+  Image? loadedImage;
+  final FileReaderState explorerState;
+  final TransformationController controller = TransformationController();
 
-  @override
-  State<StatefulWidget> createState() => ImageViewerState();
-}
-
-class ImageViewerState extends State<ImageViewer> {
-  Uint8List? loadedImage;
+  ImageViewer(
+      {required super.fileVault,
+      required super.fileToRead,
+      required super.fileName,
+      required super.fileData,
+      required this.explorerState});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(builder: (context, snapshot) {
-      if(snapshot.hasData) {
-        return Center(child: InteractiveViewer(clipBehavior: Clip.none, child: Image.memory(loadedImage!)));
-      } else {
-        return Center(
-            child: Opacity(
-                opacity: 0.25,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    Text(
-                      AppLocalizations.of(context)!.loadingImage,
-                      textScaleFactor: 2.5,
-                      textAlign: TextAlign.center,
-                    )
-                  ],
-                )));
-      }
-    }, future: load(),);
+    return SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        child: InteractiveViewer(
+            clipBehavior: Clip.none,
+            constrained: true,
+            transformationController: controller,
+            onInteractionEnd: (details) {
+              explorerState.isPagingEnabled =
+                  controller.value.getMaxScaleOnAxis() <= 1.0;
+            },
+            child: loadedImage ?? Container()));
   }
 
+  @override
   Future<bool> load() async {
-    loadedImage = await MultithreadedRecovery.loadAndDecryptFile(widget.fileVault.encryptionKey!, widget.fileToRead);
+    loadedImage = Image.memory(
+        await SingleThreadedRecovery.loadAndDecryptFullFile(
+            fileVault.encryptionKey!, fileToRead));
     return true;
   }
 
   @override
   void dispose() {
     loadedImage = null;
-    super.dispose();
   }
+
+  @override
+  String loadingMessage(BuildContext context) => S.of(context).loadingImage;
+
+  @override
+  Future<void> onFocus() async {
+    loadedImage = Image.memory(
+        await SingleThreadedRecovery.loadAndDecryptFullFile(
+            fileVault.encryptionKey!, fileToRead));
+  }
+
+  @override
+  bool extendBody() => true;
 }

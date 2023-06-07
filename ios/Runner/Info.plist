@@ -47,5 +47,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+    <array>
+      <string>audio</string>
+    </array>
+    <dict>
+      <key>NSFaceIDUsageDescription</key>
+      <string>This application wants to access your TouchID or FaceID</string>
+    </dict>
 </dict>
 </plist>
