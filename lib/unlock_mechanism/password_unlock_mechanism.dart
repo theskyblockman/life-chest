@@ -37,7 +37,8 @@ class PasswordUnlockMechanism extends UnlockMechanism {
                         onPressed: () async {
                           onKeyRetrieved(
                               SecretKey(passwordToCryptKey(passwordField.text)),
-                              true);
+                              true,
+                              this);
                         },
                         child: Text(S.of(context).validate))
                   ]);
@@ -121,4 +122,7 @@ class PasswordUnlockMechanism extends UnlockMechanism {
 
   @override
   bool canBeFocused() => true;
+
+  @override
+  bool isEncryptedExportAllowed() => true;
 }

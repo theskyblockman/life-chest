@@ -36,6 +36,7 @@ class FileThumbnail extends StatelessWidget {
     return InkWell(
       onLongPress: () => onLongPress(this),
       onTap: () => onPress(context, this),
+      borderRadius: BorderRadius.circular(15),
       child: GridTile(
         child: Container(
           decoration: BoxDecoration(

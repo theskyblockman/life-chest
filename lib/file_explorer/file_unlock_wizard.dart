@@ -26,7 +26,7 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
 
   Future<(Map<String, dynamic> metadata, List<int> data)> getOrUnlockFile(
       List<int> fileToUnlock, SecretKey key) async {
-    for (List<int> unlockedFile in unlockedMap.keys) {
+    for (List<int> unlockedFile in List.from(unlockedMap.keys)) {
       if (listEquals(fileToUnlock, unlockedFile)) {
         return unlockedMap[unlockedFile]!;
       }
@@ -49,7 +49,7 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
         currentStatus[currentHashKey] = ([fileContent], null);
       } else {
         bool fileAdded = false;
-        for (List<int> fileHash in currentStatus.keys) {
+        for (List<int> fileHash in List.from(currentStatus.keys)) {
           if (listEquals(fileHash, currentHashKey)) {
             currentStatus[fileHash]!.$1.add(fileContent);
             fileAdded = true;
@@ -104,7 +104,7 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
                                   UnlockMechanism.unlockMechanisms)[
                               FileExporter.determineExportedFileUnlockMethod(
                                   currentStatus[fileGroup]!.$1[0])!]!(
-                          (SecretKey key, bool check) =>
+                          (SecretKey key, bool check, UnlockMechanism usedMechanism) =>
                               null).getName(context))),
                       trailing: currentStatus[fileGroup]!.$2 == null
                           ? const Icon(Icons.key)
@@ -122,7 +122,7 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
                                 currentStatus[fileGroup]!.$1[0])!,
                             FileExporter.getAdditionalUnlockData(
                                 currentStatus[fileGroup]!.$1[0])!,
-                            onKeyIssued: (issuedKey, didPushed) => onKeyIssued(
+                            onKeyIssued: (issuedKey, didPushed, usedMechanism) => onKeyIssued(
                                 context, fileGroup, issuedKey, didPushed));
 
                         tester.shouldUseChooser(context);
@@ -157,7 +157,7 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
     if (context.mounted && didPush) {
       Navigator.pop(context);
     }
-    for (List<int> unlockedFile in currentStatus.keys) {
+    for (List<int> unlockedFile in List.from(currentStatus.keys)) {
       if (listEquals(keyHash, unlockedFile)) {
         if (await FileExporter.testExportedFileEncryption(
                 currentStatus[unlockedFile]!.$1[0], issuedKey) ==

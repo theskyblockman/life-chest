@@ -64,6 +64,7 @@
   "enterTheChestScheme": "Veuillez entrer le modèle du coffre",
   "enterThePinCode": "Veuillez entrer le code PIN du coffre",
   "wrongPinCode": "Code PIN incorrect",
+  "wrongScheme": "Schéma incorrect",
   "unlockChest": "Veuillez déverrouiller le coffre",
   "pleaseUseBiometrics": "Veuillez utiliser votre empreinte digitale pour déverrouiller le coffre",
   "defineScheme": "Définir le modèle",
@@ -73,14 +74,15 @@
   "useUnlockWizard": "Utiliser l'assistant de déverrouillage",
   "unlockWizard": "Assistant de déverrouillage",
   "ignore": "Ignorer",
-  "exportAsCleartext": "Exporter en tant que fichier lisible (fichier non encrypté)",
-  "exportAsEncrypted": "Exporter en tant que fichier encrypté",
+  "exportAsCleartext": "Exporter en tant que fichier lisible (fichier non chiffré)",
+  "exportAsEncrypted": "Exporter en tant que fichier chiffré",
   "lifeChestBulkSave": "Sauvegarde de fichiers en masse",
   "savedToFolder": "Le(s) fichier(s) a/ont été sauvegardé(s) dans {path}",
   "import": "Importer",
   "group": "Groupe n°{groupID}",
   "unlockAbleBy": "Ce groupe peut être débloquer grâce à : {unlockName}.",
-  "exportedFileDescription": "Um fichier exporté depuis Life Chest qui est encrypté et qui a donc besoin d'être décrypté pour être lu.",
+  "exportedFileDescription": "Um fichier exporté depuis Life Chest qui est chiffré et qui a donc besoin d'être déchiffré pour être lu.",
   "internalError": "Erreur interne",
-  "wrongDevice": "Mauvais appareil, nous n'avons pas trouvé les donnés nécessaires pour déverouiller le coffre dans la collection de clés."
+  "wrongDevice": "Mauvais appareil, nous n'avons pas trouvé les donnés nécessaires pour déverouiller le coffre dans la collection de clés.",
+  "biometricsAreLocal": "Les coffres verrouillés par biométrie ne peuvent être déverrouillés que sur l'appareil sur lequel ils ont été créés. L'exportation de fichiers chiffrés n'est pas disponible."
 }

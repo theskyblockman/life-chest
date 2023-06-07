@@ -28,7 +28,7 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
         String decryptedString = (await localAuthCryptoInstance.authenticate(
             promptInfo, encryptedString))!;
         HapticFeedback.heavyImpact();
-        onKeyRetrieved(SecretKey(decryptedString.codeUnits), false);
+        onKeyRetrieved(SecretKey(decryptedString.codeUnits), false, this);
       } on PlatformException catch(e, st) {
         if(e.code != 'E05') {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).wrongDevice)));
@@ -83,9 +83,6 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
       'Authentication error',
       <String, dynamic>{}
     );
-
-
-
   }
 
   @override
@@ -93,7 +90,7 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
 
   @override
   Widget keyCreationBuild(BuildContext context, VaultPolicy policy) {
-    return Container();
+    return ListTile(textColor: Colors.orange, leading: const Icon(Icons.warning_amber, color: Colors.orange), title: Text(S.of(context).biometricsAreLocal));
   }
 
   @override
@@ -102,4 +99,7 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
         (await LocalAuthentication().getAvailableBiometrics())
             .contains(BiometricType.strong);
   }
+
+  @override
+  bool isEncryptedExportAllowed() => false;
 }

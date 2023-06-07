@@ -12,7 +12,7 @@ abstract class UnlockMechanism {
   /// Once published, these fields shouldn't be edited.
   static final Map<
       UnlockMechanism Function(
-          void Function(SecretKey retrievedKey, bool didPushed) onKeyRetrieved),
+          void Function(SecretKey retrievedKey, bool didPushed, UnlockMechanism usedMechanism) onKeyRetrieved),
       String> unlockMechanisms = {
     (retrievedKey) => PasswordUnlockMechanism(onKeyRetrieved: retrievedKey):
         'password',
@@ -24,7 +24,7 @@ abstract class UnlockMechanism {
         'biometrics'
   };
 
-  final Function(SecretKey retrievedKey, bool didPushed) onKeyRetrieved;
+  final Function(SecretKey retrievedKey, bool didPushed, UnlockMechanism usedMechanism) onKeyRetrieved;
 
   void build(BuildContext context, Map<String, dynamic> additionalUnlockData);
 
@@ -46,4 +46,6 @@ abstract class UnlockMechanism {
   bool canBeFocused();
 
   Future<bool> isAvailable() => Future.value(true);
+
+  bool isEncryptedExportAllowed();
 }

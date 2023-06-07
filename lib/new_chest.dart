@@ -33,7 +33,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
     ];
 
     currentMechanism ??= PasswordUnlockMechanism(
-        onKeyRetrieved: (retrievedKey, didPushed) => null);
+        onKeyRetrieved: (retrievedKey, didPushed, usedMechanism) => null);
     return Scaffold(
       appBar: AppBar(title: Text(S.of(context).createANewChest)),
       body: SingleChildScrollView(
@@ -73,7 +73,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                   dynamic mechanismBuilder =
                       List.from(UnlockMechanism.unlockMechanisms.keys)[index]!;
                   UnlockMechanism mechanism =
-                      mechanismBuilder((retrievedKey, didPushed) => null);
+                      mechanismBuilder((retrievedKey, didPushed, unlockMethod) => null);
                   if (mechanism.runtimeType == currentMechanism?.runtimeType) {
                     mechanism = currentMechanism!;
                   }

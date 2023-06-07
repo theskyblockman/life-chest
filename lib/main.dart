@@ -13,6 +13,7 @@ import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_viewers/audio.dart';
 import 'package:life_chest/new_chest.dart';
 import 'package:life_chest/onboarding.dart';
+import 'package:life_chest/unlock_mechanism/unlock_mechanism.dart';
 import 'package:life_chest/unlock_mechanism/unlock_tester.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path_provider/path_provider.dart';
@@ -261,33 +262,33 @@ class ChestMainPageState extends State<ChestMainPage> {
                             UnlockTester tester = UnlockTester(
                                 chest.unlockMechanismType,
                                 chest.additionalUnlockData,
-                                onKeyIssued: (issuedKey, didPushed) =>
-                                    onKeyIssued(chest, issuedKey, didPushed));
+                                onKeyIssued: (issuedKey, didPushed, mechanismUsed) =>
+                                    onKeyIssued(chest, issuedKey, didPushed, mechanismUsed));
                             if (tester.shouldUseChooser(context)) {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => UnlockChooser(
-                                          onKeyIssued: (issuedKey, didPushed) =>
+                                          onKeyIssued: (issuedKey, didPushed, mechanismUsed) =>
                                               onKeyIssued(chest, issuedKey,
-                                                  didPushed))));
+                                                  didPushed, mechanismUsed))));
                             }
                           }));
                 },
                 itemCount: VaultsManager.storedVaults.length));
   }
 
-  void onKeyIssued(Vault chest, SecretKey issuedKey, bool didPush) async {
+  void onKeyIssued(Vault chest, SecretKey issuedKey, bool didPush, UnlockMechanism mechanismUsed) async {
     chest.encryptionKey = issuedKey;
     chest.locked = !(await VaultsManager.testVaultKey(chest));
     if (!chest.locked) {
       if (context.mounted) {
         if (didPush) {
           Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => FileExplorer(chest)));
+              MaterialPageRoute(builder: (context) => FileExplorer(chest, mechanismUsed.isEncryptedExportAllowed())));
         } else {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => FileExplorer(chest)));
+              MaterialPageRoute(builder: (context) => FileExplorer(chest, mechanismUsed.isEncryptedExportAllowed())));
         }
       }
     }

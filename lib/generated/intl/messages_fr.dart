@@ -44,6 +44,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "areYouSure": MessageLookupByLibrary.simpleMessage("Êtes-vous sûr ?"),
         "biometrics":
             MessageLookupByLibrary.simpleMessage("Empreinte digitale"),
+        "biometricsAreLocal": MessageLookupByLibrary.simpleMessage(
+            "Les coffres verrouillés par biométrie ne peuvent être déverrouillés que sur l\'appareil sur lequel ils ont été créés. L\'exportation de fichiers chiffrés n\'est pas disponible."),
         "cancel": MessageLookupByLibrary.simpleMessage("Annuler"),
         "chestName": MessageLookupByLibrary.simpleMessage("Nom du coffre"),
         "chestPassword":
@@ -103,11 +105,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "errorDurationMustNotBeEmpty": MessageLookupByLibrary.simpleMessage(
             "La durée ne doit pas être vide"),
         "exportAsCleartext": MessageLookupByLibrary.simpleMessage(
-            "Exporter en tant que fichier lisible (fichier non encrypté)"),
+            "Exporter en tant que fichier lisible (fichier non chiffré)"),
         "exportAsEncrypted": MessageLookupByLibrary.simpleMessage(
-            "Exporter en tant que fichier encrypté"),
+            "Exporter en tant que fichier chiffré"),
         "exportedFileDescription": MessageLookupByLibrary.simpleMessage(
-            "Um fichier exporté depuis Life Chest qui est encrypté et qui a donc besoin d\'être décrypté pour être lu."),
+            "Um fichier exporté depuis Life Chest qui est chiffré et qui a donc besoin d\'être déchiffré pour être lu."),
         "group": m1,
         "ignore": MessageLookupByLibrary.simpleMessage("Ignorer"),
         "import": MessageLookupByLibrary.simpleMessage("Importer"),

@@ -18,12 +18,13 @@ class SchemeUnlockMechanism extends UnlockMechanism {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
             Flexible(
-                child: Text(S.of(context).enterTheChestPassword,
+                child: Text(S.of(context).enterTheChestScheme,
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 24))),
             Flexible(child: PatternFormField(
               onCodeCreated: (code) {
-                onKeyRetrieved(SecretKey(passwordToCryptKey(code)), true);
+                debugPrint('Code created $code');
+                onKeyRetrieved(SecretKey(passwordToCryptKey(code)), true, this);
               },
             ))
           ]));
@@ -96,6 +97,9 @@ class SchemeUnlockMechanism extends UnlockMechanism {
   void creationFocus() {
     defineButtonNode.requestFocus();
   }
+
+  @override
+  bool isEncryptedExportAllowed() => true;
 }
 
 class PatternFormField extends FormField<String> {

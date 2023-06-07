@@ -41,7 +41,8 @@ class PinUnlockMechanism extends UnlockMechanism {
                         onPressed: () async {
                           onKeyRetrieved(
                               SecretKey(passwordToCryptKey(pinField.text)),
-                              true);
+                              true,
+                              this);
                         },
                         child: Text(S.of(context).validate))
                   ]);
@@ -116,4 +117,7 @@ class PinUnlockMechanism extends UnlockMechanism {
 
   @override
   bool canBeFocused() => true;
+
+  @override
+  bool isEncryptedExportAllowed() => true;
 }

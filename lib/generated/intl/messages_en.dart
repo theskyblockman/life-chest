@@ -40,6 +40,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "The application \"Life Chest\" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri"),
         "areYouSure": MessageLookupByLibrary.simpleMessage("Are you sure?"),
         "biometrics": MessageLookupByLibrary.simpleMessage("Biometrics"),
+        "biometricsAreLocal": MessageLookupByLibrary.simpleMessage(
+            "Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable."),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "chestName": MessageLookupByLibrary.simpleMessage("Chest name"),
         "chestPassword": MessageLookupByLibrary.simpleMessage("Chest password"),

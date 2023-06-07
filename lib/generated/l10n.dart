@@ -889,6 +889,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable.`
+  String get biometricsAreLocal {
+    return Intl.message(
+      'Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable.',
+      name: 'biometricsAreLocal',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

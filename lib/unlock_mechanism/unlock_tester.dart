@@ -6,7 +6,7 @@ import 'package:life_chest/unlock_mechanism/unlock_mechanism.dart';
 class UnlockTester {
   const UnlockTester(this.unlockMechanism, this.additionalUnlockData,
       {required this.onKeyIssued});
-  final Function(SecretKey issuedKey, bool didPushed) onKeyIssued;
+  final Function(SecretKey issuedKey, bool didPushed, UnlockMechanism usedMechanism) onKeyIssued;
   final String unlockMechanism;
   final Map<String, dynamic> additionalUnlockData;
 
@@ -14,8 +14,8 @@ class UnlockTester {
     for (var unlockMechanismType in UnlockMechanism.unlockMechanisms.entries) {
       if (unlockMechanismType.value == unlockMechanism) {
         UnlockMechanism mechanism =
-            unlockMechanismType.key((SecretKey retrievedKey, bool didPushed) {
-          onKeyIssued(retrievedKey, didPushed);
+            unlockMechanismType.key((SecretKey retrievedKey, bool didPushed, UnlockMechanism usedMechanism) {
+          onKeyIssued(retrievedKey, didPushed, usedMechanism);
         });
         mechanism.build(context, additionalUnlockData);
         return false;
@@ -28,7 +28,7 @@ class UnlockTester {
 
 class UnlockChooser extends StatelessWidget {
   const UnlockChooser({super.key, required this.onKeyIssued});
-  final Function(SecretKey issuedKey, bool didPushed) onKeyIssued;
+  final Function(SecretKey issuedKey, bool didPushed, UnlockMechanism mechanism) onKeyIssued;
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +38,8 @@ class UnlockChooser extends StatelessWidget {
             itemBuilder: (context, index) {
               UnlockMechanism mechanism =
                   List.from(UnlockMechanism.unlockMechanisms.keys)[index]!(
-                      (SecretKey retrievedKey, bool didPushed) {
-                onKeyIssued(retrievedKey, didPushed);
+                      (SecretKey retrievedKey, bool didPushed, UnlockMechanism usedMechanism) {
+                onKeyIssued(retrievedKey, didPushed, usedMechanism);
                 if (kDebugMode) {
                   retrievedKey.extractBytes().then((value) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(

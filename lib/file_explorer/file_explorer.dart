@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -237,8 +239,9 @@ class FolderCreationWindowState extends State<FolderCreationWindow> {
 /// One of the core UI elements of the app, this file explorer enables the user to see file thumbnails, their name and to play them, its state is [FileExplorerState]
 class FileExplorer extends StatefulWidget {
   final Vault vault;
+  final bool isEncryptedExportEnabled;
 
-  const FileExplorer(this.vault, {super.key});
+  const FileExplorer(this.vault, this.isEncryptedExportEnabled, {super.key});
 
   @override
   State<StatefulWidget> createState() => FileExplorerState();
@@ -260,6 +263,23 @@ class FileExplorerState extends State<FileExplorer> {
   String currentLocalPath = '';
   static FileSortMethod currentSortMethod = FileSortMethod.name;
   final ScrollController gridViewController = ScrollController();
+
+  static Future<void> exportEncryptedThumbnails(List<(String thumbnailFilePath, List<int> encryptionKey, Map<String, dynamic> data, List<int> fileContent, String unlockMechanismType, Map<String, dynamic> additionalUnlockData, String saveLocationPath)> message) async {
+    for ((String thumbnailFilePath, List<int> encryptionKey, Map<String, dynamic> data, List<int> fileContent, String unlockMechanismType, Map<String, dynamic> additionalUnlockData, String saveLocationPath) data in message) {
+      List<int> exportedFile =
+      await FileExporter.exportFile(
+          basename(data.$1),
+          SecretKey(data.$2),
+          data.$3,
+          data.$4,
+          data.$5,
+          data.$6);
+      File fileToSaveTo = File(join(data.$7,
+          'Life_Chest_${md5RandomFileName()}.lcef'));
+      fileToSaveTo.createSync();
+      fileToSaveTo.writeAsBytesSync(exportedFile);
+    }
+  }
 
   /// A method to set and update the current sort method internally, not in the UI
   void setSortMethod(FileSortMethod newMethod) {
@@ -407,8 +427,7 @@ class FileExplorerState extends State<FileExplorer> {
                         child: Text(S.of(context).selectAll)),
                     if (isSelectionMode) ...[
                       PopupMenuItem(
-                          child: Text(S.of(context).exportAsEncrypted),
-                          onTap: () async {
+                          onTap: widget.isEncryptedExportEnabled ? () async {
                             List<FileThumbnail> filesToExport = [];
 
                             for (FileThumbnail thumbnail in thumbnails) {
@@ -454,27 +473,23 @@ class FileExplorerState extends State<FileExplorer> {
                               saveLocation.createSync();
                             }
 
-                            for (FileThumbnail thumbnail in filesToExport) {
-                              List<int> exportedFile =
-                                  await FileExporter.exportFile(
-                                      basename(thumbnail.file.path),
-                                      widget.vault.encryptionKey!,
-                                      thumbnail.data,
-                                      thumbnail.file.readAsBytesSync(),
-                                      widget.vault.unlockMechanismType,
-                                      widget.vault.additionalUnlockData);
-                              File fileToSaveTo = File(join(saveLocation.path,
-                                  'Life_Chest_${md5RandomFileName()}.lcef'));
-                              fileToSaveTo.createSync();
-                              fileToSaveTo.writeAsBytesSync(exportedFile);
-                            }
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(S.of(context).savedToFolder(
-                                          basename(saveLocation.path)))));
-                            }
-                          }),
+                            List<int> encryptionKey = await widget.vault.encryptionKey!.extractBytes();
+
+                            Isolate.spawn(exportEncryptedThumbnails, List<(String thumbnailFilePath, List<int> encryptionKey, Map<String, dynamic> data, List<int> fileContent, String unlockMechanismType, Map<String, dynamic> additionalUnlockData, String saveLocationPath)>.generate(filesToExport.length, (index) {
+                              FileThumbnail fileToExport = filesToExport[index];
+
+                              return (fileToExport.localPath, encryptionKey, fileToExport.data, fileToExport.file.readAsBytesSync(), widget.vault.unlockMechanismType, widget.vault.additionalUnlockData, saveLocation.path);
+                            })).then((value) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(S.of(context).savedToFolder(
+                                            basename(saveLocation.path)))));
+                              }
+                            });
+                          } : null,
+                          enabled: widget.isEncryptedExportEnabled,
+                          child: Text(S.of(context).exportAsEncrypted)),
                       PopupMenuItem(
                           onTap: () async {
                             List<FileThumbnail> filesToExport = [];
@@ -523,15 +538,15 @@ class FileExplorerState extends State<FileExplorer> {
                             }
 
                             for (FileThumbnail thumbnail in filesToExport) {
-                              List<int> exportedFile =
-                                  await SingleThreadedRecovery
-                                      .loadAndDecryptFullFile(
-                                          widget.vault.encryptionKey!,
-                                          thumbnail.file);
+                              Stream<List<int>> exportedFile =
+                                  SingleThreadedRecovery
+                                      .loadAndDecryptFile(widget.vault.encryptionKey!, thumbnail.file);
+
                               File fileToSaveTo =
                                   File(join(saveLocation.path, thumbnail.name));
                               fileToSaveTo.createSync();
-                              fileToSaveTo.writeAsBytesSync(exportedFile);
+
+                              fileToSaveTo.openWrite().addStream(exportedFile);
                             }
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -628,7 +643,7 @@ class FileExplorerState extends State<FileExplorer> {
                     isPauseAllowed = false;
                     shouldNotificationBeSent = false;
                     if (currentLocalPath.isNotEmpty) {
-                      gridViewController.jumpTo(0);
+                      if(gridViewController.positions.isNotEmpty) gridViewController.jumpTo(0);
                       setState(() {
                         if (!currentLocalPath.contains('/')) {
                           currentLocalPath = '';
