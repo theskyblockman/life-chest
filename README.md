@@ -23,6 +23,6 @@ An app to securely store your data for Android and iOS.
 - Video playing
 - Audio playing
   
-**NOTE: I wasn't aware of the requirement of a SyncFusion license for the PDF reader, I am currently in the process of acquiring one. For the time boing their library is still in the codebase, if it needs to be removed, please contact me at theskyblockman@skiff.com**
+**NOTE: I wasn't aware of the requirement of a SyncFusion license for the PDF reader, I am currently in the process of acquiring one. For the time being their library is still in the codebase, if it needs to be removed, please contact me at theskyblockman@skiff.com**
   
 :copyright: Haroun El Omri, 2023
