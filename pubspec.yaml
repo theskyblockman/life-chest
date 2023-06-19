@@ -20,7 +20,7 @@ dependencies:
   path: ^1.8.3
   path_provider: ^2.0.13
   syncfusion_flutter_pdfviewer: ^21.2.10
-  syncfusion_localizations: ^21.2.8
+  syncfusion_localizations: ^21.2.10
   video_player: ^2.6.1
   encrypt: ^5.0.1
   crypto: ^3.0.3
