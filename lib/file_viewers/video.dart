@@ -33,6 +33,7 @@ class VideoViewer extends FileViewer {
         bytes: await SingleThreadedRecovery.loadAndDecryptFullFile(
             fileVault.encryptionKey!, fileToRead), videoExtension: extension(fileName));
 
+    // ignore: use_build_context_synchronously
     if(!context.mounted) return false;
 
     controller = BetterPlayerController(BetterPlayerConfiguration(

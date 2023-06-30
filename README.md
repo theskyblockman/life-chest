@@ -1,10 +1,9 @@
 # Life chest
 
-An app to securely store your data for Android and iOS.
+An app to securely store your data locally
 
 ## Features
 
-- Multithreaded AES file encryption/decryption (OBSELETE)
 - Singlethreaded ChaCha20 encryption/decryption (Natively implemented)
 - Chest/Vault system (name to determine)
 - See images
@@ -17,9 +16,6 @@ An app to securely store your data for Android and iOS.
 - Lazy loading
 - Export files/vaults to their original file or to a new file format (.lcef or Life Chest Encrypted
   File)
-
-## WIP
-
 - Video playing
 - Audio playing
   
