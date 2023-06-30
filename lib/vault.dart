@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:cryptography/cryptography.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_explorer/file_sort_methods.dart';
@@ -64,9 +63,8 @@ class VaultsManager {
   }
 
   static Future<Vault> createVaultFromPolicy(VaultPolicy policy) async {
-    debugPrint(policy.unlockType);
     String path = p.join(VaultsManager.appFolder, '.${md5RandomFileName()}');
-    // Do not edit the witness test file, please I beg you
+    // Do not edit the witness test file.
     File keyFile = File(p.join(path, '.witness'));
     keyFile.createSync(recursive: true);
     SecretKey cryptKey = policy.key!;
@@ -89,7 +87,8 @@ class VaultsManager {
         name: policy.vaultName,
         securityLevel: policy.securityLevel,
         encryptionKey: cryptKey,
-        unlockMechanismType: policy.unlockType);
+        unlockMechanismType: policy.unlockType,
+    );
 
     File mapFile = File(p.join(path, '.map'));
     mapFile.createSync(recursive: true);
@@ -260,7 +259,9 @@ class Vault {
   /// The decryption key used to read files
   late SecretKey? encryptionKey;
 
+  /// The type of mechanism to use to create a key to unlock the vault
   late String unlockMechanismType;
 
+  /// Any data needed to generate a key to unlock the vault.
   late Map<String, dynamic> additionalUnlockData;
 }

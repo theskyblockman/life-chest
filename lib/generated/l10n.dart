@@ -440,6 +440,16 @@ class S {
     );
   }
 
+  /// `Loading video`
+  String get loadingVideo {
+    return Intl.message(
+      'Loading video',
+      name: 'loadingVideo',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Pick the files you want to add`
   String get pickFilesDialogTitle {
     return Intl.message(

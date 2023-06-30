@@ -39,6 +39,7 @@
   "loadingDocuments": "Loading document",
   "loadingImage": "Loading image",
   "loadingAudioTrack": "Loading audio track",
+  "loadingVideo": "Loading video",
   "pickFilesDialogTitle": "Pick the files you want to add",
   "pickFolderDialogTitle": "Pick the folder you want to add",
   "selected": "{count} selected",

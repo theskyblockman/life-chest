@@ -42,8 +42,8 @@ class FileThumbnail extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
             color: isSelected
-                ? Theme.of(context).colorScheme.tertiary.withOpacity(.3)
-                : Theme.of(context).colorScheme.outline.withOpacity(.1),
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Theme.of(context).colorScheme.secondaryContainer.withOpacity(.5)
           ),
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
@@ -78,5 +78,4 @@ class FileThumbnail extends StatelessWidget {
       ),
     );
   }
-
 }

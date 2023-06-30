@@ -154,6 +154,8 @@ class AudioListener extends FileViewer {
 
   @override
   Widget build(BuildContext context) {
+    double artSize = MediaQuery.of(context).size.shortestSide * .7;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -170,7 +172,7 @@ class AudioListener extends FileViewer {
                       ? Column(
                           children: [
                             Image.memory(base64Decode(
-                                mediaItem!.artHeaders!['artData']!)),
+                                mediaItem!.artHeaders!['artData']!), height: artSize, width: artSize),
                             const Padding(padding: EdgeInsets.only(top: 15))
                           ],
                         )
@@ -216,17 +218,17 @@ class AudioListener extends FileViewer {
               );
             },
           ),
-          // Display the processing state.
-          StreamBuilder<AudioProcessingState>(
-            stream: audioHandler.playbackState
-                .map((state) => state.processingState)
-                .distinct(),
-            builder: (context, snapshot) {
-              final processingState =
-                  snapshot.data ?? AudioProcessingState.idle;
-              return Text("Processing state: ${describeEnum(processingState)}");
-            },
-          ),
+          if(kDebugMode)
+            StreamBuilder<AudioProcessingState>(
+              stream: audioHandler.playbackState
+                  .map((state) => state.processingState)
+                  .distinct(),
+              builder: (context, snapshot) {
+                final processingState =
+                    snapshot.data ?? AudioProcessingState.idle;
+                return Text("Processing state: ${describeEnum(processingState)}");
+              },
+            ),
         ],
       ),
     );
@@ -239,7 +241,7 @@ class AudioListener extends FileViewer {
 
   @override
   void dispose() {
-    audioHandler.stop();
+    audioHandler.pause().then((value) => audioHandler.stop());
   }
 
   @override
@@ -298,6 +300,7 @@ class AudioListener extends FileViewer {
         mimeType: fileData['audioData']['mimeType'],
         trackDuration: fileData['audioData']['trackDuration'],
         bitrate: fileData['audioData']['bitrate']);
+
     audioHandler.playFile(
         MediaItem(
             id: fileName,
@@ -314,6 +317,10 @@ class AudioListener extends FileViewer {
                 ? {'artData': fileData['audioData']['trackCover']}
                 : null),
         audioSource!);
+
+
+
+    audioHandler.play();
   }
 }
 
@@ -338,15 +345,13 @@ class EncryptedAudioSource extends StreamAudioSource {
 
   @override
   Future<StreamAudioResponse> request([int? start, int? end]) async {
-    start ??= 0;
-    end ??= fileByteLength;
-
     return StreamAudioResponse(
         sourceLength: fileByteLength,
-        contentLength: end - start,
+        contentLength: (end ?? fileByteLength) - (start ?? 0),
         offset: start,
-        stream: await SingleThreadedRecovery.loadAndDecryptPartialFile(
-            encryptionKey, fileToRead, start, end),
+        stream: start == null && end == null ?
+          SingleThreadedRecovery.loadAndDecryptFile(encryptionKey, fileToRead) :
+          await SingleThreadedRecovery.loadAndDecryptPartialFile(encryptionKey, fileToRead, start ?? 0, end ?? fileByteLength),
         contentType: mimeType,
         rangeRequestsSupported: true);
   }

@@ -40,6 +40,7 @@
   "loadingDocuments": "Chargement des documents",
   "loadingImage": "Chargement de l'image",
   "loadingAudioTrack": "Chargement de la piste audio",
+  "loadingVideo": "Chargement de la vidéo",
   "pickFilesDialogTitle": "Choisissez les fichiers que vous voulez ajouter",
   "pickFolderDialogTitle": "Choisissez le dossier que vous voulez ajouter",
   "selected": "{count} {count, plural, =1{fichier sélectionné} other{fichiers sélectionnés}}",

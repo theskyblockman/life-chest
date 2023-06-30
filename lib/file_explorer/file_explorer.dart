@@ -41,7 +41,7 @@ class FileReaderState extends State<FileReader> {
   bool isPagingEnabled = true;
 
   /// Manages the file viewer for a file.
-  (Widget, bool) readFile(
+  (Widget, bool, FileViewer) readFile(
       BuildContext context, FileThumbnail thumbnail, int fileIndex) {
     FileViewer viewer = thumbnail.placeholder.invokeData(
         widget.fileVault, thumbnail.file, thumbnail.name, thumbnail.data, this);
@@ -79,7 +79,7 @@ class FileReaderState extends State<FileReader> {
                       ],
                     )));
           }
-        }), viewer.extendBody());
+        }), viewer.extendBody(), viewer);
   }
 
   /// Build the [FileReader], this code is mostly made for loading times
@@ -94,26 +94,16 @@ class FileReaderState extends State<FileReader> {
           var fileData = readFile(context, currentThumbnail, index);
           return Scaffold(
               appBar: AppBar(
-                  title: Text(currentThumbnail.name,
-                      style: currentThumbnail.placeholder !=
-                              FileThumbnailsPlaceholder.audio
-                          ? const TextStyle(color: Colors.white)
-                          : null),
-                  backgroundColor: Colors.transparent,
-                  leading: currentThumbnail.placeholder !=
-                          FileThumbnailsPlaceholder.audio
-                      ? IconButton(
+                  title: Text(currentThumbnail.name),
+                  leading: IconButton(
                           onPressed: () {
+                            fileData.$3.dispose();
                             Navigator.pop(context);
                           },
                           icon:
-                              const Icon(Icons.arrow_back, color: Colors.white))
-                      : null),
+                              const Icon(Icons.arrow_back))
+                      ),
               body: fileData.$1,
-              backgroundColor: currentThumbnail.placeholder ==
-                      FileThumbnailsPlaceholder.audio
-                  ? Theme.of(context).colorScheme.tertiary
-                  : Colors.black,
               extendBodyBehindAppBar: fileData.$2,
               extendBody: fileData.$2);
         },
@@ -655,6 +645,7 @@ class FileExplorerState extends State<FileExplorer> {
                       });
                     } else {
                       Navigator.pop(context);
+                      widget.vault.encryptionKey!.destroy();
                     }
                   }
                 },

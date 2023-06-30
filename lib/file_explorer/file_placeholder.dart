@@ -7,6 +7,7 @@ import 'package:life_chest/file_viewers/documents.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
 import 'package:life_chest/file_viewers/folder.dart';
 import 'package:life_chest/file_viewers/image.dart';
+import 'package:life_chest/file_viewers/video.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
 
@@ -35,7 +36,7 @@ class FileThumbnailsPlaceholder {
   static final FileThumbnailsPlaceholder documents =
       FileThumbnailsPlaceholder.multipleSignatures(
           const Icon(Icons.description, color: Colors.redAccent, size: 128),
-          ['text', 'pdf'],
+          ['text', '.pdf'],
           (Vault vault,
                   File fileToRead,
                   String fileName,
@@ -51,23 +52,22 @@ class FileThumbnailsPlaceholder {
       'video',
       (Vault vault, File fileToRead, String fileName,
               Map<String, dynamic> fileData, FileReaderState explorerState) =>
-          ImageViewer(
+          VideoViewer(
               fileVault: vault,
               fileToRead: fileToRead,
               fileName: fileName,
-              fileData: fileData,
-              explorerState: explorerState));
+              fileData: fileData));
   static final archive = FileThumbnailsPlaceholder.multipleSignatures(
       const Icon(Icons.archive_outlined,
           color: Colors.deepPurpleAccent, size: 128),
       [
-        'zip', // ZIP
-        'x-rar-compressed', // RAR (WinRAR)
-        'x-7z-compressed', // 7Z
-        'x-tar', // TAR
-        'java-archive', // JAR
-        'gzip', // GZIP
-        'apk', // APK
+        '.zip', // ZIP
+        '.x-rar-compressed', // RAR (WinRAR)
+        '.x-7z-compressed', // 7Z
+        '.x-tar', // TAR
+        '.java-archive', // JAR
+        '.gzip', // GZIP
+        '.apk', // APK
       ],
       (Vault vault, File fileToRead, String fileName,
               Map<String, dynamic> fileData, FileReaderState explorerState) =>
@@ -83,7 +83,7 @@ class FileThumbnailsPlaceholder {
         color: Colors.amberAccent,
         size: 128,
       ),
-      ['audio', 'ogg', 'opus'],
+      ['audio', '.ogg', '.opus'],
       (Vault vault, File fileToRead, String fileName,
               Map<String, dynamic> fileData, FileReaderState explorerState) =>
           AudioListener(
@@ -93,7 +93,7 @@ class FileThumbnailsPlaceholder {
               fileData: fileData));
   static final unknown = FileThumbnailsPlaceholder.multipleSignatures(
       const Icon(Icons.question_mark, color: Colors.grey, size: 128),
-      ['unknown', '*'],
+      ['unknown', '.*'],
       (Vault vault, File fileToRead, String fileName,
               Map<String, dynamic> fileData, FileReaderState explorerState) =>
           DocumentViewer(

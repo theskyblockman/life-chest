@@ -124,6 +124,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Chargement des éléments"),
         "loadingImage":
             MessageLookupByLibrary.simpleMessage("Chargement de l\'image"),
+        "loadingVideo":
+            MessageLookupByLibrary.simpleMessage("Chargement de la vidéo"),
         "nameSortName":
             MessageLookupByLibrary.simpleMessage("Ordre alphabétique"),
         "newFolder": MessageLookupByLibrary.simpleMessage("Nouveau dossier"),

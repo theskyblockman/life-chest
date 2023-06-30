@@ -53,16 +53,14 @@ class LifeChestApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
     return DynamicColorBuilder(builder: (lightDynamic, darkDynamic) {
       ThemeData lightTheme = ThemeData(
         useMaterial3: true,
-        colorScheme: lightDynamic ?? lightColorScheme,
+        colorScheme: kDebugMode ? lightColorScheme : lightDynamic ?? lightColorScheme,
       );
       ThemeData darkTheme = ThemeData(
         useMaterial3: true,
-        colorScheme: darkDynamic ?? darkColorScheme,
+        colorScheme: kDebugMode ? darkColorScheme : darkDynamic ?? darkColorScheme,
       );
 
       return MaterialApp(
@@ -78,7 +76,7 @@ class LifeChestApp extends StatelessWidget {
         supportedLocales: S.delegate.supportedLocales,
         theme: lightTheme,
         darkTheme: darkTheme,
-        home: firstLaunch ? const WelcomePage() : const ChestMainPage(),
+        home: firstLaunch ? const WelcomePage() : const ChestMainPage()
       );
     });
   }
@@ -204,76 +202,80 @@ class ChestMainPageState extends State<ChestMainPage> {
                   Vault chest = VaultsManager.storedVaults[index];
                   return Card(
                       shadowColor: Colors.transparent,
-                      child: ListTile(
-                          title: Text(chest.name),
-                          trailing: PopupMenuButton(
-                              icon: const Icon(Icons.more_vert),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              itemBuilder: (BuildContext context) {
-                                return [
-                                  PopupMenuItem(
-                                    onTap: () {
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback((timeStamp) {
-                                        setState(() {
-                                          VaultsManager.deleteVault(chest);
-                                          VaultsManager.loadVaults();
+                      child: InkWell(
+                        onTap: () {
+                          UnlockTester tester = UnlockTester(
+                              chest.unlockMechanismType,
+                              chest.additionalUnlockData,
+                              onKeyIssued: (issuedKey, didPushed, mechanismUsed) =>
+                                  onKeyIssued(chest, issuedKey, didPushed, mechanismUsed));
+                          if (tester.shouldUseChooser(context)) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UnlockChooser(
+                                        onKeyIssued: (issuedKey, didPushed, mechanismUsed) =>
+                                            onKeyIssued(chest, issuedKey,
+                                                didPushed, mechanismUsed))));
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(15),
+                        child: ListTile(
+                            title: Text(chest.name),
+                            trailing: PopupMenuButton(
+                                icon: const Icon(Icons.more_vert),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                                itemBuilder: (BuildContext context) {
+                                  return [
+                                    PopupMenuItem(
+                                      onTap: () {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((timeStamp) {
+                                          setState(() {
+                                            VaultsManager.deleteVault(chest);
+                                            VaultsManager.loadVaults();
+                                          });
                                         });
-                                      });
-                                    },
-                                    child: Text(S.of(context).delete),
-                                  ),
-                                  PopupMenuItem(
-                                    onTap: () {
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback((timeStamp) {
-                                        showDialog<bool>(
-                                          context: context,
-                                          builder: (context) {
-                                            return RenameWindow(
-                                                onOkButtonPressed: (newName) {
-                                                  chest.name = newName;
+                                      },
+                                      child: Text(S.of(context).delete),
+                                    ),
+                                    PopupMenuItem(
+                                      onTap: () {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((timeStamp) {
+                                          showDialog<bool>(
+                                            context: context,
+                                            builder: (context) {
+                                              return RenameWindow(
+                                                  onOkButtonPressed: (newName) {
+                                                    chest.name = newName;
 
-                                                  VaultsManager.saveVaults();
-                                                  if (context.mounted) {
+                                                    VaultsManager.saveVaults();
+                                                    if (context.mounted) {
+                                                      Navigator.of(context)
+                                                          .pop(true);
+                                                    }
+                                                  },
+                                                  onCancelButtonPressed: () {
                                                     Navigator.of(context)
-                                                        .pop(true);
-                                                  }
-                                                },
-                                                onCancelButtonPressed: () {
-                                                  Navigator.of(context)
-                                                      .pop(false);
-                                                },
-                                                initialName: chest.name);
-                                          },
-                                        ).then((value) {
-                                          if (value == true) {
-                                            setState(() {});
-                                          }
+                                                        .pop(false);
+                                                  },
+                                                  initialName: chest.name);
+                                            },
+                                          ).then((value) {
+                                            if (value == true) {
+                                              setState(() {});
+                                            }
+                                          });
                                         });
-                                      });
-                                    },
-                                    child: Text(S.of(context).rename),
-                                  )
-                                ];
-                              }),
-                          onTap: () {
-                            UnlockTester tester = UnlockTester(
-                                chest.unlockMechanismType,
-                                chest.additionalUnlockData,
-                                onKeyIssued: (issuedKey, didPushed, mechanismUsed) =>
-                                    onKeyIssued(chest, issuedKey, didPushed, mechanismUsed));
-                            if (tester.shouldUseChooser(context)) {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => UnlockChooser(
-                                          onKeyIssued: (issuedKey, didPushed, mechanismUsed) =>
-                                              onKeyIssued(chest, issuedKey,
-                                                  didPushed, mechanismUsed))));
-                            }
-                          }));
+                                      },
+                                      child: Text(S.of(context).rename),
+                                    )
+                                  ];
+                                })
+                        ),
+                      ));
                 },
                 itemCount: VaultsManager.storedVaults.length));
   }
