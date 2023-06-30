@@ -909,6 +909,16 @@ class S {
       args: [],
     );
   }
+
+  /// `The link has been copied to your clipboard.`
+  String get linkCopied {
+    return Intl.message(
+      'The link has been copied to your clipboard.',
+      name: 'linkCopied',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

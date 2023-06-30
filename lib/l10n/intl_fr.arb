@@ -85,5 +85,6 @@
   "exportedFileDescription": "Um fichier exporté depuis Life Chest qui est chiffré et qui a donc besoin d'être déchiffré pour être lu.",
   "internalError": "Erreur interne",
   "wrongDevice": "Mauvais appareil, nous n'avons pas trouvé les donnés nécessaires pour déverouiller le coffre dans la collection de clés.",
-  "biometricsAreLocal": "Les coffres verrouillés par biométrie ne peuvent être déverrouillés que sur l'appareil sur lequel ils ont été créés. L'exportation de fichiers chiffrés n'est pas disponible."
+  "biometricsAreLocal": "Les coffres verrouillés par biométrie ne peuvent être déverrouillés que sur l'appareil sur lequel ils ont été créés. L'exportation de fichiers chiffrés n'est pas disponible.",
+  "linkCopied": "Le lien a été placé dans le presse-papier"
 }

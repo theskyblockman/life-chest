@@ -110,6 +110,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "internalError": MessageLookupByLibrary.simpleMessage("Internal Error"),
         "lifeChestBulkSave":
             MessageLookupByLibrary.simpleMessage("Life Chest bulk file export"),
+        "linkCopied": MessageLookupByLibrary.simpleMessage(
+            "The link has been copied to your clipboard."),
         "loadingAudioTrack":
             MessageLookupByLibrary.simpleMessage("Loading audio track"),
         "loadingDocuments":

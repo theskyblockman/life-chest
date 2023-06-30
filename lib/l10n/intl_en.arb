@@ -120,5 +120,6 @@
   "exportedFileDescription": "A file exported from the Life Chest app and who needs to be unlocked to get more information about it.",
   "internalError": "Internal Error",
   "wrongDevice": "Wrong device, couldn't find the unlock data in the keystore",
-  "biometricsAreLocal": "Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable."
+  "biometricsAreLocal": "Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable.",
+  "linkCopied": "The link has been copied to your clipboard."
 }

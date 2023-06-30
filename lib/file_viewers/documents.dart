@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
 import 'package:path/path.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 enum DocumentType {
   pdf,
@@ -28,7 +29,15 @@ class DocumentViewer extends FileViewer {
     debugPrint(loadedDocument.toString());
     return Container(
       child: documentType == DocumentType.pdf
-          ? SfPdfViewer.memory(loadedDocument!)
+          ? PDFView(
+          pdfData: loadedDocument,
+          pageSnap: false,
+          onLinkHandler: (uri) {
+            if(uri != null) {
+              Clipboard.setData(ClipboardData(text: uri));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).linkCopied)));
+            }
+          })
           : SingleChildScrollView(child: Text(utf8.decode(loadedDocument!), style: const TextStyle(color: Colors.white))),
     );
   }
