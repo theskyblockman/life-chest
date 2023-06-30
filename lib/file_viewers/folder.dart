@@ -22,7 +22,7 @@ class FolderViewer extends FileViewer {
   void dispose() {}
 
   @override
-  Future<bool> load() async {
+  Future<bool> load(BuildContext context) async {
     return true;
   }
 

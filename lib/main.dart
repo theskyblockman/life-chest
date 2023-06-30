@@ -26,7 +26,7 @@ void main() async {
   Directory appDocuments = await getApplicationDocumentsDirectory();
   VaultsManager.appFolder = appDocuments.path;
   VaultsManager.mainConfigFile = File('${VaultsManager.appFolder}/.config');
-  bool firstLaunch = !VaultsManager.mainConfigFile.existsSync();
+  bool firstLaunch = !VaultsManager.mainConfigFile.existsSync() || kDebugMode;
   if (firstLaunch) {
     VaultsManager.mainConfigFile.createSync();
 

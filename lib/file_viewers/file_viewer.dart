@@ -5,7 +5,7 @@ import 'package:life_chest/vault.dart';
 
 abstract class FileViewer {
   Widget build(BuildContext context);
-  Future<bool> load();
+  Future<bool> load(BuildContext context);
   Future<void> onFocus();
   void dispose();
   String loadingMessage(BuildContext context);

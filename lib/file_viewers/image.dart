@@ -33,7 +33,7 @@ class ImageViewer extends FileViewer {
   }
 
   @override
-  Future<bool> load() async {
+  Future<bool> load(BuildContext context) async {
     loadedImage = Image.memory(
         await SingleThreadedRecovery.loadAndDecryptFullFile(
             fileVault.encryptionKey!, fileToRead));

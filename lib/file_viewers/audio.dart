@@ -235,7 +235,7 @@ class AudioListener extends FileViewer {
   }
 
   @override
-  Future<bool> load() async {
+  Future<bool> load(BuildContext context) async {
     return true;
   }
 

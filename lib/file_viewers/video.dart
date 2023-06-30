@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
 import 'package:life_chest/generated/l10n.dart';
+import 'package:path/path.dart';
 
 class VideoViewer extends FileViewer {
   VideoViewer(
@@ -11,30 +12,63 @@ class VideoViewer extends FileViewer {
       required super.fileName,
       required super.fileData});
   late BetterPlayerDataSource dataSource;
-  static const BetterPlayerConfiguration config = BetterPlayerConfiguration(
-    allowedScreenSleep: true,
-    autoDetectFullscreenAspectRatio: true,
-    autoDispose: false,
-    autoPlay: false,
-    autoDetectFullscreenDeviceOrientation: true,
-    controlsConfiguration: BetterPlayerControlsConfiguration(enableQualities: false, backwardSkipTimeInMilliseconds: 5000, enableFullscreen: true, enableProgressBar: true, showControls: true)
-  );
-  late BetterPlayerController controller;
+
+  BetterPlayerController? controller;
 
   @override
   Widget build(BuildContext context) {
-    return BetterPlayer(controller: controller);
+    return ColoredBox(color: Colors.black, child: Center(child: BetterPlayer(controller: controller!)));
   }
 
   @override
   void dispose() {
-    controller.pause().then((value) => controller.dispose(forceDispose: true));
+    controller!
+        .pause()
+        .then((value) => controller!.dispose(forceDispose: true));
   }
 
   @override
-  Future<bool> load() async {
-    dataSource = BetterPlayerDataSource(BetterPlayerDataSourceType.memory, '', bytes: await SingleThreadedRecovery.loadAndDecryptFullFile(fileVault.encryptionKey!, fileToRead));
-    controller = BetterPlayerController(config, betterPlayerDataSource: dataSource, betterPlayerPlaylistConfiguration: const BetterPlayerPlaylistConfiguration(loopVideos: true, initialStartIndex: 0));
+  Future<bool> load(BuildContext context) async {
+    dataSource = BetterPlayerDataSource(BetterPlayerDataSourceType.memory, '',
+        bytes: await SingleThreadedRecovery.loadAndDecryptFullFile(
+            fileVault.encryptionKey!, fileToRead), videoExtension: extension(fileName));
+
+    if(!context.mounted) return false;
+
+    controller = BetterPlayerController(BetterPlayerConfiguration(
+        allowedScreenSleep: false,
+        autoDetectFullscreenAspectRatio: true,
+        autoDispose: false,
+        autoPlay: false,
+        looping: true,
+        autoDetectFullscreenDeviceOrientation: true,
+        controlsConfiguration: BetterPlayerControlsConfiguration.white(),
+        translations: [
+          BetterPlayerTranslations(),
+          BetterPlayerTranslations(
+              languageCode: 'fr',
+              generalDefaultError: 'La vidéo ne peut pas être jouée',
+              generalNone: 'Aucun',
+              generalDefault: 'Défaut',
+              generalRetry: 'Réessayer',
+              playlistLoadingNextVideo: "Chargement de la prochaine vidéo",
+              controlsLive: "DIRECT",
+              controlsNextVideoIn: "Prochaine vidéo dans ",
+              overflowMenuPlaybackSpeed: "Vitesse de lecture",
+              overflowMenuSubtitles: "Sous-titres",
+              overflowMenuQuality: "Qualitée",
+              overflowMenuAudioTracks: "Audio",
+              qualityAuto: "Auto"
+          )
+        ]
+    ),
+        betterPlayerDataSource: dataSource,
+        betterPlayerPlaylistConfiguration:
+            const BetterPlayerPlaylistConfiguration(
+                loopVideos: true, initialStartIndex: 0));
+
+        controller!.setOverriddenAspectRatio(
+            controller!.videoPlayerController!.value.aspectRatio);
 
     return true;
   }
@@ -44,9 +78,13 @@ class VideoViewer extends FileViewer {
 
   @override
   Future<void> onFocus() async {
-    controller.play();
+    if (controller != null) {
+      controller!.setOverriddenAspectRatio(
+          controller!.videoPlayerController!.value.aspectRatio);
+      controller!.play();
+    }
   }
 
   @override
-  bool extendBody() => true;
+  bool extendBody() => false;
 }

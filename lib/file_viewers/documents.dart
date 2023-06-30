@@ -34,7 +34,7 @@ class DocumentViewer extends FileViewer {
   }
 
   @override
-  Future<bool> load() async {
+  Future<bool> load(BuildContext context) async {
     documentType = basename(fileName).endsWith('pdf')
         ? DocumentType.pdf
         : DocumentType.plainText;

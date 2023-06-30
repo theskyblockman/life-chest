@@ -59,7 +59,7 @@ class FileReaderState extends State<FileReader> {
       }
     });
     return (FutureBuilder(
-        future: viewer.load(),
+        future: viewer.load(context),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return viewer.build(context);
