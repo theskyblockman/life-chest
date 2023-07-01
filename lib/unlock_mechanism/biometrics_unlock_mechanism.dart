@@ -20,7 +20,6 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
         title: S.of(context).pleaseUseBiometrics,
         negativeButton: S.of(context).cancel,
         description: S.of(context).unlockChest);
-    debugPrint(VaultsManager.globalAdditionalUnlockData.toString());
 
     String? encryptedString = VaultsManager.globalAdditionalUnlockData['biometrics']['globalKey'];
     if (encryptedString != null) {

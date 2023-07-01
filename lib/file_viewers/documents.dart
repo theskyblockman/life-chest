@@ -1,6 +1,7 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
@@ -26,10 +27,14 @@ class DocumentViewer extends FileViewer {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(loadedDocument.toString());
     return Container(
       child: documentType == DocumentType.pdf
           ? PDFView(
+        gestureRecognizers: {
+          Factory(() => VerticalDragGestureRecognizer()),
+          Factory(() => PanGestureRecognizer())
+        },
+          nightMode: MediaQuery.of(context).platformBrightness == Brightness.dark,
           pdfData: loadedDocument,
           pageSnap: false,
           onLinkHandler: (uri) {

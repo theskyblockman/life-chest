@@ -125,7 +125,6 @@ class PatternFormField extends FormField<String> {
                     }
                     state.didChange(createdUniqueCode);
                     if (onCodeCreated != null) onCodeCreated(createdUniqueCode);
-                    debugPrint('$completedPattern: $createdUniqueCode');
                   },
                   showInput: true,
                   fillPoints: true,
