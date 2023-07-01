@@ -17,7 +17,6 @@ import 'package:life_chest/unlock_mechanism/unlock_mechanism.dart';
 import 'package:life_chest/unlock_mechanism/unlock_tester.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 import 'package:life_chest/generated/l10n.dart';
 
 void main() async {
@@ -67,7 +66,6 @@ class LifeChestApp extends StatelessWidget {
         title: 'Life Chest',
         localizationsDelegates: const [
           S.delegate,
-          SfGlobalLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
