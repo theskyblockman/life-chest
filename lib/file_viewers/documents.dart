@@ -42,7 +42,7 @@ class DocumentViewer extends FileViewer {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).linkCopied)));
             }
           })
-          : SingleChildScrollView(child: Text(utf8.decode(loadedDocument!), style: const TextStyle(color: Colors.white))),
+          : SingleChildScrollView(child: Text(utf8.decode(loadedDocument!))),
     );
   }
 
