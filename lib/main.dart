@@ -182,19 +182,18 @@ class ChestMainPageState extends State<ChestMainPage> {
             child: const Icon(Icons.add)),
         body: VaultsManager.storedVaults.isEmpty
             ? Center(
-                child: Opacity(
-                    opacity: 0.25,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.lock_outline, size: 128),
-                        Text(
-                          S.of(context).noChestsCreatedYet,
-                          textScaleFactor: 2.5,
-                          textAlign: TextAlign.center,
-                        )
-                      ],
-                    )))
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 128, color: Theme.of(context).colorScheme.outline),
+                    Text(
+                      S.of(context).noChestsCreatedYet,
+                      textScaleFactor: 2.5,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Theme.of(context).colorScheme.outline),
+                    )
+                  ],
+                ))
             : ListView.builder(
                 itemBuilder: (context, index) {
                   Vault chest = VaultsManager.storedVaults[index];
