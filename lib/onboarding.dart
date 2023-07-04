@@ -87,7 +87,7 @@ class WelcomePageState extends State<WelcomePage> {
           child: AnimatedOpacity(
               opacity: isLastPage ? 0 : 1,
               duration: const Duration(milliseconds: 500),
-              child: FilledButton.tonalIcon(
+              child: OutlinedButton.icon(
                   onPressed: () {
                     if (!isLastPage) {
                       Navigator.pushReplacement(
@@ -123,7 +123,7 @@ class WelcomePageState extends State<WelcomePage> {
           transitionBuilder: (child, animation) {
             return FadeTransition(opacity: animation, child: child);
           },
-          child: FilledButton.tonalIcon(
+          child: FilledButton.icon(
             icon: isLastPage
                 ? const Icon(Icons.add)
                 : const Icon(Icons.chevron_right_rounded),

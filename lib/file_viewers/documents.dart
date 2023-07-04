@@ -32,7 +32,6 @@ class DocumentViewer extends FileViewer {
           ? PDFView(
         gestureRecognizers: {
           Factory(() => VerticalDragGestureRecognizer()),
-          Factory(() => PanGestureRecognizer())
         },
           nightMode: MediaQuery.of(context).platformBrightness == Brightness.dark,
           pdfData: loadedDocument,

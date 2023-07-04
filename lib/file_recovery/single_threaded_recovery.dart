@@ -109,6 +109,7 @@ class SingleThreadedRecovery {
             ? base64.encode(foundData.albumArt!)
             : null;
         finalData['audioData']['initialSize'] = createdFile.lengthSync();
+        finalData['type'] = foundData.mimeType;
       } else {
         finalData['audioData'] = importedFile!.$1['audioData'];
       }

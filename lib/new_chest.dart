@@ -82,6 +82,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                       future: mechanism.isAvailable(),
                       builder: (context, snapshot) {
                         return ChoiceChip(
+                            selectedColor: Theme.of(context).colorScheme.primaryContainer,
                             label: Text(mechanism.getName(context)),
                             selected: mechanism == currentMechanism,
                             onSelected: snapshot.data != null && snapshot.data!
@@ -109,6 +110,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
             child: Wrap(spacing: 5.0, clipBehavior: Clip.none, children: [
               ...List<Widget>.generate(3, (index) {
                 return ChoiceChip(
+                    selectedColor: Theme.of(context).colorScheme.primaryContainer,
                     label: Text(onPausePossibilities[index].$1),
                     selected:
                         policy.securityLevel == onPausePossibilities[index].$2,

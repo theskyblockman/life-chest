@@ -36,24 +36,27 @@ class FileThumbnail extends StatelessWidget {
     return InkWell(
       onLongPress: () => onLongPress(this),
       onTap: () => onPress(context, this),
-      borderRadius: BorderRadius.circular(15),
+      borderRadius: BorderRadius.circular(5),
       child: GridTile(
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(5),
             color: isSelected
-                ? Theme.of(context).colorScheme.primaryContainer
-                : Theme.of(context).colorScheme.secondaryContainer.withOpacity(.5)
+                ? Theme.of(context).colorScheme.primaryContainer.withOpacity(.6)
+                : Theme.of(context).colorScheme.primaryContainer.withOpacity(.3)
           ),
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              final textSpan = TextSpan(text: name, style: DefaultTextStyle.of(context).style);
+              final textSpan = TextSpan(
+                  text: name, style: DefaultTextStyle.of(context).style);
               final textPainter = TextPainter(
                 text: textSpan,
                 textDirection: TextDirection.ltr,
                 maxLines: 1,
               );
-              textPainter.layout(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
+              textPainter.layout(
+                  minWidth: constraints.minWidth,
+                  maxWidth: constraints.maxWidth);
 
               if (!textPainter.didExceedMaxLines) {
                 return Column(
@@ -67,7 +70,13 @@ class FileThumbnail extends StatelessWidget {
                   children: [
                     placeholder.icon,
                     Expanded(
-                      child: Marquee(text: name, crossAxisAlignment: CrossAxisAlignment.center, blankSpace: 20, fadingEdgeStartFraction: 1/2, fadingEdgeEndFraction: 1/2, showFadingOnlyWhenScrolling: false),
+                      child: Marquee(
+                          text: name,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          blankSpace: 20,
+                          fadingEdgeStartFraction: 1 / 2,
+                          fadingEdgeEndFraction: 1 / 2,
+                          showFadingOnlyWhenScrolling: false),
                     ),
                   ],
                 );

@@ -550,7 +550,9 @@ class FileExplorerState extends State<FileExplorer> {
                           onTap: () async {
                             for (FileThumbnail thumbnail in thumbnails) {
                               if (thumbnail.isSelected) {
-                                thumbnail.file.deleteSync();
+                                if(thumbnail.file.existsSync()) {
+                                  thumbnail.file.deleteSync();
+                                }
                                 map.remove(thumbnail.localPath);
                               }
                             }
@@ -664,7 +666,7 @@ class FileExplorerState extends State<FileExplorer> {
                     child: LinearProgressIndicator(
                         value: loaderCurrentLoad! / loaderTarget!)),
             backgroundColor: isSelectionMode
-                ? Theme.of(context).colorScheme.tertiary.withOpacity(.7)
+                ? Theme.of(context).colorScheme.primaryContainer.withOpacity(.6)
                 : null),
         floatingActionButton: GestureDetector(
           onLongPress: () {
@@ -691,23 +693,14 @@ class FileExplorerState extends State<FileExplorer> {
                           : 2,
                       children: List.from(thumbnails))
                   : Center(
-                      child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Opacity(
-                            opacity: 0.45,
-                            child: Text(
-                              S.of(context).noFilesCreatedYet,
-                              textScaleFactor: 2.5,
-                              textAlign: TextAlign.center,
-                            )),
-                        FilledButton.tonal(
-                            onPressed: () async {
-                              saveFiles(context);
-                            },
-                            child: Text(S.of(context).addFiles))
-                      ],
-                    ));
+                      child: Text(
+                        S.of(context).noFilesCreatedYet,
+                        textScaleFactor: 2.5,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.outline
+                        ),
+                      ));
             } else {
               return Center(
                   child: Opacity(

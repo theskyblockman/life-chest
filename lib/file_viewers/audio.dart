@@ -276,11 +276,7 @@ class AudioListener extends FileViewer {
 
   @override
   Future<void> onFocus() async {
-    audioSource ??= EncryptedAudioSource(
-        fileToRead,
-        fileVault.encryptionKey!,
-        fileData['audioData']['mimeType'],
-        fileToRead.statSync().size);
+
     Metadata parsedMetadata = Metadata(
         trackName: fileData['audioData']['trackName'],
         trackArtistNames: fileData['audioData']['trackArtistNames'] != null
@@ -300,7 +296,11 @@ class AudioListener extends FileViewer {
         mimeType: fileData['audioData']['mimeType'],
         trackDuration: fileData['audioData']['trackDuration'],
         bitrate: fileData['audioData']['bitrate']);
-
+    audioSource ??= EncryptedAudioSource(
+        fileToRead,
+        fileVault.encryptionKey!,
+        fileData['audioData']['mimeType'],
+        fileData['audioData']['initialSize']);
     audioHandler.playFile(
         MediaItem(
             id: fileName,
