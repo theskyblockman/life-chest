@@ -58,28 +58,32 @@ class FileReaderState extends State<FileReader> {
         viewer.onFocus();
       }
     });
-    return (FutureBuilder(
-        future: viewer.load(context),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return viewer.build(context);
-          } else {
-            return Center(
-                child: Opacity(
-                    opacity: 0.25,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const CircularProgressIndicator(),
-                        Text(
-                          viewer.loadingMessage(context),
-                          textScaleFactor: 2.5,
-                          textAlign: TextAlign.center,
-                        )
-                      ],
-                    )));
-          }
-        }), viewer.extendBody(), viewer);
+    return (
+      FutureBuilder(
+          future: viewer.load(context),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return viewer.build(context);
+            } else {
+              return Center(
+                  child: Opacity(
+                      opacity: 0.25,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const CircularProgressIndicator(),
+                          Text(
+                            viewer.loadingMessage(context),
+                            textScaleFactor: 2.5,
+                            textAlign: TextAlign.center,
+                          )
+                        ],
+                      )));
+            }
+          }),
+      viewer.extendBody(),
+      viewer
+    );
   }
 
   /// Build the [FileReader], this code is mostly made for loading times
@@ -96,13 +100,11 @@ class FileReaderState extends State<FileReader> {
               appBar: AppBar(
                   title: Text(currentThumbnail.name),
                   leading: IconButton(
-                          onPressed: () {
-                            fileData.$3.dispose();
-                            Navigator.pop(context);
-                          },
-                          icon:
-                              const Icon(Icons.arrow_back))
-                      ),
+                      onPressed: () {
+                        fileData.$3.dispose();
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.arrow_back))),
               body: fileData.$1,
               extendBodyBehindAppBar: fileData.$2,
               extendBody: fileData.$2);
@@ -252,20 +254,34 @@ class FileExplorerState extends State<FileExplorer> {
   static bool shouldNotificationBeSent = false;
   String currentLocalPath = '';
   static FileSortMethod currentSortMethod = FileSortMethod.name;
-  final ScrollController gridViewController = ScrollController();
+  final ScrollController viewController = ScrollController();
+  bool isGridView = true;
 
-  static Future<void> exportEncryptedThumbnails(List<(String thumbnailFilePath, List<int> encryptionKey, Map<String, dynamic> data, List<int> fileContent, String unlockMechanismType, Map<String, dynamic> additionalUnlockData, String saveLocationPath)> message) async {
-    for ((String thumbnailFilePath, List<int> encryptionKey, Map<String, dynamic> data, List<int> fileContent, String unlockMechanismType, Map<String, dynamic> additionalUnlockData, String saveLocationPath) data in message) {
-      List<int> exportedFile =
-      await FileExporter.exportFile(
-          basename(data.$1),
-          SecretKey(data.$2),
-          data.$3,
-          data.$4,
-          data.$5,
-          data.$6);
-      File fileToSaveTo = File(join(data.$7,
-          'Life_Chest_${md5RandomFileName()}.lcef'));
+  static Future<void> exportEncryptedThumbnails(
+      List<
+              (
+                String thumbnailFilePath,
+                List<int> encryptionKey,
+                Map<String, dynamic> data,
+                List<int> fileContent,
+                String unlockMechanismType,
+                Map<String, dynamic> additionalUnlockData,
+                String saveLocationPath
+              )>
+          message) async {
+    for ((
+      String thumbnailFilePath,
+      List<int> encryptionKey,
+      Map<String, dynamic> data,
+      List<int> fileContent,
+      String unlockMechanismType,
+      Map<String, dynamic> additionalUnlockData,
+      String saveLocationPath
+    ) data in message) {
+      List<int> exportedFile = await FileExporter.exportFile(basename(data.$1),
+          SecretKey(data.$2), data.$3, data.$4, data.$5, data.$6);
+      File fileToSaveTo =
+          File(join(data.$7, 'Life_Chest_${md5RandomFileName()}.lcef'));
       fileToSaveTo.createSync();
       fileToSaveTo.writeAsBytesSync(exportedFile);
     }
@@ -300,7 +316,7 @@ class FileExplorerState extends State<FileExplorer> {
           return true;
         } else {
           setState(() {
-            gridViewController.jumpTo(0);
+            viewController.jumpTo(0);
             if (!currentLocalPath.contains('/')) {
               currentLocalPath = '';
             } else {
@@ -315,6 +331,19 @@ class FileExplorerState extends State<FileExplorer> {
       child: Scaffold(
         appBar: AppBar(
             actions: [
+              IconButton(
+                  onPressed: () => setState(() {
+                        isGridView = !isGridView;
+                        List<FileThumbnail> newThumbnails = [];
+                        for (FileThumbnail thumbnail in thumbnails) {
+                          newThumbnails
+                              .add(thumbnail.copyWith(isGridView: isGridView));
+                        }
+                        thumbnails = newThumbnails;
+                      }),
+                  icon: Icon(isGridView
+                      ? Icons.view_list_outlined
+                      : Icons.grid_view_outlined)),
               PopupMenuButton(
                 icon: const Icon(Icons.more_vert),
                 shape: RoundedRectangleBorder(
@@ -398,17 +427,9 @@ class FileExplorerState extends State<FileExplorer> {
                                 in List.from(thumbnails)) {
                               if (!thumbnail.isSelected) {
                                 thumbnails[thumbnails.indexOf(thumbnail)] =
-                                    FileThumbnail(
-                                        localPath: thumbnail.localPath,
-                                        name: thumbnail.name,
-                                        fullLocalPath: thumbnail.fullLocalPath,
-                                        placeholder: thumbnail.placeholder,
-                                        file: thumbnail.file,
-                                        vault: thumbnail.vault,
-                                        onPress: thumbnail.onPress,
-                                        onLongPress: thumbnail.onLongPress,
+                                    thumbnail.copyWith(
                                         isSelected: true,
-                                        data: thumbnail.data);
+                                        isGridView: isGridView);
                               }
                             }
                             amountOfFilesSelected = thumbnails.length;
@@ -417,67 +438,96 @@ class FileExplorerState extends State<FileExplorer> {
                         child: Text(S.of(context).selectAll)),
                     if (isSelectionMode) ...[
                       PopupMenuItem(
-                          onTap: widget.isEncryptedExportEnabled ? () async {
-                            List<FileThumbnail> filesToExport = [];
+                          onTap: widget.isEncryptedExportEnabled
+                              ? () async {
+                                  List<FileThumbnail> filesToExport = [];
 
-                            for (FileThumbnail thumbnail in thumbnails) {
-                              if (thumbnail.isSelected) {
-                                filesToExport.add(thumbnail);
-                              }
-                            }
-                            String validDirectoryName =
-                                S.of(context).lifeChestBulkSave;
-                            Directory? downloadDirectory;
-                            if (Platform.isIOS) {
-                              downloadDirectory = await getDownloadsDirectory();
+                                  for (FileThumbnail thumbnail in thumbnails) {
+                                    if (thumbnail.isSelected) {
+                                      filesToExport.add(thumbnail);
+                                    }
+                                  }
+                                  String validDirectoryName =
+                                      S.of(context).lifeChestBulkSave;
+                                  Directory? downloadDirectory;
+                                  if (Platform.isIOS) {
+                                    downloadDirectory =
+                                        await getDownloadsDirectory();
 
-                              if (downloadDirectory == null) return;
-                            } else {
-                              downloadDirectory =
-                                  Directory('/storage/emulated/0/Download');
-                              // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
-                              if (!await downloadDirectory.exists()) {
-                                downloadDirectory =
-                                    await getExternalStorageDirectory();
-                              }
-                            }
+                                    if (downloadDirectory == null) return;
+                                  } else {
+                                    downloadDirectory = Directory(
+                                        '/storage/emulated/0/Download');
+                                    // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
+                                    if (!await downloadDirectory.exists()) {
+                                      downloadDirectory =
+                                          await getExternalStorageDirectory();
+                                    }
+                                  }
 
-                            Directory saveLocation = downloadDirectory!;
+                                  Directory saveLocation = downloadDirectory!;
 
-                            if (filesToExport.length > 1) {
-                              String currentSuffix = '';
-                              int currentDirID = 2;
-                              List<FileSystemEntity> dirFiles =
-                                  downloadDirectory.listSync();
-                              while (dirFiles.any((element) =>
-                                  basename(element.path) ==
-                                  validDirectoryName + currentSuffix)) {
-                                currentSuffix = ' ($currentDirID)';
-                                currentDirID++;
-                              }
-                              validDirectoryName =
-                                  validDirectoryName + currentSuffix;
+                                  if (filesToExport.length > 1) {
+                                    String currentSuffix = '';
+                                    int currentDirID = 2;
+                                    List<FileSystemEntity> dirFiles =
+                                        downloadDirectory.listSync();
+                                    while (dirFiles.any((element) =>
+                                        basename(element.path) ==
+                                        validDirectoryName + currentSuffix)) {
+                                      currentSuffix = ' ($currentDirID)';
+                                      currentDirID++;
+                                    }
+                                    validDirectoryName =
+                                        validDirectoryName + currentSuffix;
 
-                              saveLocation = Directory(
-                                  join(saveLocation.path, validDirectoryName));
-                              saveLocation.createSync();
-                            }
+                                    saveLocation = Directory(join(
+                                        saveLocation.path, validDirectoryName));
+                                    saveLocation.createSync();
+                                  }
 
-                            List<int> encryptionKey = await widget.vault.encryptionKey!.extractBytes();
+                                  List<int> encryptionKey = await widget
+                                      .vault.encryptionKey!
+                                      .extractBytes();
 
-                            Isolate.spawn(exportEncryptedThumbnails, List<(String thumbnailFilePath, List<int> encryptionKey, Map<String, dynamic> data, List<int> fileContent, String unlockMechanismType, Map<String, dynamic> additionalUnlockData, String saveLocationPath)>.generate(filesToExport.length, (index) {
-                              FileThumbnail fileToExport = filesToExport[index];
+                                  Isolate.spawn(
+                                      exportEncryptedThumbnails,
+                                      List<
+                                              (
+                                                String thumbnailFilePath,
+                                                List<int> encryptionKey,
+                                                Map<String, dynamic> data,
+                                                List<int> fileContent,
+                                                String unlockMechanismType,
+                                                Map<String,
+                                                    dynamic> additionalUnlockData,
+                                                String saveLocationPath
+                                              )>.generate(filesToExport.length,
+                                          (index) {
+                                        FileThumbnail fileToExport =
+                                            filesToExport[index];
 
-                              return (fileToExport.localPath, encryptionKey, fileToExport.data, fileToExport.file.readAsBytesSync(), widget.vault.unlockMechanismType, widget.vault.additionalUnlockData, saveLocation.path);
-                            })).then((value) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(S.of(context).savedToFolder(
-                                            basename(saveLocation.path)))));
-                              }
-                            });
-                          } : null,
+                                        return (
+                                          fileToExport.localPath,
+                                          encryptionKey,
+                                          fileToExport.data,
+                                          fileToExport.file.readAsBytesSync(),
+                                          widget.vault.unlockMechanismType,
+                                          widget.vault.additionalUnlockData,
+                                          saveLocation.path
+                                        );
+                                      })).then((value) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text(S
+                                                  .of(context)
+                                                  .savedToFolder(basename(
+                                                      saveLocation.path)))));
+                                    }
+                                  });
+                                }
+                              : null,
                           enabled: widget.isEncryptedExportEnabled,
                           child: Text(S.of(context).exportAsEncrypted)),
                       PopupMenuItem(
@@ -529,8 +579,9 @@ class FileExplorerState extends State<FileExplorer> {
 
                             for (FileThumbnail thumbnail in filesToExport) {
                               Stream<List<int>> exportedFile =
-                                  SingleThreadedRecovery
-                                      .loadAndDecryptFile(widget.vault.encryptionKey!, thumbnail.file);
+                                  SingleThreadedRecovery.loadAndDecryptFile(
+                                      widget.vault.encryptionKey!,
+                                      thumbnail.file);
 
                               File fileToSaveTo =
                                   File(join(saveLocation.path, thumbnail.name));
@@ -550,7 +601,7 @@ class FileExplorerState extends State<FileExplorer> {
                           onTap: () async {
                             for (FileThumbnail thumbnail in thumbnails) {
                               if (thumbnail.isSelected) {
-                                if(thumbnail.file.existsSync()) {
+                                if (thumbnail.file.existsSync()) {
                                   thumbnail.file.deleteSync();
                                 }
                                 map.remove(thumbnail.localPath);
@@ -617,17 +668,8 @@ class FileExplorerState extends State<FileExplorer> {
                       for (FileThumbnail thumbnail in List.from(thumbnails)) {
                         if (thumbnail.isSelected) {
                           thumbnails[thumbnails.indexOf(thumbnail)] =
-                              FileThumbnail(
-                                  localPath: thumbnail.localPath,
-                                  name: thumbnail.name,
-                                  fullLocalPath: thumbnail.fullLocalPath,
-                                  placeholder: thumbnail.placeholder,
-                                  file: thumbnail.file,
-                                  vault: thumbnail.vault,
-                                  onPress: thumbnail.onPress,
-                                  onLongPress: thumbnail.onLongPress,
-                                  isSelected: false,
-                                  data: thumbnail.data);
+                              thumbnail.copyWith(
+                                  isSelected: false, isGridView: isGridView);
                         }
                       }
                     });
@@ -635,7 +677,9 @@ class FileExplorerState extends State<FileExplorer> {
                     isPauseAllowed = false;
                     shouldNotificationBeSent = false;
                     if (currentLocalPath.isNotEmpty) {
-                      if(gridViewController.positions.isNotEmpty) gridViewController.jumpTo(0);
+                      if (viewController.positions.isNotEmpty) {
+                        viewController.jumpTo(0);
+                      }
                       setState(() {
                         if (!currentLocalPath.contains('/')) {
                           currentLocalPath = '';
@@ -666,7 +710,7 @@ class FileExplorerState extends State<FileExplorer> {
                     child: LinearProgressIndicator(
                         value: loaderCurrentLoad! / loaderTarget!)),
             backgroundColor: isSelectionMode
-                ? Theme.of(context).colorScheme.primaryContainer.withOpacity(.6)
+                ? Theme.of(context).colorScheme.surfaceVariant
                 : null),
         floatingActionButton: GestureDetector(
           onLongPress: () {
@@ -683,24 +727,34 @@ class FileExplorerState extends State<FileExplorer> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return thumbnails.isNotEmpty
-                  ? GridView.count(
-                      controller: gridViewController,
-                      mainAxisSpacing: 3,
-                      crossAxisSpacing: 3,
-                      crossAxisCount: MediaQuery.of(context).size.width >
-                              MediaQuery.of(context).size.height
-                          ? 4
-                          : 2,
-                      children: List.from(thumbnails))
+                  ? (isGridView
+                      ? GridView.count(
+                          controller: viewController,
+                          mainAxisSpacing: 3,
+                          crossAxisSpacing: 3,
+                          crossAxisCount: MediaQuery.of(context).size.width >
+                                  MediaQuery.of(context).size.height
+                              ? 4
+                              : 2,
+                          children: List.from(thumbnails))
+                      : ListView.separated(
+                          itemBuilder: (BuildContext context, int index) {
+                            return thumbnails[index];
+                          },
+                          separatorBuilder: (context, index) {
+                            return const Divider();
+                          },
+                          controller: viewController,
+                          itemCount: thumbnails.length,
+                        ))
                   : Center(
                       child: Text(
-                        S.of(context).noFilesCreatedYet,
-                        textScaleFactor: 2.5,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.outline
-                        ),
-                      ));
+                      S.of(context).noFilesCreatedYet,
+                      textScaleFactor: 2.5,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.outline),
+                    ));
             } else {
               return Center(
                   child: Opacity(
@@ -981,7 +1035,8 @@ class FileExplorerState extends State<FileExplorer> {
             onPress: thumbnailTap,
             onLongPress: thumbnailLongTap,
             isSelected: false,
-            data: mappedFile.value));
+            data: mappedFile.value,
+            isGridView: isGridView));
       }
     }
 
@@ -999,7 +1054,7 @@ class FileExplorerState extends State<FileExplorer> {
   void thumbnailTap(BuildContext context, FileThumbnail thumbnail) {
     if (!isSelectionMode) {
       if (thumbnail.placeholder == FileThumbnailsPlaceholder.folder) {
-        gridViewController.jumpTo(0);
+        viewController.jumpTo(0);
         currentLocalPath = thumbnail.fullLocalPath;
         setState(() {
           thumbnailCollector = reloadThumbnails();
@@ -1017,17 +1072,8 @@ class FileExplorerState extends State<FileExplorer> {
       return;
     }
     setState(() {
-      thumbnails[thumbnails.indexOf(thumbnail)] = FileThumbnail(
-          localPath: thumbnail.localPath,
-          name: thumbnail.name,
-          fullLocalPath: thumbnail.fullLocalPath,
-          placeholder: thumbnail.placeholder,
-          file: thumbnail.file,
-          vault: thumbnail.vault,
-          onPress: thumbnail.onPress,
-          onLongPress: thumbnail.onLongPress,
-          isSelected: !thumbnail.isSelected,
-          data: thumbnail.data);
+      thumbnails[thumbnails.indexOf(thumbnail)] = thumbnail.copyWith(
+          isSelected: !thumbnail.isSelected, isGridView: isGridView);
       if (!thumbnail.isSelected) {
         amountOfFilesSelected++;
       } else {
@@ -1050,17 +1096,8 @@ class FileExplorerState extends State<FileExplorer> {
       } else if (!thumbnail.isSelected) {
         amountOfFilesSelected++;
       }
-      thumbnails[thumbnails.indexOf(thumbnail)] = FileThumbnail(
-          localPath: thumbnail.localPath,
-          name: thumbnail.name,
-          fullLocalPath: thumbnail.fullLocalPath,
-          placeholder: thumbnail.placeholder,
-          file: thumbnail.file,
-          vault: thumbnail.vault,
-          onPress: thumbnail.onPress,
-          onLongPress: thumbnail.onLongPress,
-          isSelected: true,
-          data: thumbnail.data);
+      thumbnails[thumbnails.indexOf(thumbnail)] =
+          thumbnail.copyWith(isSelected: true, isGridView: isGridView);
     });
   }
 }

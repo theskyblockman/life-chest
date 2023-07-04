@@ -12,9 +12,9 @@ class FolderViewer extends FileViewer {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Icon(FileThumbnailsPlaceholder.folder.icon.icon,
+      child: Icon(FileThumbnailsPlaceholder.folder.gridIcon.icon,
           color: Colors.white,
-          size: FileThumbnailsPlaceholder.folder.icon.size),
+          size: FileThumbnailsPlaceholder.folder.gridIcon.size),
     );
   }
 
