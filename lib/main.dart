@@ -16,6 +16,7 @@ import 'package:life_chest/onboarding.dart';
 import 'package:life_chest/unlock_mechanism/unlock_mechanism.dart';
 import 'package:life_chest/unlock_mechanism/unlock_tester.dart';
 import 'package:life_chest/vault.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:life_chest/generated/l10n.dart';
 
@@ -140,12 +141,15 @@ class ChestMainPageState extends State<ChestMainPage> {
                           },
                           child: Text(S.of(context).deleteAllChests)),
                     PopupMenuItem(
-                      onTap: () {
+                      onTap: () async {
+
+                        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
                         WidgetsBinding.instance
                             .addPostFrameCallback((timeStamp) {
                           showAboutDialog(
                             context: context,
-                            applicationVersion: '1.0.0',
+                            applicationVersion: packageInfo.version,
                             applicationIcon:
                             Image.asset('logo.png', height: 64, width: 64),
                             applicationLegalese: S.of(context).appLegalese,
