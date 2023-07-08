@@ -242,7 +242,6 @@ class FileExplorer extends StatefulWidget {
 /// The [FileExplorer]'s state
 class FileExplorerState extends State<FileExplorer> {
   late List<FileThumbnail> thumbnails;
-  bool keepThumbnailsLoaded = true;
   Future<void>? thumbnailCollector;
   double? thumbnailSize;
   late Map<String, dynamic> map;
@@ -603,6 +602,17 @@ class FileExplorerState extends State<FileExplorer> {
                               if (thumbnail.isSelected) {
                                 if (thumbnail.file.existsSync()) {
                                   thumbnail.file.deleteSync();
+                                }
+                                if(thumbnail.placeholder == FileThumbnailsPlaceholder.folder) {
+                                  for (MapEntry<String, dynamic> innerRawThumbnail in List.from(map.entries)) {
+                                    if(isWithin(thumbnail.fullLocalPath, innerRawThumbnail.value['name'])) {
+                                      File innerRawThumbnailFile = File(join(widget.vault.path, innerRawThumbnail.key));
+                                      if(innerRawThumbnailFile.existsSync()) {
+                                        innerRawThumbnailFile.deleteSync();
+                                      }
+                                      map.remove(innerRawThumbnail.key);
+                                    }
+                                  }
                                 }
                                 map.remove(thumbnail.localPath);
                               }
@@ -1013,8 +1023,6 @@ class FileExplorerState extends State<FileExplorer> {
     map = (await VaultsManager.decryptMap(
         widget.vault, mapFile.readAsBytesSync()))!;
     List<FileThumbnail> createdThumbnails = [];
-
-    keepThumbnailsLoaded = map.length <= 20;
 
     Map<String, FileThumbnailsPlaceholder> fileTypes =
         FileThumbnailsPlaceholder.getPlaceholderFromFileName(
