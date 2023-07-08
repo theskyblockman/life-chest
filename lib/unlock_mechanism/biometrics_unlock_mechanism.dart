@@ -89,7 +89,7 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
 
   @override
   Widget keyCreationBuild(BuildContext context, VaultPolicy policy) {
-    return ListTile(textColor: Colors.orange, leading: const Icon(Icons.warning_amber, color: Colors.orange), title: Text(S.of(context).biometricsAreLocal));
+    return ListTile(leading: const Icon(Icons.warning_amber, color: Colors.orange), title: Text(S.of(context).biometricsAreLocal, style: const TextStyle(color: Colors.orange),));
   }
 
   @override
