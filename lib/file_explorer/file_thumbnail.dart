@@ -62,68 +62,60 @@ class FileThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return isGridView
-        ? InkWell(
-            onLongPress: () => onLongPress(this),
-            onTap: () => onPress(context, this),
-            borderRadius: BorderRadius.circular(5),
-            child: GridTile(
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: isSelected
-                        ? Theme.of(context)
-                            .colorScheme
-                            .primaryContainer
-                            .withOpacity(.6)
-                        : Theme.of(context)
-                            .colorScheme
-                            .primaryContainer
-                            .withOpacity(.3)),
-                child: LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    final textSpan = TextSpan(
-                        text: name, style: DefaultTextStyle.of(context).style);
-                    final textPainter = TextPainter(
-                      text: textSpan,
-                      textDirection: TextDirection.ltr,
-                      maxLines: 1,
-                    );
-                    textPainter.layout(
-                        minWidth: constraints.minWidth,
-                        maxWidth: constraints.maxWidth);
+        ? GridTile(
+          child: Card(
+            color: isSelected ? Theme.of(context).colorScheme.primaryContainer
+                  : null,
+            child: InkWell(
+              onLongPress: () => onLongPress(this),
+              onTap: () => onPress(context, this),
+              borderRadius: BorderRadius.circular(15),
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final textSpan = TextSpan(
+                      text: name, style: DefaultTextStyle.of(context).style);
+                  final textPainter = TextPainter(
+                    text: textSpan,
+                    textDirection: TextDirection.ltr,
+                    maxLines: 1,
+                  );
+                  textPainter.layout(
+                      minWidth: constraints.minWidth,
+                      maxWidth: constraints.maxWidth);
 
-                    if (!textPainter.didExceedMaxLines) {
-                      return Column(
-                        children: [
-                          placeholder.gridIcon,
-                          Text(name),
-                        ],
-                      );
-                    } else {
-                      return Column(
-                        children: [
-                          placeholder.gridIcon,
-                          Expanded(
-                            child: Marquee(
-                                text: name,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                blankSpace: 20,
-                                fadingEdgeStartFraction: 1 / 2,
-                                fadingEdgeEndFraction: 1 / 2,
-                                showFadingOnlyWhenScrolling: false),
-                          ),
-                        ],
-                      );
-                    }
-                  },
-                ),
+                  if (!textPainter.didExceedMaxLines) {
+                    return Column(
+                      children: [
+                        placeholder.gridIcon,
+                        Text(name),
+                      ],
+                    );
+                  } else {
+                    return Column(
+                      children: [
+                        placeholder.gridIcon,
+                        Expanded(
+                          child: Marquee(
+                              text: name,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              blankSpace: 20,
+                              fadingEdgeStartFraction: 1 / 2,
+                              fadingEdgeEndFraction: 1 / 2,
+                              showFadingOnlyWhenScrolling: false),
+                        ),
+                      ],
+                    );
+                  }
+                },
               ),
-            ))
+            ),
+          ),
+        )
         : ListTile(
             onTap: () => onPress(context, this),
             onLongPress: () => onLongPress(this),
             tileColor: isSelected
-                ? Theme.of(context).colorScheme.surfaceVariant
+                ? Theme.of(context).colorScheme.primaryContainer
                 : null,
             title: Text(name),
             leading: placeholder.listIcon,

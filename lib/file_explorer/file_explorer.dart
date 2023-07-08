@@ -720,8 +720,8 @@ class FileExplorerState extends State<FileExplorer> {
                     child: LinearProgressIndicator(
                         value: loaderCurrentLoad! / loaderTarget!)),
             backgroundColor: isSelectionMode
-                ? Theme.of(context).colorScheme.surfaceVariant
-                : null),
+  ? Theme.of(context).colorScheme.primaryContainer
+      : null),
         floatingActionButton: GestureDetector(
           onLongPress: () {
             saveFolder(context);
