@@ -1,0 +1,13 @@
+Life Chest is an application where you can encrypt your sensitive files and read them securely using a password, a pin code, biometrics and much more!
+We offer a wide variety of file readers including:
+- Plain text reader
+- PDF viewer
+- Images
+- Audio reader (Slightly unstable with some file formats and large files)
+- Video reader (Unstable with big files)
+
+We also offer a large variety of ergonomic features such as:
+- File exportation/importation
+- Multiple types of views like grid and list views
+- Folders inside chests
+- Encryption with ChaCha20 for reading speed
