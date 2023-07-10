@@ -1,0 +1,13 @@
+Life Chest est une application où vous pouvez chiffrer vos fichiers sensibles et les lire en toute sécurité à l'aide d'un mot de passe, d'un code pin, de la biométrie et bien plus encore !
+Nous proposons une grande variété de lecteurs de fichiers, notamment :
+- Lecteur de texte brut
+- Visionneuse PDF
+- Images
+- Lecteur audio (Légèrement instable avec certains formats de fichiers et gros fichiers)
+- Lecteur vidéo (instable avec de gros fichiers)
+
+Nous offrons également une grande variété de fonctionnalités ergonomiques telles que :
+- Exportation/importation de fichiers
+- Plusieurs types de vues comme les vues de grille et de liste
+- Dossiers à l'intérieur des coffres
+- Chiffrage avec ChaCha20 pour la vitesse de lecture

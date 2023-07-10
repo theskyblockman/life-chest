@@ -1,0 +1,3 @@
+- Le lecteur de PDF que nous utilisons a été remplacé par une alternative open-source
+- Bugs réglés
+- Une vue en grille a été ajoutée en plus de la vue en liste déjà existante
