@@ -31,7 +31,7 @@ dependencies:
   pattern_lock:
     git: https://github.com/theskyblockman/pattern_lock.git
   local_auth: ^2.1.6
-  dynamic_color: ^1.6.5
+  dynamic_color: ^1.6.6
   marquee: ^2.2.3
   better_player:
     git: https://github.com/tintran-dev/betterplayer.git
