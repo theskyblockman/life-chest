@@ -1,0 +1,2 @@
+- Bugs reglés et amelioration générale de la stabilité
+- Mise a jour générale de qualité de vie
