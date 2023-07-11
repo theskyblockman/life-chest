@@ -970,7 +970,6 @@ class FileExplorerState extends State<FileExplorer> {
           loaderCurrentLoad = loaderCurrentLoad! + 1;
         });
       }
-
       setState(() {
         loaderTarget = null;
         loaderCurrentLoad = null;
