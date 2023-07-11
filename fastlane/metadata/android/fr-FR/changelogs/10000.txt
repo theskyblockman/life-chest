@@ -1,5 +1,0 @@
-Fonctionnalités:
-- Coffres
-- Lecteurs de fichiers
-- Plusieurs systèmes de déverouillage (Mot de passe, Empreinte digitale, etc...)
-- Et bien plus!

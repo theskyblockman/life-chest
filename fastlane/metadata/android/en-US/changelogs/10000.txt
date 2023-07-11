@@ -1,5 +1,0 @@
-Initial features:
-- Chests
-- File readers
-- Multiple chests unlock systems (Passwords, biometrics, etc...)
-- And much more!
