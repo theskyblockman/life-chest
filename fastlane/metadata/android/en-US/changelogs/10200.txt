@@ -1,0 +1,2 @@
+- Fixed bugs and improved stability.
+- General QoL update
