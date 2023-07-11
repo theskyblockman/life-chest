@@ -1,0 +1,1 @@
+- Bugs reglés et amelioration générale de la stabilité
