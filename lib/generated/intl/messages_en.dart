@@ -25,11 +25,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m1(groupID) => "Group n.${groupID}";
 
-  static String m2(path) => "Saved the file(s) to ${path}";
+  static String m2(count) => "${count} selected";
 
-  static String m3(count) => "${count} selected";
-
-  static String m4(unlockName) =>
+  static String m3(unlockName) =>
       "This group can be unlocked with: ${unlockName}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -141,12 +139,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
             "Please use your biometrics to unlock the chest"),
         "rename": MessageLookupByLibrary.simpleMessage("Rename"),
-        "savedToFolder": m2,
+        "savedToFolder": MessageLookupByLibrary.simpleMessage(
+            "We successfully saved the file(s)"),
         "scheme": MessageLookupByLibrary.simpleMessage("Pattern"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
-        "selected": m3,
+        "selected": m2,
         "sortBy": MessageLookupByLibrary.simpleMessage("Sort by..."),
-        "unlockAbleBy": m4,
+        "unlockAbleBy": m3,
         "unlockChest": MessageLookupByLibrary.simpleMessage("Unlock the chest"),
         "unlockFile": MessageLookupByLibrary.simpleMessage("Unlock the file"),
         "unlockWizard": MessageLookupByLibrary.simpleMessage("Unlock wizard"),
