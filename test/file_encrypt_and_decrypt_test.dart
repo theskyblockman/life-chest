@@ -53,8 +53,10 @@ void main() async {
     await completer.future;
 
     for(int i = 0; i < fileLength; i++) {
+      //ignore: avoid_print
       print('$i : ${fullFileDecryption.elementAtOrNull(i) ?? 'NOT FOUND'} : ${i - fileStart < 0 ? 'NOT FOUND' : partialFileDecryption.elementAtOrNull(i - fileStart) ?? 'NOT FOUND'}');
     }
+    //ignore: avoid_print
     print('Full length: ${fullFileDecryption.length} Partial length: ${partialFileDecryption.length} File Start: $fileStart}');
 
     expect(listEquals(fullFileDecryption.sublist(fileStart), partialFileDecryption), isTrue);
