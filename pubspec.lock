@@ -86,10 +86,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "91a9625524cdff448e0a9deb5047bcf20cc8dcf1"
-      url: "https://github.com/tintran-dev/betterplayer.git"
+      resolved-ref: d59cf112b8e3487a6f417371a083c8cebf9bebf6
+      url: "https://github.com/AnonymHK/betterplayer.git"
     source: git
-    version: "0.0.83"
+    version: "0.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -250,6 +250,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  ffmpeg_kit_flutter:
+    dependency: "direct main"
+    description:
+      name: ffmpeg_kit_flutter
+      sha256: "2b13913a5850d5c0149fe5a322770e72b107e0941d112a5334bce71d91051134"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.0-LTS"
+  ffmpeg_kit_flutter_platform_interface:
+    dependency: transitive
+    description:
+      name: ffmpeg_kit_flutter_platform_interface
+      sha256: addf046ae44e190ad0101b2fde2ad909a3cd08a2a109f6106d2f7048b7abedee
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.1"
   file:
     dependency: transitive
     description:
@@ -338,10 +354,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_widget_from_html_core
-      sha256: e8f4f8b461a140ffb7c71f938bc76efc758893e7468843d9dbf70cb0b9e900cb
+      sha256: b733a240388736fcf40692920033dc3a749155dc49c840f6c0e4a732f553908b
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.5+3"
+    version: "0.10.3"
   frontend_server_client:
     dependency: transitive
     description:
@@ -904,10 +920,10 @@ packages:
     dependency: transitive
     description:
       name: visibility_detector
-      sha256: "15c54a459ec2c17b4705450483f3d5a2858e733aee893dcee9d75fd04814940d"
+      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.3"
+    version: "0.4.0+2"
   vm_service:
     dependency: transitive
     description:

@@ -43,7 +43,9 @@ class VideoViewer extends FileViewer {
         autoPlay: false,
         looping: true,
         autoDetectFullscreenDeviceOrientation: true,
-        controlsConfiguration: BetterPlayerControlsConfiguration.white(),
+        controlsConfiguration: const BetterPlayerControlsConfiguration(),
+        aspectRatio: fileData['videoData']['streams'][0]['width'] / fileData['videoData']['streams'][0]['height'],
+        fit: BoxFit.contain,
         translations: [
           BetterPlayerTranslations(),
           BetterPlayerTranslations(
@@ -54,10 +56,10 @@ class VideoViewer extends FileViewer {
               generalRetry: 'Réessayer',
               playlistLoadingNextVideo: "Chargement de la prochaine vidéo",
               controlsLive: "DIRECT",
-              controlsNextVideoIn: "Prochaine vidéo dans ",
+              controlsNextVideoIn: "Prochaine vidéo dans",
               overflowMenuPlaybackSpeed: "Vitesse de lecture",
               overflowMenuSubtitles: "Sous-titres",
-              overflowMenuQuality: "Qualitée",
+              overflowMenuQuality: "Qualité",
               overflowMenuAudioTracks: "Audio",
               qualityAuto: "Auto"
           )
@@ -67,9 +69,6 @@ class VideoViewer extends FileViewer {
         betterPlayerPlaylistConfiguration:
             const BetterPlayerPlaylistConfiguration(
                 loopVideos: true, initialStartIndex: 0));
-
-        controller!.setOverriddenAspectRatio(
-            controller!.videoPlayerController!.value.aspectRatio);
 
     return true;
   }
