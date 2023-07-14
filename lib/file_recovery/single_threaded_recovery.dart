@@ -4,6 +4,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:ffmpeg_kit_flutter/ffprobe_kit.dart';
+import 'package:ffmpeg_kit_flutter/media_information_session.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
@@ -33,16 +35,17 @@ class SingleThreadedRecovery {
   }
 
   /// Selects the portion to decrypt and decrypts it (maybe the file reading part could be worked on)
-  static Future<Stream<List<int>>> loadAndDecryptPartialFile(
+  static Stream<List<int>> loadAndDecryptPartialFile(
       SecretKey encryptionKey,
       File fileToRead,
       int startByte,
-      int endByte) async {
-    return VaultsManager.cipher.decryptStream(
-        fileToRead.openRead(startByte, endByte),
-        mac: Mac.empty,
-        secretKey: encryptionKey,
-        nonce: Uint8List(VaultsManager.cipher.nonceLength));
+      int endByte) {
+    int currentLength = startByte;
+    return fileToRead.openRead(startByte, endByte).asyncMap((event) async {
+      currentLength += event.length;
+      return await VaultsManager.cipher
+          .decrypt(SecretBox(event, nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty), secretKey: encryptionKey, keyStreamIndex: currentLength - event.length);
+    });
   }
 
   /// Encrypts the file in a specific location with the [encryptionKey] in the ChaCha20 algorithm
@@ -99,8 +102,10 @@ class SingleThreadedRecovery {
                 ? relative(createdFile.path, from: rootFolderPath)
                 : relative(importedFile!.$1['name'], from: rootFolderPath));
     Map<String, dynamic> finalData = {'name': finalName, 'type': type};
-    if (FileThumbnailsPlaceholder.getPlaceholderFromFileName(
-            [finalData])[finalName] ==
+
+    FileThumbnailsPlaceholder? placeholder = FileThumbnailsPlaceholder.getPlaceholderFromFileName(
+        [finalData])[finalName];
+    if (placeholder ==
         FileThumbnailsPlaceholder.audio) {
       if (createdFile != null) {
         Metadata foundData = await MetadataRetriever.fromFile(createdFile);
@@ -112,6 +117,15 @@ class SingleThreadedRecovery {
         finalData['type'] = foundData.mimeType;
       } else {
         finalData['audioData'] = importedFile!.$1['audioData'];
+      }
+    } else if (placeholder == FileThumbnailsPlaceholder.videos) {
+      if (createdFile != null) {
+        MediaInformationSession result = await FFprobeKit.getMediaInformation(createdFile.absolute.path);
+
+        finalData['videoData'] = result.getMediaInformation()!.getAllProperties();
+
+      } else {
+        finalData['videoData'] = importedFile!.$1.containsKey('videoData') ? importedFile.$1['videoData'] : {};
       }
     }
 

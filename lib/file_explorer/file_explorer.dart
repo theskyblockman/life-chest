@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:document_file_save_plus/document_file_save_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +18,8 @@ import 'package:life_chest/file_viewers/file_viewer.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+
+typedef FileExportArgs = (String thumbnailFilePath, List<int> encryptionKey, Map<String, dynamic> data, List<int> fileContent, String unlockMechanismType, Map<String, dynamic> additionalUnlockData);
 
 /// The file reader, this enable the user to see file and to browse between them while keeping a cache of them
 class FileReader extends StatefulWidget {
@@ -257,32 +260,11 @@ class FileExplorerState extends State<FileExplorer> {
   bool isGridView = true;
 
   static Future<void> exportEncryptedThumbnails(
-      List<
-              (
-                String thumbnailFilePath,
-                List<int> encryptionKey,
-                Map<String, dynamic> data,
-                List<int> fileContent,
-                String unlockMechanismType,
-                Map<String, dynamic> additionalUnlockData,
-                String saveLocationPath
-              )>
-          message) async {
-    for ((
-      String thumbnailFilePath,
-      List<int> encryptionKey,
-      Map<String, dynamic> data,
-      List<int> fileContent,
-      String unlockMechanismType,
-      Map<String, dynamic> additionalUnlockData,
-      String saveLocationPath
-    ) data in message) {
+      (SendPort, List<FileExportArgs>) message) async {
+    for (FileExportArgs data in message.$2) {
       List<int> exportedFile = await FileExporter.exportFile(basename(data.$1),
           SecretKey(data.$2), data.$3, data.$4, data.$5, data.$6);
-      File fileToSaveTo =
-          File(join(data.$7, 'Life_Chest_${md5RandomFileName()}.lcef'));
-      fileToSaveTo.createSync();
-      fileToSaveTo.writeAsBytesSync(exportedFile);
+      message.$1.send(exportedFile);
     }
   }
 
@@ -446,83 +428,59 @@ class FileExplorerState extends State<FileExplorer> {
                                       filesToExport.add(thumbnail);
                                     }
                                   }
-                                  String validDirectoryName =
-                                      S.of(context).lifeChestBulkSave;
-                                  Directory? downloadDirectory;
-                                  if (Platform.isIOS) {
-                                    downloadDirectory =
-                                        await getDownloadsDirectory();
 
-                                    if (downloadDirectory == null) return;
-                                  } else {
-                                    downloadDirectory = Directory(
-                                        '/storage/emulated/0/Download');
-                                    // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
-                                    if (!await downloadDirectory.exists()) {
-                                      downloadDirectory =
-                                          await getExternalStorageDirectory();
-                                    }
-                                  }
-
-                                  Directory saveLocation = downloadDirectory!;
-
-                                  if (filesToExport.length > 1) {
-                                    String currentSuffix = '';
-                                    int currentDirID = 2;
-                                    List<FileSystemEntity> dirFiles =
-                                        downloadDirectory.listSync();
-                                    while (dirFiles.any((element) =>
-                                        basename(element.path) ==
-                                        validDirectoryName + currentSuffix)) {
-                                      currentSuffix = ' ($currentDirID)';
-                                      currentDirID++;
-                                    }
-                                    validDirectoryName =
-                                        validDirectoryName + currentSuffix;
-
-                                    saveLocation = Directory(join(
-                                        saveLocation.path, validDirectoryName));
-                                    saveLocation.createSync();
-                                  }
+                                  setState(() {
+                                    loaderTarget = filesToExport.length;
+                                    loaderCurrentLoad = 0;
+                                  });
 
                                   List<int> encryptionKey = await widget
                                       .vault.encryptionKey!
                                       .extractBytes();
 
-                                  Isolate.spawn(
-                                      exportEncryptedThumbnails,
-                                      List<
-                                              (
-                                                String thumbnailFilePath,
-                                                List<int> encryptionKey,
-                                                Map<String, dynamic> data,
-                                                List<int> fileContent,
-                                                String unlockMechanismType,
-                                                Map<String,
-                                                    dynamic> additionalUnlockData,
-                                                String saveLocationPath
-                                              )>.generate(filesToExport.length,
+                                  final receivePort = ReceivePort();
+
+                                  Isolate.spawn(exportEncryptedThumbnails,
+                                      (receivePort.sendPort, List<FileExportArgs>.generate(filesToExport.length,
                                           (index) {
                                         FileThumbnail fileToExport =
                                             filesToExport[index];
-
                                         return (
                                           fileToExport.localPath,
                                           encryptionKey,
                                           fileToExport.data,
                                           fileToExport.file.readAsBytesSync(),
                                           widget.vault.unlockMechanismType,
-                                          widget.vault.additionalUnlockData,
-                                          saveLocation.path
+                                          widget.vault.additionalUnlockData
                                         );
-                                      })).then((value) {
+                                      })));
+
+                                  List<Uint8List> decryptedFiles = [];
+
+                                  await for(List<int> decryptedFile in receivePort) {
+                                    decryptedFiles.add(Uint8List.fromList(decryptedFile));
+                                    setState(() {
+                                      loaderCurrentLoad = decryptedFiles.length;
+                                    });
+                                    if(loaderTarget == loaderCurrentLoad) break;
+                                  }
+
+                                  setState(() {
+                                    loaderTarget = null;
+                                    loaderCurrentLoad = null;
+                                  });
+
+                                  DocumentFileSavePlus().saveMultipleFiles(
+                                      dataList: decryptedFiles,
+                                      fileNameList: [for (FileThumbnail thumbnail in filesToExport) setExtension(basenameWithoutExtension(thumbnail.data['name']), '.lcef')],
+                                      mimeTypeList: List.filled(filesToExport.length, 'plain')
+                                  ).then((value) {
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
-                                              content: Text(S
-                                                  .of(context)
-                                                  .savedToFolder(basename(
-                                                      saveLocation.path)))));
+                                          content: Text(S
+                                              .of(context)
+                                              .savedToFolder)));
                                     }
                                   });
                                 }
@@ -591,8 +549,7 @@ class FileExplorerState extends State<FileExplorer> {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                      content: Text(S.of(context).savedToFolder(
-                                          basename(saveLocation.path)))));
+                                      content: Text(S.of(context).savedToFolder)));
                             }
                           },
                           child: Text(S.of(context).exportAsCleartext)),
@@ -970,7 +927,6 @@ class FileExplorerState extends State<FileExplorer> {
           loaderCurrentLoad = loaderCurrentLoad! + 1;
         });
       }
-
       setState(() {
         loaderTarget = null;
         loaderCurrentLoad = null;
@@ -987,7 +943,6 @@ class FileExplorerState extends State<FileExplorer> {
       return;
     }
   }
-
   /// A helper method to know if an entity is 1 level deeper in the tree than a local path so that whe can know if the UI should draw it
   static bool shouldThumbnailBeShown(
       String fileLocalPath, String currentLocalPath) {

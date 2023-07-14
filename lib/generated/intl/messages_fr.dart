@@ -25,13 +25,10 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m1(groupID) => "Groupe n°${groupID}";
 
-  static String m2(path) =>
-      "Le(s) fichier(s) a/ont été sauvegardé(s) dans ${path}";
-
-  static String m3(count) =>
+  static String m2(count) =>
       "${count} ${Intl.plural(count, one: 'fichier sélectionné', other: 'fichiers sélectionnés')}";
 
-  static String m4(unlockName) =>
+  static String m3(unlockName) =>
       "Ce groupe peut être débloquer grâce à : ${unlockName}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -149,12 +146,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
             "Veuillez utiliser votre empreinte digitale pour déverrouiller le coffre"),
         "rename": MessageLookupByLibrary.simpleMessage("Renommer"),
-        "savedToFolder": m2,
+        "savedToFolder": MessageLookupByLibrary.simpleMessage(
+            "Le(s) fichier(s) a/ont été sauvegardé(s)."),
         "scheme": MessageLookupByLibrary.simpleMessage("Modèle"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
-        "selected": m3,
+        "selected": m2,
         "sortBy": MessageLookupByLibrary.simpleMessage("Trier par..."),
-        "unlockAbleBy": m4,
+        "unlockAbleBy": m3,
         "unlockChest": MessageLookupByLibrary.simpleMessage(
             "Veuillez déverrouiller le coffre"),
         "unlockFile":

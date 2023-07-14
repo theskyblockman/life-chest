@@ -92,14 +92,7 @@
   "unlockWizard": "Unlock wizard",
   "ignore": "Ignore",
   "lifeChestBulkSave": "Life Chest bulk file export",
-  "@savedToFolder": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "savedToFolder": "Saved the file(s) to {path}",
+  "savedToFolder": "We successfully saved the file(s)",
   "import": "Import",
   "@group": {
     "placeholders": {

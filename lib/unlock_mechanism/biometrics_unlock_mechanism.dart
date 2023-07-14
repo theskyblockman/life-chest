@@ -89,14 +89,14 @@ class BiometricsUnlockMechanism extends UnlockMechanism {
 
   @override
   Widget keyCreationBuild(BuildContext context, VaultPolicy policy) {
-    return ListTile(leading: const Icon(Icons.warning_amber, color: Colors.orange), title: Text(S.of(context).biometricsAreLocal, style: const TextStyle(color: Colors.orange),));
+    return ListTile(leading: const Icon(Icons.warning_amber, color: Colors.orange), title: Text(S.of(context).biometricsAreLocal, style: const TextStyle(color: Colors.orange)));
   }
 
   @override
   Future<bool> isAvailable() async {
     return await LocalAuthentication().canCheckBiometrics &&
         (await LocalAuthentication().getAvailableBiometrics())
-            .contains(BiometricType.strong);
+            .contains(BiometricType.strong) && await LocalAuthentication().isDeviceSupported();
   }
 
   @override
