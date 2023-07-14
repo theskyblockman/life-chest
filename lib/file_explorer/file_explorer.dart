@@ -19,7 +19,14 @@ import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-typedef FileExportArgs = (String thumbnailFilePath, List<int> encryptionKey, Map<String, dynamic> data, List<int> fileContent, String unlockMechanismType, Map<String, dynamic> additionalUnlockData);
+typedef FileExportArgs = (
+  String thumbnailFilePath,
+  List<int> encryptionKey,
+  Map<String, dynamic> data,
+  List<int> fileContent,
+  String unlockMechanismType,
+  Map<String, dynamic> additionalUnlockData
+);
 
 /// The file reader, this enable the user to see file and to browse between them while keeping a cache of them
 class FileReader extends StatefulWidget {
@@ -440,29 +447,34 @@ class FileExplorerState extends State<FileExplorer> {
 
                                   final receivePort = ReceivePort();
 
-                                  Isolate.spawn(exportEncryptedThumbnails,
-                                      (receivePort.sendPort, List<FileExportArgs>.generate(filesToExport.length,
-                                          (index) {
-                                        FileThumbnail fileToExport =
-                                            filesToExport[index];
-                                        return (
-                                          fileToExport.localPath,
-                                          encryptionKey,
-                                          fileToExport.data,
-                                          fileToExport.file.readAsBytesSync(),
-                                          widget.vault.unlockMechanismType,
-                                          widget.vault.additionalUnlockData
-                                        );
-                                      })));
+                                  Isolate.spawn(exportEncryptedThumbnails, (
+                                    receivePort.sendPort,
+                                    List<FileExportArgs>.generate(
+                                        filesToExport.length, (index) {
+                                      FileThumbnail fileToExport =
+                                          filesToExport[index];
+                                      return (
+                                        fileToExport.localPath,
+                                        encryptionKey,
+                                        fileToExport.data,
+                                        fileToExport.file.readAsBytesSync(),
+                                        widget.vault.unlockMechanismType,
+                                        widget.vault.additionalUnlockData
+                                      );
+                                    })
+                                  ));
 
                                   List<Uint8List> decryptedFiles = [];
 
-                                  await for(List<int> decryptedFile in receivePort) {
-                                    decryptedFiles.add(Uint8List.fromList(decryptedFile));
+                                  await for (List<int> decryptedFile
+                                      in receivePort) {
+                                    decryptedFiles
+                                        .add(Uint8List.fromList(decryptedFile));
                                     setState(() {
                                       loaderCurrentLoad = decryptedFiles.length;
                                     });
-                                    if(loaderTarget == loaderCurrentLoad) break;
+                                    if (loaderTarget == loaderCurrentLoad)
+                                      break;
                                   }
 
                                   setState(() {
@@ -470,17 +482,26 @@ class FileExplorerState extends State<FileExplorer> {
                                     loaderCurrentLoad = null;
                                   });
 
-                                  DocumentFileSavePlus().saveMultipleFiles(
-                                      dataList: decryptedFiles,
-                                      fileNameList: [for (FileThumbnail thumbnail in filesToExport) setExtension(basenameWithoutExtension(thumbnail.data['name']), '.lcef')],
-                                      mimeTypeList: List.filled(filesToExport.length, 'plain')
-                                  ).then((value) {
+                                  DocumentFileSavePlus()
+                                      .saveMultipleFiles(
+                                          dataList: decryptedFiles,
+                                          fileNameList: [
+                                            for (FileThumbnail thumbnail
+                                                in filesToExport)
+                                              setExtension(
+                                                  basenameWithoutExtension(
+                                                      thumbnail.data['name']),
+                                                  '.lcef')
+                                          ],
+                                          mimeTypeList: List.filled(
+                                              filesToExport.length, 'plain'))
+                                      .then((value) {
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
-                                          content: Text(S
-                                              .of(context)
-                                              .savedToFolder)));
+                                              content: Text(S
+                                                  .of(context)
+                                                  .savedToFolder)));
                                     }
                                   });
                                 }
@@ -549,40 +570,81 @@ class FileExplorerState extends State<FileExplorer> {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                      content: Text(S.of(context).savedToFolder)));
+                                      content:
+                                          Text(S.of(context).savedToFolder)));
                             }
                           },
                           child: Text(S.of(context).exportAsCleartext)),
                       PopupMenuItem(
                           onTap: () async {
+                            List<FileThumbnail> filesToDelete = [];
+
                             for (FileThumbnail thumbnail in thumbnails) {
                               if (thumbnail.isSelected) {
-                                if (thumbnail.file.existsSync()) {
-                                  thumbnail.file.deleteSync();
-                                }
-                                if(thumbnail.placeholder == FileThumbnailsPlaceholder.folder) {
-                                  for (MapEntry<String, dynamic> innerRawThumbnail in List.from(map.entries)) {
-                                    if(isWithin(thumbnail.fullLocalPath, innerRawThumbnail.value['name'])) {
-                                      File innerRawThumbnailFile = File(join(widget.vault.path, innerRawThumbnail.key));
-                                      if(innerRawThumbnailFile.existsSync()) {
-                                        innerRawThumbnailFile.deleteSync();
-                                      }
-                                      map.remove(innerRawThumbnail.key);
-                                    }
-                                  }
-                                }
-                                map.remove(thumbnail.localPath);
+                                filesToDelete.add(thumbnail);
                               }
                             }
-                            List<int> encryptedMap =
-                                (await VaultsManager.encryptMap(
-                                    widget.vault, map))!;
-                            setState(() {
-                              // TODO: Forensic should be made to see if iOS/Android keeps any of the file data in storage, if yes fill the file with null bytes and then delete it.
-                              File(join(widget.vault.path, '.map'))
-                                  .writeAsBytesSync(encryptedMap);
-                              isSelectionMode = false;
-                              thumbnailCollector = reloadThumbnails();
+
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((timeStamp) {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                          title: Text(S
+                                              .of(context)
+                                              .areYouSureDeleteFiles(
+                                                  filesToDelete.length)),
+                                          content: Text(S
+                                              .of(context)
+                                              .lostDataContBeRecovered),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, false),
+                                                child: Text(S.of(context).no)),
+                                            TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, true),
+                                                child: Text(S.of(context).yes))
+                                          ])).then((value) async {
+                                if (value == true) {
+                                  for (FileThumbnail thumbnail
+                                      in filesToDelete) {
+                                    if (thumbnail.file.existsSync()) {
+                                      thumbnail.file.deleteSync();
+                                    }
+                                    if (thumbnail.placeholder ==
+                                        FileThumbnailsPlaceholder.folder) {
+                                      for (MapEntry<String,
+                                              dynamic> innerRawThumbnail
+                                          in List.from(map.entries)) {
+                                        if (isWithin(thumbnail.fullLocalPath,
+                                            innerRawThumbnail.value['name'])) {
+                                          File innerRawThumbnailFile = File(
+                                              join(widget.vault.path,
+                                                  innerRawThumbnail.key));
+                                          if (innerRawThumbnailFile
+                                              .existsSync()) {
+                                            innerRawThumbnailFile.deleteSync();
+                                          }
+                                          map.remove(innerRawThumbnail.key);
+                                        }
+                                      }
+                                    }
+                                    map.remove(thumbnail.localPath);
+                                  }
+                                  List<int> encryptedMap =
+                                      (await VaultsManager.encryptMap(
+                                          widget.vault, map))!;
+                                  setState(() {
+                                    // TODO: Forensic should be made to see if iOS/Android keeps any of the file data in storage, if yes fill the file with null bytes and then delete it.
+                                    File(join(widget.vault.path, '.map'))
+                                        .writeAsBytesSync(encryptedMap);
+                                    isSelectionMode = false;
+                                    thumbnailCollector = reloadThumbnails();
+                                  });
+                                }
+                              });
                             });
                           },
                           child: Text(S.of(context).delete)),
@@ -677,8 +739,8 @@ class FileExplorerState extends State<FileExplorer> {
                     child: LinearProgressIndicator(
                         value: loaderCurrentLoad! / loaderTarget!)),
             backgroundColor: isSelectionMode
-  ? Theme.of(context).colorScheme.primaryContainer
-      : null),
+                ? Theme.of(context).colorScheme.primaryContainer
+                : null),
         floatingActionButton: GestureDetector(
           onLongPress: () {
             saveFolder(context);
@@ -943,6 +1005,7 @@ class FileExplorerState extends State<FileExplorer> {
       return;
     }
   }
+
   /// A helper method to know if an entity is 1 level deeper in the tree than a local path so that whe can know if the UI should draw it
   static bool shouldThumbnailBeShown(
       String fileLocalPath, String currentLocalPath) {

@@ -21,13 +21,18 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
   static String m0(count) =>
+      "Are you sure to delete ${count} ${Intl.plural(count, one: 'file', other: 'files')} ?";
+
+  static String m1(vaultName) => "Are you sure to delete \"${vaultName}\"?";
+
+  static String m2(count) =>
       "We detected ${Intl.plural(count, one: 'a file', other: 'multiple files')} that come from a vault. To access ${Intl.plural(count, one: 'its', other: 'their')} content, you must unlock them.";
 
-  static String m1(groupID) => "Group n.${groupID}";
+  static String m3(groupID) => "Group n.${groupID}";
 
-  static String m2(count) => "${count} selected";
+  static String m4(count) => "${count} selected";
 
-  static String m3(unlockName) =>
+  static String m5(unlockName) =>
       "This group can be unlocked with: ${unlockName}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -36,7 +41,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "addFiles": MessageLookupByLibrary.simpleMessage("Add files"),
         "appLegalese": MessageLookupByLibrary.simpleMessage(
             "The application \"Life Chest\" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri"),
-        "areYouSure": MessageLookupByLibrary.simpleMessage("Are you sure?"),
+        "areYouSureClearVaults": MessageLookupByLibrary.simpleMessage(
+            "Are you sure to delete all vaults?"),
+        "areYouSureDeleteFiles": m0,
+        "areYouSureDeleteVault": m1,
         "biometrics": MessageLookupByLibrary.simpleMessage("Biometrics"),
         "biometricsAreLocal": MessageLookupByLibrary.simpleMessage(
             "Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable."),
@@ -60,7 +68,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),
         "deleteAllChests":
             MessageLookupByLibrary.simpleMessage("Delete all the chests"),
-        "detectedExportedFile": m0,
+        "detectedExportedFile": m2,
         "doNothing": MessageLookupByLibrary.simpleMessage("Do nothing"),
         "enterTheChestPassword": MessageLookupByLibrary.simpleMessage(
             "Please enter the password of this chest"),
@@ -102,7 +110,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Export as an encrypted file"),
         "exportedFileDescription": MessageLookupByLibrary.simpleMessage(
             "A file exported from the Life Chest app and who needs to be unlocked to get more information about it."),
-        "group": m1,
+        "group": m3,
         "ignore": MessageLookupByLibrary.simpleMessage("Ignore"),
         "import": MessageLookupByLibrary.simpleMessage("Import"),
         "internalError": MessageLookupByLibrary.simpleMessage("Internal Error"),
@@ -118,6 +126,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Loading elements"),
         "loadingImage": MessageLookupByLibrary.simpleMessage("Loading image"),
         "loadingVideo": MessageLookupByLibrary.simpleMessage("Loading video"),
+        "lostDataContBeRecovered": MessageLookupByLibrary.simpleMessage(
+            "This action is irreversible! All lost data can\'t be recovered."),
         "nameSortName":
             MessageLookupByLibrary.simpleMessage("Alphabetical order"),
         "newFolder": MessageLookupByLibrary.simpleMessage("New folder"),
@@ -143,9 +153,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "We successfully saved the file(s)"),
         "scheme": MessageLookupByLibrary.simpleMessage("Pattern"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
-        "selected": m2,
+        "selected": m4,
         "sortBy": MessageLookupByLibrary.simpleMessage("Sort by..."),
-        "unlockAbleBy": m3,
+        "unlockAbleBy": m5,
         "unlockChest": MessageLookupByLibrary.simpleMessage("Unlock the chest"),
         "unlockFile": MessageLookupByLibrary.simpleMessage("Unlock the file"),
         "unlockWizard": MessageLookupByLibrary.simpleMessage("Unlock wizard"),
