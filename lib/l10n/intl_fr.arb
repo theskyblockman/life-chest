@@ -78,7 +78,7 @@
   "exportAsCleartext": "Exporter en tant que fichier lisible (fichier non chiffré)",
   "exportAsEncrypted": "Exporter en tant que fichier chiffré",
   "lifeChestBulkSave": "Sauvegarde de fichiers en masse",
-  "savedToFolder": "Le(s) fichier(s) a/ont été sauvegardé(s) dans {path}",
+  "savedToFolder": "Le(s) fichier(s) a/ont été sauvegardé(s).",
   "import": "Importer",
   "group": "Groupe n°{groupID}",
   "unlockAbleBy": "Ce groupe peut être débloquer grâce à : {unlockName}.",

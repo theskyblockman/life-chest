@@ -7,6 +7,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/services.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_explorer/file_sort_methods.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
 
 class PermissionError extends Error {
@@ -23,6 +24,7 @@ class VaultsManager {
   static List<Vault> storedVaults = [];
   static late final String appFolder;
   static late final File mainConfigFile;
+  static late final PackageInfo packageInfo;
   static final cipher = Chacha20(macAlgorithm: MacAlgorithm.empty);
   static bool shouldUpdateVaultList = false;
   static Map<String, dynamic> globalAdditionalUnlockData = {};
@@ -207,7 +209,7 @@ class Vault {
       required this.name,
       required this.securityLevel,
       required this.unlockMechanismType,
-      this.encryptionKey});
+      this.encryptionKey}) : lastVersionCode = int.parse(VaultsManager.packageInfo.buildNumber);
 
   Vault.fromJson(Map<String, dynamic> storedData) {
     locked = storedData['locked'];
@@ -219,6 +221,13 @@ class Vault {
     securityLevel = storedData['security_level'];
     unlockMechanismType = storedData['unlock_mechanism_type'] ?? 'password';
     additionalUnlockData = storedData['additional_unlock_data'] ?? {};
+    if(storedData.containsKey('last_version_code')) {
+      lastVersionCode = storedData['last_version_code'];
+    } else {
+      PackageInfo.fromPlatform().then((value) {
+        lastVersionCode = int.parse(value.buildNumber);
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -230,7 +239,8 @@ class Vault {
       'name': name,
       'security_level': securityLevel,
       'unlock_mechanism_type': unlockMechanismType,
-      'additional_unlock_data': additionalUnlockData
+      'additional_unlock_data': additionalUnlockData,
+      'last_version_code': lastVersionCode,
     };
   }
 
@@ -264,4 +274,7 @@ class Vault {
 
   /// Any data needed to generate a key to unlock the vault.
   late Map<String, dynamic> additionalUnlockData;
+
+  /// The version code of the app that the chest is currently used, this could bw used to upgrade it to a new security standard.
+  late int lastVersionCode;
 }

@@ -348,10 +348,10 @@ class EncryptedAudioSource extends StreamAudioSource {
     return StreamAudioResponse(
         sourceLength: fileByteLength,
         contentLength: (end ?? fileByteLength) - (start ?? 0),
-        offset: start,
+        offset: start ?? 0,
         stream: start == null && end == null ?
           SingleThreadedRecovery.loadAndDecryptFile(encryptionKey, fileToRead) :
-          await SingleThreadedRecovery.loadAndDecryptPartialFile(encryptionKey, fileToRead, start ?? 0, end ?? fileByteLength),
+          SingleThreadedRecovery.loadAndDecryptPartialFile(encryptionKey, fileToRead, start ?? 0, end ?? fileByteLength),
         contentType: mimeType,
         rangeRequestsSupported: true);
   }

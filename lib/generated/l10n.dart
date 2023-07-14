@@ -830,13 +830,13 @@ class S {
     );
   }
 
-  /// `Saved the file(s) to {path}`
-  String savedToFolder(String path) {
+  /// `We successfully saved the file(s)`
+  String get savedToFolder {
     return Intl.message(
-      'Saved the file(s) to $path',
+      'We successfully saved the file(s)',
       name: 'savedToFolder',
       desc: '',
-      args: [path],
+      args: [],
     );
   }
 
