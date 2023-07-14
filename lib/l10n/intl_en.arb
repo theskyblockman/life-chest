@@ -54,7 +54,24 @@
   "wrongPassword": "Wrong password",
   "cancel": "Cancel",
   "ok": "OK",
-  "areYouSure": "Are you sure?",
+  "areYouSureClearVaults": "Are you sure to delete all vaults?",
+  "@areYouSureDeleteVault": {
+    "placeholders": {
+      "vaultName": {
+        "type": "String"
+      }
+    }
+  },
+  "areYouSureDeleteVault": "Are you sure to delete \"{vaultName}\"?",
+  "@areYouSureDeleteFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "areYouSureDeleteFiles": "Are you sure to delete {count} {count, plural, =1{file} other{files}} ?",
+  "lostDataContBeRecovered": "This action is irreversible! All lost data can't be recovered.",
   "yes": "Yes",
   "no": "No",
   "closeChestNotificationTitle": "You still have a chest opened",
