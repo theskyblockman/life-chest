@@ -607,40 +607,43 @@ class FileExplorerState extends State<FileExplorer> {
                                                     context, true),
                                                 child: Text(S.of(context).yes))
                                           ])).then((value) async {
-                                for (FileThumbnail thumbnail in filesToDelete) {
-                                  if (thumbnail.file.existsSync()) {
-                                    thumbnail.file.deleteSync();
-                                  }
-                                  if (thumbnail.placeholder ==
-                                      FileThumbnailsPlaceholder.folder) {
-                                    for (MapEntry<String,
-                                            dynamic> innerRawThumbnail
-                                        in List.from(map.entries)) {
-                                      if (isWithin(thumbnail.fullLocalPath,
-                                          innerRawThumbnail.value['name'])) {
-                                        File innerRawThumbnailFile = File(join(
-                                            widget.vault.path,
-                                            innerRawThumbnail.key));
-                                        if (innerRawThumbnailFile
-                                            .existsSync()) {
-                                          innerRawThumbnailFile.deleteSync();
+                                if (value == true) {
+                                  for (FileThumbnail thumbnail
+                                      in filesToDelete) {
+                                    if (thumbnail.file.existsSync()) {
+                                      thumbnail.file.deleteSync();
+                                    }
+                                    if (thumbnail.placeholder ==
+                                        FileThumbnailsPlaceholder.folder) {
+                                      for (MapEntry<String,
+                                              dynamic> innerRawThumbnail
+                                          in List.from(map.entries)) {
+                                        if (isWithin(thumbnail.fullLocalPath,
+                                            innerRawThumbnail.value['name'])) {
+                                          File innerRawThumbnailFile = File(
+                                              join(widget.vault.path,
+                                                  innerRawThumbnail.key));
+                                          if (innerRawThumbnailFile
+                                              .existsSync()) {
+                                            innerRawThumbnailFile.deleteSync();
+                                          }
+                                          map.remove(innerRawThumbnail.key);
                                         }
-                                        map.remove(innerRawThumbnail.key);
                                       }
                                     }
+                                    map.remove(thumbnail.localPath);
                                   }
-                                  map.remove(thumbnail.localPath);
+                                  List<int> encryptedMap =
+                                      (await VaultsManager.encryptMap(
+                                          widget.vault, map))!;
+                                  setState(() {
+                                    // TODO: Forensic should be made to see if iOS/Android keeps any of the file data in storage, if yes fill the file with null bytes and then delete it.
+                                    File(join(widget.vault.path, '.map'))
+                                        .writeAsBytesSync(encryptedMap);
+                                    isSelectionMode = false;
+                                    thumbnailCollector = reloadThumbnails();
+                                  });
                                 }
-                                List<int> encryptedMap =
-                                    (await VaultsManager.encryptMap(
-                                        widget.vault, map))!;
-                                setState(() {
-                                  // TODO: Forensic should be made to see if iOS/Android keeps any of the file data in storage, if yes fill the file with null bytes and then delete it.
-                                  File(join(widget.vault.path, '.map'))
-                                      .writeAsBytesSync(encryptedMap);
-                                  isSelectionMode = false;
-                                  thumbnailCollector = reloadThumbnails();
-                                });
                               });
                             });
                           },
