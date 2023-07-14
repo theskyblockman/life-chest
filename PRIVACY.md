@@ -1,1 +1,1 @@
-The application, Life Chest does not collect, use or receive any user data. The user's privacy is our priority. All possible data we harvest is how many people have downloaded our application.
+The application, Life Chest does not collect, use nor store any user personal data. The user's privacy is our priority. All possible data we harvest is provided by Google LLC and only monitors the application growth (installation success rate, total downloads, impressions and other metrics all in this same scope) for statistical purpose.
