@@ -21,14 +21,20 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'fr';
 
   static String m0(count) =>
-      "Nous avons détecté ${Intl.plural(count, one: 'un fichier', other: 'des fichiers')} provenant d\'un coffre. Pour accéder à ${Intl.plural(count, one: 'son', other: 'leur')} contenu, vous devez ${Intl.plural(count, one: 'le', other: 'les')} déverrouiller.";
+      "Êtes-vous sûr de supprimer ${count} ${Intl.plural(count, one: 'fichier', other: 'fichiers')}?";
 
-  static String m1(groupID) => "Groupe n°${groupID}";
+  static String m1(vaultName) =>
+      "Êtes-vous sûr de supprimer \"${vaultName}\" ?";
 
   static String m2(count) =>
+      "Nous avons détecté ${Intl.plural(count, one: 'un fichier', other: 'des fichiers')} provenant d\'un coffre. Pour accéder à ${Intl.plural(count, one: 'son', other: 'leur')} contenu, vous devez ${Intl.plural(count, one: 'le', other: 'les')} déverrouiller.";
+
+  static String m3(groupID) => "Groupe n°${groupID}";
+
+  static String m4(count) =>
       "${count} ${Intl.plural(count, one: 'fichier sélectionné', other: 'fichiers sélectionnés')}";
 
-  static String m3(unlockName) =>
+  static String m5(unlockName) =>
       "Ce groupe peut être débloquer grâce à : ${unlockName}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -38,7 +44,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Ajouter des fichiers"),
         "appLegalese": MessageLookupByLibrary.simpleMessage(
             "L\'application \"Life Chest\" a été créée par Theskyblockman avec ❤️ et un 🖥️ sous la licence MIT, Nous ne donnons aucune garantie, veuillez voir la license MIT pour plus d\'informations ©️ 2023 Haroun El Omri"),
-        "areYouSure": MessageLookupByLibrary.simpleMessage("Êtes-vous sûr ?"),
+        "areYouSureClearVaults": MessageLookupByLibrary.simpleMessage(
+            "Êtes-vous sûr de supprimer tous les coffres ?"),
+        "areYouSureDeleteFiles": m0,
+        "areYouSureDeleteVault": m1,
         "biometrics":
             MessageLookupByLibrary.simpleMessage("Empreinte digitale"),
         "biometricsAreLocal": MessageLookupByLibrary.simpleMessage(
@@ -65,7 +74,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "delete": MessageLookupByLibrary.simpleMessage("Supprimer"),
         "deleteAllChests":
             MessageLookupByLibrary.simpleMessage("Supprimer tous les coffres"),
-        "detectedExportedFile": m0,
+        "detectedExportedFile": m2,
         "doNothing": MessageLookupByLibrary.simpleMessage("Ne rien faire"),
         "enterTheChestPassword": MessageLookupByLibrary.simpleMessage(
             "Veuillez entrer le mot de passe de ce coffre"),
@@ -107,7 +116,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Exporter en tant que fichier chiffré"),
         "exportedFileDescription": MessageLookupByLibrary.simpleMessage(
             "Um fichier exporté depuis Life Chest qui est chiffré et qui a donc besoin d\'être déchiffré pour être lu."),
-        "group": m1,
+        "group": m3,
         "ignore": MessageLookupByLibrary.simpleMessage("Ignorer"),
         "import": MessageLookupByLibrary.simpleMessage("Importer"),
         "internalError": MessageLookupByLibrary.simpleMessage("Erreur interne"),
@@ -125,6 +134,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Chargement de l\'image"),
         "loadingVideo":
             MessageLookupByLibrary.simpleMessage("Chargement de la vidéo"),
+        "lostDataContBeRecovered": MessageLookupByLibrary.simpleMessage(
+            "Cette action est irréversible ! Toutes les données perdues ne pourront pas être récupérées"),
         "nameSortName":
             MessageLookupByLibrary.simpleMessage("Ordre alphabétique"),
         "newFolder": MessageLookupByLibrary.simpleMessage("Nouveau dossier"),
@@ -152,9 +163,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "Nous avons enregistré avec succès le(s) fichier(s). ATTENTION! Ces fichiers chiffrés sont plus vulnérables dans ce format, ne les distribuez pas publiquement. Life Chest, ses auteurs ou son contributeur ne peuvent être tenus responsables des données divulguées."),
         "scheme": MessageLookupByLibrary.simpleMessage("Modèle"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
-        "selected": m2,
+        "selected": m4,
         "sortBy": MessageLookupByLibrary.simpleMessage("Trier par..."),
-        "unlockAbleBy": m3,
+        "unlockAbleBy": m5,
         "unlockChest": MessageLookupByLibrary.simpleMessage(
             "Veuillez déverrouiller le coffre"),
         "unlockFile":

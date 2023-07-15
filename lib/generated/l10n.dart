@@ -520,11 +520,41 @@ class S {
     );
   }
 
-  /// `Are you sure?`
-  String get areYouSure {
+  /// `Are you sure to delete all vaults?`
+  String get areYouSureClearVaults {
     return Intl.message(
-      'Are you sure?',
-      name: 'areYouSure',
+      'Are you sure to delete all vaults?',
+      name: 'areYouSureClearVaults',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure to delete "{vaultName}"?`
+  String areYouSureDeleteVault(String vaultName) {
+    return Intl.message(
+      'Are you sure to delete "$vaultName"?',
+      name: 'areYouSureDeleteVault',
+      desc: '',
+      args: [vaultName],
+    );
+  }
+
+  /// `Are you sure to delete {count} {count, plural, =1{file} other{files}} ?`
+  String areYouSureDeleteFiles(int count) {
+    return Intl.message(
+      'Are you sure to delete $count ${Intl.plural(count, one: 'file', other: 'files')} ?',
+      name: 'areYouSureDeleteFiles',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `This action is irreversible! All lost data can't be recovered.`
+  String get lostDataContBeRecovered {
+    return Intl.message(
+      'This action is irreversible! All lost data can\'t be recovered.',
+      name: 'lostDataContBeRecovered',
       desc: '',
       args: [],
     );
