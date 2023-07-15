@@ -44,8 +44,9 @@ class SingleThreadedRecovery {
     int currentLength = startByte;
     return fileToRead.openRead(startByte, endByte).asyncMap((event) async {
       currentLength += event.length;
-      return await (cipher ?? VaultsManager.cipher)
-          .decrypt(SecretBox(event, nonce: isTesting ? Uint8List((cipher ?? VaultsManager.cipher).nonceLength) : base64Decode((await VaultsManager.nonceStorage.read(key: basename(fileToRead.path)))!), mac: mac), secretKey: encryptionKey, keyStreamIndex: currentLength - event.length);
+      return (cipher ?? VaultsManager.cipher).decrypt(SecretBox(event, nonce: isTesting ? Uint8List((cipher ?? VaultsManager.cipher).nonceLength) : base64Decode((await VaultsManager.nonceStorage.read(key: basename(fileToRead.path)))!), mac: mac),
+          secretKey: encryptionKey,
+          keyStreamIndex: currentLength - event.length);
     });
   }
 
@@ -120,7 +121,7 @@ class SingleThreadedRecovery {
       IOSink fileToCreateSink = fileToCreate.openWrite();
       try {
         final clearTextStream = createdFile.openRead();
-        final encryptedStream = VaultsManager.cipher.encryptStream(
+        final encryptedStream = (placeholder == FileThumbnailsPlaceholder.audio ? VaultsManager.secondaryCipher : VaultsManager.cipher).encryptStream(
             clearTextStream,
             secretKey: encryptionKey,
             nonce: nonce,
@@ -132,7 +133,7 @@ class SingleThreadedRecovery {
         fileToCreateSink.close();
       }
     } else {
-      SecretBox encryptedData = await VaultsManager.cipher.encrypt(
+      SecretBox encryptedData = await (placeholder == FileThumbnailsPlaceholder.audio ? VaultsManager.secondaryCipher : VaultsManager.cipher).encrypt(
         importedFile!.$2,
         secretKey: encryptionKey,
         nonce: nonce,
