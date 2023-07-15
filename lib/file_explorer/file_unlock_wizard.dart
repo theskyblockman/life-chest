@@ -26,15 +26,16 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
 
   Future<(Map<String, dynamic> metadata, List<int> data)> getOrUnlockFile(
       List<int> fileToUnlock, SecretKey key) async {
+    print(unlockedMap);
     for (List<int> unlockedFile in List.from(unlockedMap.keys)) {
       if (listEquals(fileToUnlock, unlockedFile)) {
         return unlockedMap[unlockedFile]!;
       }
     }
-
+    print(unlockedMap);
     unlockedMap[fileToUnlock] =
         (await FileExporter.importFile(fileToUnlock, key))!;
-
+    print(unlockedMap);
     return unlockedMap[fileToUnlock]!;
   }
 

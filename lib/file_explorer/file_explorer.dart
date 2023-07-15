@@ -440,20 +440,24 @@ class FileExplorerState extends State<FileExplorer> {
 
                                   final receivePort = ReceivePort();
 
+                                  List<FileExportArgs> dataToExport = [];
+
+                                  for(FileThumbnail fileToExport in filesToExport) {
+                                    String unsafeData = (await VaultsManager.nonceStorage.read(key: fileToExport.localPath))!;
+                                    Map<String, dynamic> unsafeDataClone = Map.from(fileToExport.data);
+                                    unsafeDataClone['nonce'] = unsafeData;
+                                    dataToExport.add((
+                                    fileToExport.localPath,
+                                    encryptionKey,
+                                    unsafeDataClone,
+                                        fileToExport.file.readAsBytesSync(),
+                                        widget.vault.unlockMechanismType,
+                                        widget.vault.additionalUnlockData
+                                    ));
+                                  }
+
                                   Isolate.spawn(exportEncryptedThumbnails,
-                                      (receivePort.sendPort, List<FileExportArgs>.generate(filesToExport.length,
-                                          (index) {
-                                        FileThumbnail fileToExport =
-                                            filesToExport[index];
-                                        return (
-                                          fileToExport.localPath,
-                                          encryptionKey,
-                                          fileToExport.data,
-                                          fileToExport.file.readAsBytesSync(),
-                                          widget.vault.unlockMechanismType,
-                                          widget.vault.additionalUnlockData
-                                        );
-                                      })));
+                                      (receivePort.sendPort, dataToExport));
 
                                   List<Uint8List> decryptedFiles = [];
 
@@ -480,7 +484,7 @@ class FileExplorerState extends State<FileExplorer> {
                                           .showSnackBar(SnackBar(
                                           content: Text(S
                                               .of(context)
-                                              .savedToFolder)));
+                                              .savedToFolderWarning, style: const TextStyle(color: Colors.amber))));
                                     }
                                   });
                                 }
@@ -536,9 +540,10 @@ class FileExplorerState extends State<FileExplorer> {
 
                             for (FileThumbnail thumbnail in filesToExport) {
                               Stream<List<int>> exportedFile =
-                                  SingleThreadedRecovery.loadAndDecryptFile(
+                                  await SingleThreadedRecovery.loadAndDecryptFile(
                                       widget.vault.encryptionKey!,
-                                      thumbnail.file);
+                                      thumbnail.file,
+                                      Mac(thumbnail.data['mac']));
 
                               File fileToSaveTo =
                                   File(join(saveLocation.path, thumbnail.name));

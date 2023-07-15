@@ -840,6 +840,16 @@ class S {
     );
   }
 
+  /// `We successfully saved the file(s). WARNING! These encrypted files are more vulnerable in this format, do not publicly distribute them. Life Chest, its authors or its contributor cannot be held liable for any divulged data.`
+  String get savedToFolderWarning {
+    return Intl.message(
+      'We successfully saved the file(s). WARNING! These encrypted files are more vulnerable in this format, do not publicly distribute them. Life Chest, its authors or its contributor cannot be held liable for any divulged data.',
+      name: 'savedToFolderWarning',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Import`
   String get import {
     return Intl.message(

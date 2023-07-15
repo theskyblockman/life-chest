@@ -1,4 +1,5 @@
 import 'package:better_player/better_player.dart';
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
@@ -31,7 +32,7 @@ class VideoViewer extends FileViewer {
   Future<bool> load(BuildContext context) async {
     dataSource = BetterPlayerDataSource(BetterPlayerDataSourceType.memory, '',
         bytes: await SingleThreadedRecovery.loadAndDecryptFullFile(
-            fileVault.encryptionKey!, fileToRead), videoExtension: extension(fileName));
+            fileVault.encryptionKey!, fileToRead, Mac(List<int>.from(fileData['mac']))), videoExtension: extension(fileName));
 
     // ignore: use_build_context_synchronously
     if(!context.mounted) return false;

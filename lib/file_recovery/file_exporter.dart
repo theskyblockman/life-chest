@@ -54,10 +54,10 @@ class FileExporter {
     // Signature
     finalExportedFile.addAll('Life Chest Encrypted File'.codeUnits);
     String encodedMetadata = jsonEncode(fileMapData);
-    List<int> encryptedMetadata = (await VaultsManager.cipher.encrypt(
+    List<int> encryptedMetadata = (await VaultsManager.secondaryCipher.encrypt(
             utf8.encode(encodedMetadata),
             secretKey: encryptionKey,
-            nonce: Uint8List(VaultsManager.cipher.nonceLength)))
+            nonce: Uint8List(VaultsManager.secondaryCipher.nonceLength)))
         .cipherText;
     // The hash of the key to check if 2 files were encrypted using the same key (Always 64 chars long)
     finalExportedFile.addAll(sha256
@@ -79,7 +79,7 @@ class FileExporter {
 
     // The file fake name used internally by the app to identify it without giving its clear name, logically this isn't sensitive information so we can give the encrypted and clear file fake name so the app can say if a file is valid or not by detecting the "|" char and dividing the file name length by 2.
     finalExportedFile.addAll(fileFakeName.codeUnits);
-    finalExportedFile.addAll((await VaultsManager.cipher.encrypt(
+    finalExportedFile.addAll((await VaultsManager.secondaryCipher.encrypt(
             fileFakeName.codeUnits,
             secretKey: encryptionKey,
             nonce: Uint8List(VaultsManager.cipher.nonceLength)))
@@ -131,9 +131,9 @@ class FileExporter {
         _splitListBySeparator(exportedFile, '|'.codeUnits[0], 4);
     // No need to round, the length is even whatever happening because of the source multiplication by 2 rule
     SecretBox encryptedName = SecretBox(List.from(elements[3].sublist(32, 64)),
-        nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty);
+        nonce: Uint8List(VaultsManager.secondaryCipher.nonceLength), mac: Mac.empty);
     return listEquals(
-        await VaultsManager.cipher
+        await VaultsManager.secondaryCipher
             .decrypt(encryptedName, secretKey: encryptionKey),
         elements[3].sublist(0, 32));
   }
@@ -150,17 +150,19 @@ class FileExporter {
     int metadataLength = int.parse(String.fromCharCodes(elements[2]));
 
     Map<String, dynamic> metadata = jsonDecode(String.fromCharCodes(utf8
-        .decode(await VaultsManager.cipher.decrypt(
+        .decode(await VaultsManager.secondaryCipher.decrypt(
             SecretBox(elements[3].sublist(64, 64 + metadataLength),
-                nonce: Uint8List(VaultsManager.cipher.nonceLength),
+                nonce: Uint8List(VaultsManager.secondaryCipher.nonceLength),
                 mac: Mac.empty),
             secretKey: encryptionKey))
         .codeUnits));
 
     List<int> fileData = await VaultsManager.cipher.decrypt(
         SecretBox(elements[3].sublist(64 + metadataLength),
-            nonce: Uint8List(VaultsManager.cipher.nonceLength), mac: Mac.empty),
+            nonce: metadata.containsKey('nonce') ? base64Decode(metadata['nonce']) : Uint8List(VaultsManager.secondaryCipher.nonceLength), mac: Mac(List.from(metadata['mac']))),
         secretKey: encryptionKey);
+
+    metadata.remove('nonce');
 
     return (metadata, fileData);
   }

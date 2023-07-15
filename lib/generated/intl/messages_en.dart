@@ -141,6 +141,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "rename": MessageLookupByLibrary.simpleMessage("Rename"),
         "savedToFolder": MessageLookupByLibrary.simpleMessage(
             "We successfully saved the file(s)"),
+        "savedToFolderWarning": MessageLookupByLibrary.simpleMessage(
+            "We successfully saved the file(s). WARNING! These encrypted files are more vulnerable in this format, do not publicly distribute them. Life Chest, its authors or its contributor cannot be held liable for any divulged data."),
         "scheme": MessageLookupByLibrary.simpleMessage("Pattern"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
         "selected": m2,

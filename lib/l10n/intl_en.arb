@@ -93,6 +93,7 @@
   "ignore": "Ignore",
   "lifeChestBulkSave": "Life Chest bulk file export",
   "savedToFolder": "We successfully saved the file(s)",
+  "savedToFolderWarning": "We successfully saved the file(s). WARNING! These encrypted files are more vulnerable in this format, do not publicly distribute them. Life Chest, its authors or its contributor cannot be held liable for any divulged data.",
   "import": "Import",
   "@group": {
     "placeholders": {

@@ -147,7 +147,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "Veuillez utiliser votre empreinte digitale pour déverrouiller le coffre"),
         "rename": MessageLookupByLibrary.simpleMessage("Renommer"),
         "savedToFolder": MessageLookupByLibrary.simpleMessage(
-            "Le(s) fichier(s) a/ont été sauvegardé(s)."),
+            "Nous avons enregistré avec succès le(s) fichier(s)."),
+        "savedToFolderWarning": MessageLookupByLibrary.simpleMessage(
+            "Nous avons enregistré avec succès le(s) fichier(s). ATTENTION! Ces fichiers chiffrés sont plus vulnérables dans ce format, ne les distribuez pas publiquement. Life Chest, ses auteurs ou son contributeur ne peuvent être tenus responsables des données divulguées."),
         "scheme": MessageLookupByLibrary.simpleMessage("Modèle"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
         "selected": m2,

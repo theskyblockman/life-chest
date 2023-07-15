@@ -23,7 +23,7 @@ void main() async {
 
     clonedFile.writeAsBytesSync(fileToClone.readAsBytesSync());
 
-    savedData = await SingleThreadedRecovery.saveFile(secretKey, './test/assets/', '', '/', createdFile: clonedFile);
+    savedData = await SingleThreadedRecovery.saveFile(secretKey, './test/assets/', '', '/', createdFile: clonedFile, isTesting: true);
 
 
   });
@@ -38,7 +38,7 @@ void main() async {
 
 
     File savedFile = File(join('test', 'assets', savedData!.$1));
-    List<int> fullFileDecryption = await SingleThreadedRecovery.loadAndDecryptFullFile(secretKey, savedFile);
+    List<int> fullFileDecryption = await SingleThreadedRecovery.loadAndDecryptFullFile(secretKey, savedFile, Mac.empty, Chacha20(macAlgorithm: MacAlgorithm.empty), true);
     List<int> partialFileDecryption = List.empty(growable: true);
 
     Completer completer = Completer();
@@ -46,7 +46,7 @@ void main() async {
     int fileLength = savedFile.lengthSync();
     int fileStart = Random().nextInt(fileLength);
     fileStart = fileStart == 0 ? 1 : fileStart;
-    SingleThreadedRecovery.loadAndDecryptPartialFile(secretKey, savedFile, fileStart, savedFile.lengthSync()).listen((event) {
+    SingleThreadedRecovery.loadAndDecryptPartialFile(secretKey, savedFile, fileStart, savedFile.lengthSync(), Mac.empty, Chacha20(macAlgorithm: MacAlgorithm.empty), true).listen((event) {
       partialFileDecryption.addAll(event);
     }, onDone: () => completer.complete());
 

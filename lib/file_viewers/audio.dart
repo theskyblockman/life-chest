@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
+import 'package:life_chest/vault.dart';
 import 'package:path/path.dart' as p;
 import 'package:rxdart/rxdart.dart';
 
@@ -350,8 +351,8 @@ class EncryptedAudioSource extends StreamAudioSource {
         contentLength: (end ?? fileByteLength) - (start ?? 0),
         offset: start ?? 0,
         stream: start == null && end == null ?
-          SingleThreadedRecovery.loadAndDecryptFile(encryptionKey, fileToRead) :
-          SingleThreadedRecovery.loadAndDecryptPartialFile(encryptionKey, fileToRead, start ?? 0, end ?? fileByteLength),
+          await SingleThreadedRecovery.loadAndDecryptFile(encryptionKey, fileToRead, Mac.empty) :
+          SingleThreadedRecovery.loadAndDecryptPartialFile(encryptionKey, fileToRead, start ?? 0, end ?? fileByteLength, Mac.empty, VaultsManager.secondaryCipher),
         contentType: mimeType,
         rangeRequestsSupported: true);
   }

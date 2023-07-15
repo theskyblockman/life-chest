@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_explorer/file_sort_methods.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -25,9 +26,11 @@ class VaultsManager {
   static late final String appFolder;
   static late final File mainConfigFile;
   static late final PackageInfo packageInfo;
-  static final cipher = Chacha20(macAlgorithm: MacAlgorithm.empty);
+  static final cipher = Chacha20.poly1305Aead();
+  static final secondaryCipher = Chacha20(macAlgorithm: MacAlgorithm.empty); // Mainly used for file exportation so that no MAC is required.
   static bool shouldUpdateVaultList = false;
   static Map<String, dynamic> globalAdditionalUnlockData = {};
+  static late final FlutterSecureStorage nonceStorage;
 
   static void saveVaults() {
     mainConfigFile.writeAsStringSync(jsonEncode({
@@ -77,6 +80,8 @@ class VaultsManager {
         secretKey: cryptKey,
         nonce: Uint8List(cipher.nonceLength));
 
+    await nonceStorage.write(key: keyFile.absolute.path, value: base64Encode(encryptedWitnessFile.mac.bytes));
+
     File witnessFile = File(p.join(path, '.witness'));
     witnessFile.createSync(recursive: true);
     witnessFile.writeAsBytesSync(encryptedWitnessFile.cipherText);
@@ -117,7 +122,7 @@ class VaultsManager {
     String decryptedWitnessFile = utf8.decode(
         await cipher.decrypt(
             SecretBox(witnessFile.readAsBytesSync(),
-                nonce: Uint8List(cipher.nonceLength), mac: Mac.empty),
+                nonce: Uint8List(cipher.nonceLength), mac: Mac(base64Decode((await nonceStorage.read(key: witnessFile.absolute.path))!))),
             secretKey: vault.encryptionKey!),
         allowMalformed: true);
     return decryptedWitnessFile ==
@@ -152,10 +157,13 @@ class VaultsManager {
       Vault vault, Map<String, dynamic> initialMap) async {
     if (vault.encryptionKey == null) return null;
 
-    return (await cipher.encrypt(utf8.encode(jsonEncode(initialMap)),
-            secretKey: vault.encryptionKey!,
-            nonce: Uint8List(cipher.nonceLength)))
-        .cipherText;
+    SecretBox encryptedMap = (await cipher.encrypt(utf8.encode(jsonEncode(initialMap)),
+        secretKey: vault.encryptionKey!,
+        nonce: Uint8List(cipher.nonceLength)));
+
+    await nonceStorage.write(key: vault.filesMetadataBankPath, value: base64Encode(encryptedMap.mac.bytes));
+
+    return encryptedMap.cipherText;
   }
 
   static Future<Map<String, dynamic>?> decryptMap(
@@ -164,7 +172,7 @@ class VaultsManager {
     Map<String, dynamic> decryptedMap = jsonDecode(utf8.decode(
         await cipher.decrypt(
             SecretBox(encryptedMap,
-                nonce: Uint8List(cipher.nonceLength), mac: Mac.empty),
+                nonce: Uint8List(cipher.nonceLength), mac: Mac(base64Decode((await nonceStorage.read(key: vault.filesMetadataBankPath))!))),
             secretKey: vault.encryptionKey!)));
 
     return decryptedMap;
