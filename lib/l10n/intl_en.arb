@@ -132,5 +132,7 @@
   "internalError": "Internal Error",
   "wrongDevice": "Wrong device, couldn't find the unlock data in the keystore",
   "biometricsAreLocal": "Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable.",
-  "linkCopied": "The link has been copied to your clipboard."
+  "linkCopied": "The link has been copied to your clipboard.",
+  "subtitles": "Subtitles",
+  "playbackSpeed": "Playback speed"
 }

@@ -959,6 +959,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Subtitles`
+  String get subtitles {
+    return Intl.message(
+      'Subtitles',
+      name: 'subtitles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Playback speed`
+  String get playbackSpeed {
+    return Intl.message(
+      'Playback speed',
+      name: 'playbackSpeed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -153,6 +153,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "pickFolderDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Sélectionnez le dossier que vous souhaitez ajouter"),
         "pinCode": MessageLookupByLibrary.simpleMessage("Code PIN"),
+        "playbackSpeed":
+            MessageLookupByLibrary.simpleMessage("Vitesse de lecture"),
         "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
             "Veuillez utiliser votre empreinte digitale pour déverrouiller le coffre"),
         "rename": MessageLookupByLibrary.simpleMessage("Renommer"),
@@ -164,6 +166,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
         "selected": m4,
         "sortBy": MessageLookupByLibrary.simpleMessage("Trier par..."),
+        "subtitles": MessageLookupByLibrary.simpleMessage("Sous-titres"),
         "unlockAbleBy": m5,
         "unlockChest":
             MessageLookupByLibrary.simpleMessage("Déverrouiller le coffre"),

@@ -46,7 +46,7 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.next,
               onChanged: (value) {
-                policy.vaultName = value;
+                policy.vaultName = value.trim();
               },
               onEditingComplete: () => currentMechanism?.creationFocus(),
               decoration: InputDecoration(

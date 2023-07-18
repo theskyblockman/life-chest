@@ -1,10 +1,15 @@
-import 'package:better_player/better_player.dart';
+import 'dart:async';
+import 'dart:io';
+
+import 'package:chewie/chewie.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
 import 'package:life_chest/generated/l10n.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:video_player/video_player.dart';
 
 class VideoViewer extends FileViewer {
   VideoViewer(
@@ -12,64 +17,51 @@ class VideoViewer extends FileViewer {
       required super.fileToRead,
       required super.fileName,
       required super.fileData});
-  late BetterPlayerDataSource dataSource;
-
-  BetterPlayerController? controller;
+  ChewieController? controller;
+  late File videoFile;
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(color: Colors.black, child: Center(child: BetterPlayer(controller: controller!)));
+    return ColoredBox(
+        color: Colors.black,
+        child: Center(child: Chewie(controller: controller!)));
   }
 
   @override
   void dispose() {
-    controller!
-        .pause()
-        .then((value) => controller!.dispose(forceDispose: true));
+    controller!.pause().then((value) => controller!.dispose());
+    Future.delayed(const Duration(seconds: 30)).then((value) => videoFile.deleteSync());
   }
 
   @override
   Future<bool> load(BuildContext context) async {
-    dataSource = BetterPlayerDataSource(BetterPlayerDataSourceType.memory, '',
-        bytes: await SingleThreadedRecovery.loadAndDecryptFullFile(
-            fileVault.encryptionKey!, fileToRead, Mac(List<int>.from(fileData['mac']))), videoExtension: extension(fileName));
+    videoFile =
+        File(join((await getTemporaryDirectory()).path, basename(fileName)));
+    if (!videoFile.existsSync() ||
+        videoFile.statSync().size != fileToRead.statSync().size) {
+      await videoFile.openWrite().addStream(
+          await SingleThreadedRecovery.loadAndDecryptFile(
+              fileVault.encryptionKey!,
+              fileToRead,
+              Mac(List<int>.from(fileData['mac']))));
+    }
 
     // ignore: use_build_context_synchronously
-    if(!context.mounted) return false;
+    if (!context.mounted) return false;
 
-    controller = BetterPlayerController(BetterPlayerConfiguration(
-        allowedScreenSleep: false,
-        autoDetectFullscreenAspectRatio: true,
-        autoDispose: false,
-        autoPlay: false,
+    controller ??= ChewieController(
+        autoPlay: true,
         looping: true,
-        autoDetectFullscreenDeviceOrientation: true,
-        controlsConfiguration: const BetterPlayerControlsConfiguration(),
-        aspectRatio: fileData['videoData']['streams'][0]['width'] / fileData['videoData']['streams'][0]['height'],
-        fit: BoxFit.contain,
-        translations: [
-          BetterPlayerTranslations(),
-          BetterPlayerTranslations(
-              languageCode: 'fr',
-              generalDefaultError: 'La vidéo ne peut pas être jouée',
-              generalNone: 'Aucun',
-              generalDefault: 'Défaut',
-              generalRetry: 'Réessayer',
-              playlistLoadingNextVideo: "Chargement de la prochaine vidéo",
-              controlsLive: "DIRECT",
-              controlsNextVideoIn: "Prochaine vidéo dans",
-              overflowMenuPlaybackSpeed: "Vitesse de lecture",
-              overflowMenuSubtitles: "Sous-titres",
-              overflowMenuQuality: "Qualité",
-              overflowMenuAudioTracks: "Audio",
-              qualityAuto: "Auto"
-          )
-        ]
-    ),
-        betterPlayerDataSource: dataSource,
-        betterPlayerPlaylistConfiguration:
-            const BetterPlayerPlaylistConfiguration(
-                loopVideos: true, initialStartIndex: 0));
+        optionsTranslation: OptionsTranslation(
+          cancelButtonText: S.of(context).cancel,
+          subtitlesButtonText: S.of(context).subtitles,
+          playbackSpeedButtonText: S.of(context).playbackSpeed
+        ),
+        aspectRatio:
+            fileData['videoData']['width'] / fileData['videoData']['height'],
+        videoPlayerController: VideoPlayerController.file(videoFile,
+            videoPlayerOptions: VideoPlayerOptions(
+                allowBackgroundPlayback: false, mixWithOthers: true)));
 
     return true;
   }
@@ -80,8 +72,6 @@ class VideoViewer extends FileViewer {
   @override
   Future<void> onFocus() async {
     if (controller != null) {
-      controller!.setOverriddenAspectRatio(
-          controller!.videoPlayerController!.value.aspectRatio);
       controller!.play();
     }
   }

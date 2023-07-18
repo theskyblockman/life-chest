@@ -147,6 +147,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "pickFolderDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Pick the folder you want to add"),
         "pinCode": MessageLookupByLibrary.simpleMessage("PIN code"),
+        "playbackSpeed": MessageLookupByLibrary.simpleMessage("Playback speed"),
         "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
             "Please use your biometrics to unlock the chest"),
         "rename": MessageLookupByLibrary.simpleMessage("Rename"),
@@ -158,6 +159,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
         "selected": m4,
         "sortBy": MessageLookupByLibrary.simpleMessage("Sort by..."),
+        "subtitles": MessageLookupByLibrary.simpleMessage("Subtitles"),
         "unlockAbleBy": m5,
         "unlockChest": MessageLookupByLibrary.simpleMessage("Unlock the chest"),
         "unlockFile": MessageLookupByLibrary.simpleMessage("Unlock the file"),
