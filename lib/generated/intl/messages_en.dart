@@ -21,9 +21,10 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
   static String m0(count) =>
-      "Are you sure to delete ${count} ${Intl.plural(count, one: 'file', other: 'files')} ?";
+      "Are you sure you want to delete ${count} ${Intl.plural(count, one: 'file', other: 'files')}?";
 
-  static String m1(vaultName) => "Are you sure to delete \"${vaultName}\"?";
+  static String m1(vaultName) =>
+      "Are you sure you want to delete \"${vaultName}\"?";
 
   static String m2(count) =>
       "We detected ${Intl.plural(count, one: 'a file', other: 'multiple files')} that come from a vault. To access ${Intl.plural(count, one: 'its', other: 'their')} content, you must unlock them.";
@@ -40,17 +41,17 @@ class MessageLookup extends MessageLookupByLibrary {
         "about": MessageLookupByLibrary.simpleMessage("About..."),
         "addFiles": MessageLookupByLibrary.simpleMessage("Add files"),
         "appLegalese": MessageLookupByLibrary.simpleMessage(
-            "The application \"Life Chest\" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri"),
+            "The application \"Life Chest\" has been made by Theskyblockman with ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri"),
         "areYouSureClearVaults": MessageLookupByLibrary.simpleMessage(
-            "Are you sure to delete all vaults?"),
+            "Are you sure you want to delete all vaults?"),
         "areYouSureDeleteFiles": m0,
         "areYouSureDeleteVault": m1,
         "biometrics": MessageLookupByLibrary.simpleMessage("Biometrics"),
         "biometricsAreLocal": MessageLookupByLibrary.simpleMessage(
             "Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable."),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
-        "chestName": MessageLookupByLibrary.simpleMessage("Chest name"),
-        "chestPassword": MessageLookupByLibrary.simpleMessage("Chest password"),
+        "chestName": MessageLookupByLibrary.simpleMessage("Chest Name"),
+        "chestPassword": MessageLookupByLibrary.simpleMessage("Chest Password"),
         "chestPinCode": MessageLookupByLibrary.simpleMessage("Chest PIN code"),
         "closeChest": MessageLookupByLibrary.simpleMessage("Close the chest"),
         "closeChestNotificationContent": MessageLookupByLibrary.simpleMessage(
@@ -58,11 +59,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "closeChestNotificationTitle": MessageLookupByLibrary.simpleMessage(
             "You still have a chest opened"),
         "createANewChest":
-            MessageLookupByLibrary.simpleMessage("Create a new chest"),
+            MessageLookupByLibrary.simpleMessage("Create a New Chest"),
         "createANewFolder":
             MessageLookupByLibrary.simpleMessage("Create a new folder"),
         "createTheNewChest":
-            MessageLookupByLibrary.simpleMessage("Create the chest"),
+            MessageLookupByLibrary.simpleMessage("Create the Chest"),
         "defineScheme":
             MessageLookupByLibrary.simpleMessage("Define the scheme"),
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),
@@ -80,7 +81,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "The chest name must not be empty"),
         "errorChestPasswordMoreCharacters":
             MessageLookupByLibrary.simpleMessage(
-                "The password must be 8 characters or more"),
+                "The password must be at least 8 characters long"),
         "errorChestPasswordMoreDigits": MessageLookupByLibrary.simpleMessage(
             "The password must contain at least one digit"),
         "errorChestPasswordMoreLowercaseLetter":
@@ -109,7 +110,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "exportAsEncrypted":
             MessageLookupByLibrary.simpleMessage("Export as an encrypted file"),
         "exportedFileDescription": MessageLookupByLibrary.simpleMessage(
-            "A file exported from the Life Chest app and who needs to be unlocked to get more information about it."),
+            "A file exported from the Life Chest app and needs to be unlocked to get more information about it."),
         "group": m3,
         "ignore": MessageLookupByLibrary.simpleMessage("Ignore"),
         "import": MessageLookupByLibrary.simpleMessage("Import"),
@@ -152,7 +153,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "savedToFolder": MessageLookupByLibrary.simpleMessage(
             "We successfully saved the file(s)"),
         "savedToFolderWarning": MessageLookupByLibrary.simpleMessage(
-            "We successfully saved the file(s). WARNING! These encrypted files are more vulnerable in this format, do not publicly distribute them. Life Chest, its authors or its contributor cannot be held liable for any divulged data."),
+            "We successfully saved the file(s). WARNING! These encrypted files are more vulnerable in this format, do not publicly distribute them. Life Chest, its authors, or its contributors cannot be held liable for any divulged data."),
         "scheme": MessageLookupByLibrary.simpleMessage("Pattern"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
         "selected": m4,
@@ -166,17 +167,17 @@ class MessageLookup extends MessageLookupByLibrary {
         "validate": MessageLookupByLibrary.simpleMessage("Validate"),
         "welcomeNext": MessageLookupByLibrary.simpleMessage("Next"),
         "welcomePage1Content": MessageLookupByLibrary.simpleMessage(
-            "Welcome to your life chest! Here you will be able to create chests to store your data privately without compromising over usability."),
+            "Welcome to your Life Chest! Here, you will be able to create chests to store your data securely without compromising usability."),
         "welcomePage1Title":
             MessageLookupByLibrary.simpleMessage("Hello there!"),
         "welcomePage2Content": MessageLookupByLibrary.simpleMessage(
-            "We use an encryption system called Chacha20, so trying to access your files without your password will take about 200 trillions of trillions of trillions times the age of the universe! And to prove it, we are 100% open-source!"),
+            "We use an encryption system called Chacha20, which means attempting to access your files without your password would take about 200 trillions of trillions of trillions times the age of the universe! And to prove it, we are 100% open-source!"),
         "welcomePage2Title": MessageLookupByLibrary.simpleMessage(
-            "Here, our main priority is your security"),
+            "Your Security is Our Main Priority"),
         "welcomePage3Content": MessageLookupByLibrary.simpleMessage(
             "You\'ll see, it\'s fast, easy, and secure!"),
         "welcomePage3Title": MessageLookupByLibrary.simpleMessage(
-            "Let\'s create your first chest!"),
+            "Let\'s Create Your First Chest!"),
         "welcomeSkip": MessageLookupByLibrary.simpleMessage("Skip"),
         "whatShouldBeDoneAfterUnfocus": MessageLookupByLibrary.simpleMessage(
             "What should we do when the application is paused"),
