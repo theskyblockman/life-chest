@@ -1,0 +1,1 @@
+- Bugs reglés et amelioration générale de la stabilité. Le lecteur vidéo est maintenant stable même si il est moins sécurisé mais assez pour être utilisé.
