@@ -21,15 +21,20 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'fr';
 
   static String m0(count) =>
-      "Nous avons détecté ${Intl.plural(count, one: 'un fichier', other: 'des fichiers')} provenant d\'un coffre. Pour accéder à ${Intl.plural(count, one: 'son', other: 'leur')} contenu, vous devez ${Intl.plural(count, one: 'le', other: 'les')} déverrouiller.";
+      "Êtes-vous sûr de vouloir supprimer ${count} ${Intl.plural(count, one: 'fichier', other: 'fichiers')}?";
 
-  static String m1(groupID) => "Groupe n°${groupID}";
+  static String m1(vaultName) =>
+      "Êtes-vous sûr de vouloir supprimer \"${vaultName}\" ?";
 
   static String m2(count) =>
+      "Nous avons détecté ${Intl.plural(count, one: 'un fichier', other: 'des fichiers')} provenant d\'un coffre. Pour accéder à ${Intl.plural(count, one: 'son', other: 'leur')} contenu, vous devez ${Intl.plural(count, one: 'le', other: 'les')} déverrouiller.";
+
+  static String m3(groupID) => "Groupe n°${groupID}";
+
+  static String m4(count) =>
       "${count} ${Intl.plural(count, one: 'fichier sélectionné', other: 'fichiers sélectionnés')}";
 
-  static String m3(unlockName) =>
-      "Ce groupe peut être débloquer grâce à : ${unlockName}.";
+  static String m5(unlockName) => "Déverouillable grâce à : ${unlockName}.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -37,8 +42,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "addFiles":
             MessageLookupByLibrary.simpleMessage("Ajouter des fichiers"),
         "appLegalese": MessageLookupByLibrary.simpleMessage(
-            "L\'application \"Life Chest\" a été créée par Theskyblockman avec ❤️ et un 🖥️ sous la licence MIT, Nous ne donnons aucune garantie, veuillez voir la license MIT pour plus d\'informations ©️ 2023 Haroun El Omri"),
-        "areYouSure": MessageLookupByLibrary.simpleMessage("Êtes-vous sûr ?"),
+            "L\'application \"Life Chest\" a été créée par Theskyblockman avec ❤️ et un 🖥️ sous la licence MIT. Nous ne donnons aucune garantie, veuillez consulter la licence MIT pour plus d\'informations ©️ 2023 Haroun El Omri"),
+        "areYouSureClearVaults": MessageLookupByLibrary.simpleMessage(
+            "Êtes-vous sûr de vouloir supprimer tous les coffres ?"),
+        "areYouSureDeleteFiles": m0,
+        "areYouSureDeleteVault": m1,
         "biometrics":
             MessageLookupByLibrary.simpleMessage("Empreinte digitale"),
         "biometricsAreLocal": MessageLookupByLibrary.simpleMessage(
@@ -51,30 +59,30 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Code PIN du coffre"),
         "closeChest": MessageLookupByLibrary.simpleMessage("Fermer le coffre"),
         "closeChestNotificationContent": MessageLookupByLibrary.simpleMessage(
-            "Appuyez sur le bouton ci-dessous pour le fermer"),
+            "Cliquez sur le bouton ci-dessous pour le fermer"),
         "closeChestNotificationTitle": MessageLookupByLibrary.simpleMessage(
-            "Vous avez toujours un coffre ouvert"),
+            "Vous avez encore un coffre ouvert"),
         "createANewChest":
             MessageLookupByLibrary.simpleMessage("Créer un nouveau coffre"),
         "createANewFolder":
             MessageLookupByLibrary.simpleMessage("Créer un nouveau dossier"),
         "createTheNewChest":
             MessageLookupByLibrary.simpleMessage("Créer le coffre"),
-        "defineScheme":
-            MessageLookupByLibrary.simpleMessage("Définir le modèle"),
+        "defineScheme": MessageLookupByLibrary.simpleMessage(
+            "Définir le modèle de déverrouillage"),
         "delete": MessageLookupByLibrary.simpleMessage("Supprimer"),
         "deleteAllChests":
             MessageLookupByLibrary.simpleMessage("Supprimer tous les coffres"),
-        "detectedExportedFile": m0,
+        "detectedExportedFile": m2,
         "doNothing": MessageLookupByLibrary.simpleMessage("Ne rien faire"),
         "enterTheChestPassword": MessageLookupByLibrary.simpleMessage(
             "Veuillez entrer le mot de passe de ce coffre"),
         "enterTheChestScheme": MessageLookupByLibrary.simpleMessage(
-            "Veuillez entrer le modèle du coffre"),
+            "Veuillez entrer le modèle de déverrouillage de ce coffre"),
         "enterThePinCode": MessageLookupByLibrary.simpleMessage(
-            "Veuillez entrer le code PIN du coffre"),
+            "Veuillez entrer le code PIN de ce coffre"),
         "errorChestNameShouldNotBeEmpty": MessageLookupByLibrary.simpleMessage(
-            "Le nom du coffre ne doit pas être vide"),
+            "Le nom du coffre ne peut pas être vide"),
         "errorChestPasswordMoreCharacters":
             MessageLookupByLibrary.simpleMessage(
                 "Le mot de passe doit contenir au moins 8 caractères"),
@@ -88,33 +96,33 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Le mot de passe doit contenir au moins une lettre majuscule"),
         "errorChestPasswordShouldNotBeEmpty":
             MessageLookupByLibrary.simpleMessage(
-                "Le mot de passe ne doit pas être vide"),
+                "Le mot de passe ne peut pas être vide"),
         "errorChestPinCodeMoreCharacters": MessageLookupByLibrary.simpleMessage(
             "Le code PIN doit contenir au moins 4 caractères"),
         "errorChestPinCodeShouldNotBeEmpty":
             MessageLookupByLibrary.simpleMessage(
-                "Le code PIN ne doit pas être vide"),
+                "Le code PIN ne peut pas être vide"),
         "errorChestSchemeShouldNotBeEmpty":
             MessageLookupByLibrary.simpleMessage(
-                "Le schéma ne doit pas être vide"),
+                "Le modèle ne peut pas être vide"),
         "errorDurationMustBeFormatted": MessageLookupByLibrary.simpleMessage(
             "La durée doit être au format HH:MM"),
         "errorDurationMustNotBeEmpty": MessageLookupByLibrary.simpleMessage(
-            "La durée ne doit pas être vide"),
+            "La durée ne peut pas être vide"),
         "exportAsCleartext": MessageLookupByLibrary.simpleMessage(
-            "Exporter en tant que fichier lisible (fichier non chiffré)"),
+            "Exporter en tant que fichier lisible (non chiffré)"),
         "exportAsEncrypted": MessageLookupByLibrary.simpleMessage(
             "Exporter en tant que fichier chiffré"),
         "exportedFileDescription": MessageLookupByLibrary.simpleMessage(
-            "Um fichier exporté depuis Life Chest qui est chiffré et qui a donc besoin d\'être déchiffré pour être lu."),
-        "group": m1,
+            "Un fichier exporté depuis l\'application Life Chest et qui nécessite d\'être déverrouillé pour accéder à ses informations."),
+        "group": m3,
         "ignore": MessageLookupByLibrary.simpleMessage("Ignorer"),
         "import": MessageLookupByLibrary.simpleMessage("Importer"),
         "internalError": MessageLookupByLibrary.simpleMessage("Erreur interne"),
         "lifeChestBulkSave": MessageLookupByLibrary.simpleMessage(
-            "Sauvegarde de fichiers en masse"),
+            "Exportation en masse de fichiers Life Chest"),
         "linkCopied": MessageLookupByLibrary.simpleMessage(
-            "Le lien a été placé dans le presse-papier"),
+            "Le lien a été copié dans votre presse-papiers."),
         "loadingAudioTrack": MessageLookupByLibrary.simpleMessage(
             "Chargement de la piste audio"),
         "loadingDocuments":
@@ -125,6 +133,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Chargement de l\'image"),
         "loadingVideo":
             MessageLookupByLibrary.simpleMessage("Chargement de la vidéo"),
+        "lostDataContBeRecovered": MessageLookupByLibrary.simpleMessage(
+            "Cette action est irréversible ! Toutes les données perdues ne pourront pas être récupérées."),
         "nameSortName":
             MessageLookupByLibrary.simpleMessage("Ordre alphabétique"),
         "newFolder": MessageLookupByLibrary.simpleMessage("Nouveau dossier"),
@@ -139,22 +149,27 @@ class MessageLookup extends MessageLookupByLibrary {
         "ok": MessageLookupByLibrary.simpleMessage("OK"),
         "password": MessageLookupByLibrary.simpleMessage("Mot de passe"),
         "pickFilesDialogTitle": MessageLookupByLibrary.simpleMessage(
-            "Choisissez les fichiers que vous voulez ajouter"),
+            "Sélectionnez les fichiers que vous souhaitez ajouter"),
         "pickFolderDialogTitle": MessageLookupByLibrary.simpleMessage(
-            "Choisissez le dossier que vous voulez ajouter"),
+            "Sélectionnez le dossier que vous souhaitez ajouter"),
         "pinCode": MessageLookupByLibrary.simpleMessage("Code PIN"),
+        "playbackSpeed":
+            MessageLookupByLibrary.simpleMessage("Vitesse de lecture"),
         "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
             "Veuillez utiliser votre empreinte digitale pour déverrouiller le coffre"),
         "rename": MessageLookupByLibrary.simpleMessage("Renommer"),
         "savedToFolder": MessageLookupByLibrary.simpleMessage(
-            "Le(s) fichier(s) a/ont été sauvegardé(s)."),
-        "scheme": MessageLookupByLibrary.simpleMessage("Modèle"),
+            "Nous avons enregistré avec succès le(s) fichier(s)."),
+        "savedToFolderWarning": MessageLookupByLibrary.simpleMessage(
+            "Nous avons enregistré avec succès le(s) fichier(s). ATTENTION! Ces fichiers chiffrés sont plus vulnérables dans ce format, ne les distribuez pas publiquement. Life Chest, ses auteurs ou ses contributeurs ne peuvent être tenus responsables des données divulguées."),
+        "scheme": MessageLookupByLibrary.simpleMessage("Schéma"),
         "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
-        "selected": m2,
+        "selected": m4,
         "sortBy": MessageLookupByLibrary.simpleMessage("Trier par..."),
-        "unlockAbleBy": m3,
-        "unlockChest": MessageLookupByLibrary.simpleMessage(
-            "Veuillez déverrouiller le coffre"),
+        "subtitles": MessageLookupByLibrary.simpleMessage("Sous-titres"),
+        "unlockAbleBy": m5,
+        "unlockChest":
+            MessageLookupByLibrary.simpleMessage("Déverrouiller le coffre"),
         "unlockFile":
             MessageLookupByLibrary.simpleMessage("Déverrouiller le fichier"),
         "unlockWizard":
@@ -164,23 +179,24 @@ class MessageLookup extends MessageLookupByLibrary {
         "validate": MessageLookupByLibrary.simpleMessage("Valider"),
         "welcomeNext": MessageLookupByLibrary.simpleMessage("Suivant"),
         "welcomePage1Content": MessageLookupByLibrary.simpleMessage(
-            "Bienvenue dans votre coffre de vie ! Ici, vous pourrez créer des coffres pour stocker vos données en toute sécurité sans compromettre leur utilisation."),
-        "welcomePage1Title": MessageLookupByLibrary.simpleMessage("Bonjour !"),
+            "Bienvenue dans votre coffre-fort Life Chest ! Ici, vous pourrez créer des coffres pour stocker vos données en toute sécurité sans compromettre la convivialité."),
+        "welcomePage1Title":
+            MessageLookupByLibrary.simpleMessage("Bienvenue !"),
         "welcomePage2Content": MessageLookupByLibrary.simpleMessage(
-            "Nous utilisons un système de cryptage appelé Chacha20, donc essayer d\'accéder à vos fichiers sans votre mot de passe prendra environ 200 billions de billions de billions de fois l\'âge de l\'univers ! Et pour le prouver, nous sommes 100 % open-source !"),
+            "Nous utilisons un système de chiffrement appelé Chacha20, ce qui signifie que toute tentative d\'accès à vos fichiers sans votre mot de passe prendrait environ 200 trillions de trillions de trillions de fois l\'âge de l\'univers ! Et pour le prouver, nous sommes 100 % open-source !"),
         "welcomePage2Title": MessageLookupByLibrary.simpleMessage(
-            "Ici, notre priorité principale est votre sécurité"),
+            "Votre sécurité est notre priorité"),
         "welcomePage3Content": MessageLookupByLibrary.simpleMessage(
             "Vous verrez, c\'est rapide, facile et sécurisé !"),
         "welcomePage3Title": MessageLookupByLibrary.simpleMessage(
             "Créons votre premier coffre !"),
         "welcomeSkip": MessageLookupByLibrary.simpleMessage("Passer"),
         "whatShouldBeDoneAfterUnfocus": MessageLookupByLibrary.simpleMessage(
-            "Que devons-nous faire si l\'application est mise en pause"),
+            "Que devons-nous faire lorsque l\'application est en pause"),
         "wrongDevice": MessageLookupByLibrary.simpleMessage(
-            "Mauvais appareil, nous n\'avons pas trouvé les donnés nécessaires pour déverouiller le coffre dans la collection de clés."),
+            "Mauvais appareil, impossible de trouver les données de déverrouillage dans le téléphone."),
         "wrongPassword":
-            MessageLookupByLibrary.simpleMessage("Mauvais mot de passe"),
+            MessageLookupByLibrary.simpleMessage("Mot de passe incorrect"),
         "wrongPinCode":
             MessageLookupByLibrary.simpleMessage("Code PIN incorrect"),
         "yes": MessageLookupByLibrary.simpleMessage("Oui")

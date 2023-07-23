@@ -87,8 +87,12 @@ class FileThumbnail extends StatelessWidget {
                     return Column(
                       children: [
                         placeholder.gridIcon,
-                        Text(name),
-                      ],
+                        Expanded(child:
+                          Center(
+                            child: Text(name),
+                          )
+                        )
+                      ]
                     );
                   } else {
                     return Column(

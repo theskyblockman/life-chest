@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:life_chest/color_schemes.g.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_viewers/audio.dart';
@@ -27,6 +28,9 @@ void main() async {
   VaultsManager.appFolder = appDocuments.path;
   VaultsManager.mainConfigFile = File('${VaultsManager.appFolder}/.config');
   VaultsManager.packageInfo = await PackageInfo.fromPlatform();
+  VaultsManager.nonceStorage = const FlutterSecureStorage(aOptions: AndroidOptions(
+    encryptedSharedPreferences: true,
+  ), iOptions: IOSOptions(groupId: 'fr.theskyblockman'));
   bool firstLaunch = !VaultsManager.mainConfigFile.existsSync() || kDebugMode;
   if (firstLaunch) {
     VaultsManager.mainConfigFile.createSync();
@@ -57,27 +61,28 @@ class LifeChestApp extends StatelessWidget {
     return DynamicColorBuilder(builder: (lightDynamic, darkDynamic) {
       ThemeData lightTheme = ThemeData(
         useMaterial3: true,
-        colorScheme: kDebugMode ? lightColorScheme : lightDynamic ?? lightColorScheme,
+        colorScheme:
+            kDebugMode ? lightColorScheme : lightDynamic ?? lightColorScheme,
       );
       ThemeData darkTheme = ThemeData(
         useMaterial3: true,
-        colorScheme: kDebugMode ? darkColorScheme : darkDynamic ?? darkColorScheme,
+        colorScheme:
+            kDebugMode ? darkColorScheme : darkDynamic ?? darkColorScheme,
       );
 
       return MaterialApp(
-        title: 'Life Chest',
-        localizationsDelegates: const [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          DefaultCupertinoLocalizations.delegate
-        ],
-        supportedLocales: S.delegate.supportedLocales,
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        home: firstLaunch ? const WelcomePage() : const ChestMainPage()
-      );
+          title: 'Life Chest',
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            DefaultCupertinoLocalizations.delegate
+          ],
+          supportedLocales: S.delegate.supportedLocales,
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          home: firstLaunch ? const WelcomePage() : const ChestMainPage());
     });
   }
 }
@@ -117,7 +122,12 @@ class ChestMainPageState extends State<ChestMainPage> {
                               showDialog(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                          title: Text(S.of(context).areYouSure),
+                                          title: Text(S
+                                              .of(context)
+                                              .areYouSureClearVaults),
+                                          content: Text(S
+                                              .of(context)
+                                              .lostDataContBeRecovered),
                                           actions: [
                                             TextButton(
                                                 onPressed: () => Navigator.pop(
@@ -143,8 +153,8 @@ class ChestMainPageState extends State<ChestMainPage> {
                           child: Text(S.of(context).deleteAllChests)),
                     PopupMenuItem(
                       onTap: () async {
-
-                        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+                        PackageInfo packageInfo =
+                            await PackageInfo.fromPlatform();
 
                         WidgetsBinding.instance
                             .addPostFrameCallback((timeStamp) {
@@ -152,7 +162,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                             context: context,
                             applicationVersion: packageInfo.version,
                             applicationIcon:
-                            Image.asset('logo.png', height: 64, width: 64),
+                                Image.asset('logo.png', height: 64, width: 64),
                             applicationLegalese: S.of(context).appLegalese,
                           );
                         });
@@ -188,17 +198,19 @@ class ChestMainPageState extends State<ChestMainPage> {
         body: VaultsManager.storedVaults.isEmpty
             ? Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.lock_outline, size: 128, color: Theme.of(context).colorScheme.outline),
-                    Text(
-                      S.of(context).noChestsCreatedYet,
-                      textScaleFactor: 2.5,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Theme.of(context).colorScheme.outline),
-                    )
-                  ],
-                ))
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.lock_outline,
+                      size: 128, color: Theme.of(context).colorScheme.outline),
+                  Text(
+                    S.of(context).noChestsCreatedYet,
+                    textScaleFactor: 2.5,
+                    textAlign: TextAlign.center,
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.outline),
+                  )
+                ],
+              ))
             : ListView.builder(
                 itemBuilder: (context, index) {
                   Vault chest = VaultsManager.storedVaults[index];
@@ -209,14 +221,17 @@ class ChestMainPageState extends State<ChestMainPage> {
                           UnlockTester tester = UnlockTester(
                               chest.unlockMechanismType,
                               chest.additionalUnlockData,
-                              onKeyIssued: (issuedKey, didPushed, mechanismUsed) =>
-                                  onKeyIssued(chest, issuedKey, didPushed, mechanismUsed));
+                              onKeyIssued:
+                                  (issuedKey, didPushed, mechanismUsed) =>
+                                      onKeyIssued(chest, issuedKey, didPushed,
+                                          mechanismUsed));
                           if (tester.shouldUseChooser(context)) {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => UnlockChooser(
-                                        onKeyIssued: (issuedKey, didPushed, mechanismUsed) =>
+                                        onKeyIssued: (issuedKey, didPushed,
+                                                mechanismUsed) =>
                                             onKeyIssued(chest, issuedKey,
                                                 didPushed, mechanismUsed))));
                           }
@@ -234,9 +249,41 @@ class ChestMainPageState extends State<ChestMainPage> {
                                       onTap: () {
                                         WidgetsBinding.instance
                                             .addPostFrameCallback((timeStamp) {
-                                          setState(() {
-                                            VaultsManager.deleteVault(chest);
-                                            VaultsManager.loadVaults();
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                      title: Text(S
+                                                          .of(context)
+                                                          .areYouSureDeleteVault(
+                                                              chest.name)),
+                                                      content: Text(S
+                                                          .of(context)
+                                                          .lostDataContBeRecovered),
+                                                      actions: [
+                                                        TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                    context,
+                                                                    false),
+                                                            child: Text(S
+                                                                .of(context)
+                                                                .no)),
+                                                        TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                    context,
+                                                                    true),
+                                                            child: Text(S
+                                                                .of(context)
+                                                                .yes))
+                                                      ])).then((value) {
+                                            if (value == true) {
+                                              setState(() {
+                                                VaultsManager.deleteVault(
+                                                    chest);
+                                                VaultsManager.loadVaults();
+                                              });
+                                            }
                                           });
                                         });
                                       },
@@ -275,24 +322,30 @@ class ChestMainPageState extends State<ChestMainPage> {
                                       child: Text(S.of(context).rename),
                                     )
                                   ];
-                                })
-                        ),
+                                })),
                       ));
                 },
                 itemCount: VaultsManager.storedVaults.length));
   }
 
-  void onKeyIssued(Vault chest, SecretKey issuedKey, bool didPush, UnlockMechanism mechanismUsed) async {
+  void onKeyIssued(Vault chest, SecretKey issuedKey, bool didPush,
+      UnlockMechanism mechanismUsed) async {
     chest.encryptionKey = issuedKey;
     chest.locked = !(await VaultsManager.testVaultKey(chest));
     if (!chest.locked) {
       if (context.mounted) {
         if (didPush) {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => FileExplorer(chest, mechanismUsed.isEncryptedExportAllowed())));
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => FileExplorer(
+                      chest, mechanismUsed.isEncryptedExportAllowed())));
         } else {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => FileExplorer(chest, mechanismUsed.isEncryptedExportAllowed())));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => FileExplorer(
+                      chest, mechanismUsed.isEncryptedExportAllowed())));
         }
       }
     }
