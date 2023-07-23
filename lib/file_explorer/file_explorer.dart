@@ -447,34 +447,33 @@ class FileExplorerState extends State<FileExplorer> {
 
                                   final receivePort = ReceivePort();
 
-                                  Isolate.spawn(exportEncryptedThumbnails, (
-                                    receivePort.sendPort,
-                                    List<FileExportArgs>.generate(
-                                        filesToExport.length, (index) {
-                                      FileThumbnail fileToExport =
-                                          filesToExport[index];
-                                      return (
-                                        fileToExport.localPath,
-                                        encryptionKey,
-                                        fileToExport.data,
+                                  List<FileExportArgs> dataToExport = [];
+
+                                  for(FileThumbnail fileToExport in filesToExport) {
+                                    String unsafeData = (await VaultsManager.nonceStorage.read(key: fileToExport.localPath))!;
+                                    Map<String, dynamic> unsafeDataClone = Map.from(fileToExport.data);
+                                    unsafeDataClone['nonce'] = unsafeData;
+                                    dataToExport.add((
+                                    fileToExport.localPath,
+                                    encryptionKey,
+                                    unsafeDataClone,
                                         fileToExport.file.readAsBytesSync(),
                                         widget.vault.unlockMechanismType,
                                         widget.vault.additionalUnlockData
-                                      );
-                                    })
-                                  ));
+                                    ));
+                                  }
+
+                                  Isolate.spawn(exportEncryptedThumbnails,
+                                      (receivePort.sendPort, dataToExport));
 
                                   List<Uint8List> decryptedFiles = [];
 
-                                  await for (List<int> decryptedFile
-                                      in receivePort) {
-                                    decryptedFiles
-                                        .add(Uint8List.fromList(decryptedFile));
+                                  await for(List<int> decryptedFile in receivePort) {
+                                    decryptedFiles.add(Uint8List.fromList(decryptedFile));
                                     setState(() {
                                       loaderCurrentLoad = decryptedFiles.length;
                                     });
-                                    if (loaderTarget == loaderCurrentLoad)
-                                      break;
+                                    if(loaderTarget == loaderCurrentLoad) break;
                                   }
 
                                   setState(() {
@@ -482,26 +481,17 @@ class FileExplorerState extends State<FileExplorer> {
                                     loaderCurrentLoad = null;
                                   });
 
-                                  DocumentFileSavePlus()
-                                      .saveMultipleFiles(
-                                          dataList: decryptedFiles,
-                                          fileNameList: [
-                                            for (FileThumbnail thumbnail
-                                                in filesToExport)
-                                              setExtension(
-                                                  basenameWithoutExtension(
-                                                      thumbnail.data['name']),
-                                                  '.lcef')
-                                          ],
-                                          mimeTypeList: List.filled(
-                                              filesToExport.length, 'plain'))
-                                      .then((value) {
+                                  DocumentFileSavePlus().saveMultipleFiles(
+                                      dataList: decryptedFiles,
+                                      fileNameList: [for (FileThumbnail thumbnail in filesToExport) setExtension(basenameWithoutExtension(thumbnail.data['name']), '.lcef')],
+                                      mimeTypeList: List.filled(filesToExport.length, 'plain')
+                                  ).then((value) {
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
-                                              content: Text(S
-                                                  .of(context)
-                                                  .savedToFolder)));
+                                          content: Text(S
+                                              .of(context)
+                                              .savedToFolderWarning, style: const TextStyle(color: Colors.amber))));
                                     }
                                   });
                                 }
@@ -557,9 +547,10 @@ class FileExplorerState extends State<FileExplorer> {
 
                             for (FileThumbnail thumbnail in filesToExport) {
                               Stream<List<int>> exportedFile =
-                                  SingleThreadedRecovery.loadAndDecryptFile(
+                                  await SingleThreadedRecovery.loadAndDecryptFile(
                                       widget.vault.encryptionKey!,
-                                      thumbnail.file);
+                                      thumbnail.file,
+                                      Mac(thumbnail.data['mac']));
 
                               File fileToSaveTo =
                                   File(join(saveLocation.path, thumbnail.name));
@@ -570,8 +561,7 @@ class FileExplorerState extends State<FileExplorer> {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                      content:
-                                          Text(S.of(context).savedToFolder)));
+                                      content: Text(S.of(context).savedToFolder)));
                             }
                           },
                           child: Text(S.of(context).exportAsCleartext)),
@@ -739,8 +729,8 @@ class FileExplorerState extends State<FileExplorer> {
                     child: LinearProgressIndicator(
                         value: loaderCurrentLoad! / loaderTarget!)),
             backgroundColor: isSelectionMode
-                ? Theme.of(context).colorScheme.primaryContainer
-                : null),
+  ? Theme.of(context).colorScheme.primaryContainer
+      : null),
         floatingActionButton: GestureDetector(
           onLongPress: () {
             saveFolder(context);

@@ -1,19 +1,19 @@
 {
   "@@locale": "en",
   "welcomePage1Title": "Hello there!",
-  "welcomePage1Content": "Welcome to your life chest! Here you will be able to create chests to store your data privately without compromising over usability.",
-  "welcomePage2Title": "Here, our main priority is your security",
-  "welcomePage2Content": "We use an encryption system called Chacha20, so trying to access your files without your password will take about 200 trillions of trillions of trillions times the age of the universe! And to prove it, we are 100% open-source!",
-  "welcomePage3Title": "Let's create your first chest!",
+  "welcomePage1Content": "Welcome to your Life Chest! Here, you will be able to create chests to store your data securely without compromising usability.",
+  "welcomePage2Title": "Your Security is Our Main Priority",
+  "welcomePage2Content": "We use an encryption system called Chacha20, which means attempting to access your files without your password would take about 200 trillions of trillions of trillions times the age of the universe! And to prove it, we are 100% open-source!",
+  "welcomePage3Title": "Let's Create Your First Chest!",
   "welcomePage3Content": "You'll see, it's fast, easy, and secure!",
   "welcomeSkip": "Skip",
   "welcomeNext": "Next",
-  "createANewChest": "Create a new chest",
-  "chestName": "Chest name",
+  "createANewChest": "Create a New Chest",
+  "chestName": "Chest Name",
   "errorChestNameShouldNotBeEmpty": "The chest name must not be empty",
-  "chestPassword": "Chest password",
+  "chestPassword": "Chest Password",
   "errorChestPasswordShouldNotBeEmpty": "The password must not be empty",
-  "errorChestPasswordMoreCharacters": "The password must be 8 characters or more",
+  "errorChestPasswordMoreCharacters": "The password must be at least 8 characters long",
   "errorChestPasswordMoreUppercaseLetter": "The password must contain at least one uppercase character",
   "errorChestPasswordMoreLowercaseLetter": "The password must contain at least one lowercase character",
   "errorChestPasswordMoreDigits": "The password must contain at least one digit",
@@ -24,8 +24,8 @@
   "closeChest": "Close the chest",
   "errorDurationMustNotBeEmpty": "The duration must not be empty",
   "errorDurationMustBeFormatted": "The duration must be in the HH:MM format",
-  "createTheNewChest": "Create the chest",
-  "appLegalese": "The application \"Life Chest\" has been made by Theskyblockman with a ❤️ and a \uD83D\uDDA5️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri",
+  "createTheNewChest": "Create the Chest",
+  "appLegalese": "The application \"Life Chest\" has been made by Theskyblockman with ❤️ and a \uD83D\uDDA5️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri",
   "noChestsCreatedYet": "No chests created yet",
   "noFilesCreatedYet": "No files added yet",
   "enterTheChestPassword": "Please enter the password of this chest",
@@ -54,7 +54,7 @@
   "wrongPassword": "Wrong password",
   "cancel": "Cancel",
   "ok": "OK",
-  "areYouSureClearVaults": "Are you sure to delete all vaults?",
+  "areYouSureClearVaults": "Are you sure you want to delete all vaults?",
   "@areYouSureDeleteVault": {
     "placeholders": {
       "vaultName": {
@@ -62,7 +62,7 @@
       }
     }
   },
-  "areYouSureDeleteVault": "Are you sure to delete \"{vaultName}\"?",
+  "areYouSureDeleteVault": "Are you sure you want to delete \"{vaultName}\"?",
   "@areYouSureDeleteFiles": {
     "placeholders": {
       "count": {
@@ -70,7 +70,7 @@
       }
     }
   },
-  "areYouSureDeleteFiles": "Are you sure to delete {count} {count, plural, =1{file} other{files}} ?",
+  "areYouSureDeleteFiles": "Are you sure you want to delete {count} {count, plural, =1{file} other{files}}?",
   "lostDataContBeRecovered": "This action is irreversible! All lost data can't be recovered.",
   "yes": "Yes",
   "no": "No",
@@ -110,6 +110,7 @@
   "ignore": "Ignore",
   "lifeChestBulkSave": "Life Chest bulk file export",
   "savedToFolder": "We successfully saved the file(s)",
+  "savedToFolderWarning": "We successfully saved the file(s). WARNING! These encrypted files are more vulnerable in this format, do not publicly distribute them. Life Chest, its authors, or its contributors cannot be held liable for any divulged data.",
   "import": "Import",
   "@group": {
     "placeholders": {
@@ -127,9 +128,11 @@
     }
   },
   "unlockAbleBy": "This group can be unlocked with: {unlockName}.",
-  "exportedFileDescription": "A file exported from the Life Chest app and who needs to be unlocked to get more information about it.",
+  "exportedFileDescription": "A file exported from the Life Chest app and needs to be unlocked to get more information about it.",
   "internalError": "Internal Error",
   "wrongDevice": "Wrong device, couldn't find the unlock data in the keystore",
   "biometricsAreLocal": "Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable.",
-  "linkCopied": "The link has been copied to your clipboard."
+  "linkCopied": "The link has been copied to your clipboard.",
+  "subtitles": "Subtitles",
+  "playbackSpeed": "Playback speed"
 }

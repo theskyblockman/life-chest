@@ -1,3 +1,4 @@
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
@@ -36,7 +37,7 @@ class ImageViewer extends FileViewer {
   Future<bool> load(BuildContext context) async {
     loadedImage = Image.memory(
         await SingleThreadedRecovery.loadAndDecryptFullFile(
-            fileVault.encryptionKey!, fileToRead));
+            fileVault.encryptionKey!, fileToRead, Mac(List<int>.from(fileData['mac']))));
     return true;
   }
 
@@ -52,7 +53,7 @@ class ImageViewer extends FileViewer {
   Future<void> onFocus() async {
     loadedImage = Image.memory(
         await SingleThreadedRecovery.loadAndDecryptFullFile(
-            fileVault.encryptionKey!, fileToRead));
+            fileVault.encryptionKey!, fileToRead, Mac(List<int>.from(fileData['mac']))));
   }
 
   @override

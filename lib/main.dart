@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:life_chest/color_schemes.g.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_viewers/audio.dart';
@@ -27,6 +28,9 @@ void main() async {
   VaultsManager.appFolder = appDocuments.path;
   VaultsManager.mainConfigFile = File('${VaultsManager.appFolder}/.config');
   VaultsManager.packageInfo = await PackageInfo.fromPlatform();
+  VaultsManager.nonceStorage = const FlutterSecureStorage(aOptions: AndroidOptions(
+    encryptedSharedPreferences: true,
+  ), iOptions: IOSOptions(groupId: 'fr.theskyblockman'));
   bool firstLaunch = !VaultsManager.mainConfigFile.existsSync() || kDebugMode;
   if (firstLaunch) {
     VaultsManager.mainConfigFile.createSync();

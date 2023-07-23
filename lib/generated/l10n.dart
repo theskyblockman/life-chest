@@ -60,40 +60,40 @@ class S {
     );
   }
 
-  /// `Welcome to your life chest! Here you will be able to create chests to store your data privately without compromising over usability.`
+  /// `Welcome to your Life Chest! Here, you will be able to create chests to store your data securely without compromising usability.`
   String get welcomePage1Content {
     return Intl.message(
-      'Welcome to your life chest! Here you will be able to create chests to store your data privately without compromising over usability.',
+      'Welcome to your Life Chest! Here, you will be able to create chests to store your data securely without compromising usability.',
       name: 'welcomePage1Content',
       desc: '',
       args: [],
     );
   }
 
-  /// `Here, our main priority is your security`
+  /// `Your Security is Our Main Priority`
   String get welcomePage2Title {
     return Intl.message(
-      'Here, our main priority is your security',
+      'Your Security is Our Main Priority',
       name: 'welcomePage2Title',
       desc: '',
       args: [],
     );
   }
 
-  /// `We use an encryption system called Chacha20, so trying to access your files without your password will take about 200 trillions of trillions of trillions times the age of the universe! And to prove it, we are 100% open-source!`
+  /// `We use an encryption system called Chacha20, which means attempting to access your files without your password would take about 200 trillions of trillions of trillions times the age of the universe! And to prove it, we are 100% open-source!`
   String get welcomePage2Content {
     return Intl.message(
-      'We use an encryption system called Chacha20, so trying to access your files without your password will take about 200 trillions of trillions of trillions times the age of the universe! And to prove it, we are 100% open-source!',
+      'We use an encryption system called Chacha20, which means attempting to access your files without your password would take about 200 trillions of trillions of trillions times the age of the universe! And to prove it, we are 100% open-source!',
       name: 'welcomePage2Content',
       desc: '',
       args: [],
     );
   }
 
-  /// `Let's create your first chest!`
+  /// `Let's Create Your First Chest!`
   String get welcomePage3Title {
     return Intl.message(
-      'Let\'s create your first chest!',
+      'Let\'s Create Your First Chest!',
       name: 'welcomePage3Title',
       desc: '',
       args: [],
@@ -130,20 +130,20 @@ class S {
     );
   }
 
-  /// `Create a new chest`
+  /// `Create a New Chest`
   String get createANewChest {
     return Intl.message(
-      'Create a new chest',
+      'Create a New Chest',
       name: 'createANewChest',
       desc: '',
       args: [],
     );
   }
 
-  /// `Chest name`
+  /// `Chest Name`
   String get chestName {
     return Intl.message(
-      'Chest name',
+      'Chest Name',
       name: 'chestName',
       desc: '',
       args: [],
@@ -160,10 +160,10 @@ class S {
     );
   }
 
-  /// `Chest password`
+  /// `Chest Password`
   String get chestPassword {
     return Intl.message(
-      'Chest password',
+      'Chest Password',
       name: 'chestPassword',
       desc: '',
       args: [],
@@ -180,10 +180,10 @@ class S {
     );
   }
 
-  /// `The password must be 8 characters or more`
+  /// `The password must be at least 8 characters long`
   String get errorChestPasswordMoreCharacters {
     return Intl.message(
-      'The password must be 8 characters or more',
+      'The password must be at least 8 characters long',
       name: 'errorChestPasswordMoreCharacters',
       desc: '',
       args: [],
@@ -290,20 +290,20 @@ class S {
     );
   }
 
-  /// `Create the chest`
+  /// `Create the Chest`
   String get createTheNewChest {
     return Intl.message(
-      'Create the chest',
+      'Create the Chest',
       name: 'createTheNewChest',
       desc: '',
       args: [],
     );
   }
 
-  /// `The application "Life Chest" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri`
+  /// `The application "Life Chest" has been made by Theskyblockman with ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri`
   String get appLegalese {
     return Intl.message(
-      'The application "Life Chest" has been made by Theskyblockman with a ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri',
+      'The application "Life Chest" has been made by Theskyblockman with ❤️ and a 🖥️ under the MIT license. We do not provide any warranty, see the MIT license for more information ©️ 2023 Haroun El Omri',
       name: 'appLegalese',
       desc: '',
       args: [],
@@ -520,30 +520,30 @@ class S {
     );
   }
 
-  /// `Are you sure to delete all vaults?`
+  /// `Are you sure you want to delete all vaults?`
   String get areYouSureClearVaults {
     return Intl.message(
-      'Are you sure to delete all vaults?',
+      'Are you sure you want to delete all vaults?',
       name: 'areYouSureClearVaults',
       desc: '',
       args: [],
     );
   }
 
-  /// `Are you sure to delete "{vaultName}"?`
+  /// `Are you sure you want to delete "{vaultName}"?`
   String areYouSureDeleteVault(String vaultName) {
     return Intl.message(
-      'Are you sure to delete "$vaultName"?',
+      'Are you sure you want to delete "$vaultName"?',
       name: 'areYouSureDeleteVault',
       desc: '',
       args: [vaultName],
     );
   }
 
-  /// `Are you sure to delete {count} {count, plural, =1{file} other{files}} ?`
+  /// `Are you sure you want to delete {count} {count, plural, =1{file} other{files}}?`
   String areYouSureDeleteFiles(int count) {
     return Intl.message(
-      'Are you sure to delete $count ${Intl.plural(count, one: 'file', other: 'files')} ?',
+      'Are you sure you want to delete $count ${Intl.plural(count, one: 'file', other: 'files')}?',
       name: 'areYouSureDeleteFiles',
       desc: '',
       args: [count],
@@ -870,6 +870,16 @@ class S {
     );
   }
 
+  /// `We successfully saved the file(s). WARNING! These encrypted files are more vulnerable in this format, do not publicly distribute them. Life Chest, its authors, or its contributors cannot be held liable for any divulged data.`
+  String get savedToFolderWarning {
+    return Intl.message(
+      'We successfully saved the file(s). WARNING! These encrypted files are more vulnerable in this format, do not publicly distribute them. Life Chest, its authors, or its contributors cannot be held liable for any divulged data.',
+      name: 'savedToFolderWarning',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Import`
   String get import {
     return Intl.message(
@@ -900,10 +910,10 @@ class S {
     );
   }
 
-  /// `A file exported from the Life Chest app and who needs to be unlocked to get more information about it.`
+  /// `A file exported from the Life Chest app and needs to be unlocked to get more information about it.`
   String get exportedFileDescription {
     return Intl.message(
-      'A file exported from the Life Chest app and who needs to be unlocked to get more information about it.',
+      'A file exported from the Life Chest app and needs to be unlocked to get more information about it.',
       name: 'exportedFileDescription',
       desc: '',
       args: [],
@@ -945,6 +955,26 @@ class S {
     return Intl.message(
       'The link has been copied to your clipboard.',
       name: 'linkCopied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subtitles`
+  String get subtitles {
+    return Intl.message(
+      'Subtitles',
+      name: 'subtitles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Playback speed`
+  String get playbackSpeed {
+    return Intl.message(
+      'Playback speed',
+      name: 'playbackSpeed',
       desc: '',
       args: [],
     );

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +53,7 @@ class DocumentViewer extends FileViewer {
         ? DocumentType.pdf
         : DocumentType.plainText;
     loadedDocument = await SingleThreadedRecovery.loadAndDecryptFullFile(
-        fileVault.encryptionKey!, fileToRead);
+        fileVault.encryptionKey!, fileToRead, Mac(List<int>.from(fileData['mac'])));
     return true;
   }
 

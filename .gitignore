@@ -45,3 +45,4 @@ app.*.map.json
 
 # For missing translations
 /missingTranslations.json
+/test/assets/*
