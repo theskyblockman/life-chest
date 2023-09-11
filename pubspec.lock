@@ -173,10 +173,10 @@ packages:
     dependency: "direct main"
     description:
       name: cryptography_flutter
-      sha256: a66ce021e0b600688c2d51b0594cb156ee677ce9bfbc981b62219ad577dd302e
+      sha256: "423ac095bbc4650fe6c07c64632ddc5dda1d4851241367efa0f26ca24b0ce480"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
+    version: "2.3.1"
   csslib:
     dependency: transitive
     description:
