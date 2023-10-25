@@ -52,11 +52,6 @@ class VideoViewer extends FileViewer {
     controller ??= ChewieController(
         autoPlay: true,
         looping: true,
-        optionsTranslation: OptionsTranslation(
-          cancelButtonText: S.of(context).cancel,
-          subtitlesButtonText: S.of(context).subtitles,
-          playbackSpeedButtonText: S.of(context).playbackSpeed
-        ),
         aspectRatio:
             fileData['videoData']['width'] / fileData['videoData']['height'],
         videoPlayerController: VideoPlayerController.file(videoFile,

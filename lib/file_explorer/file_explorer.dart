@@ -723,7 +723,9 @@ class FileExplorerState extends State<FileExplorer> {
                     ? basenameWithoutExtension(currentLocalPath)
                     : widget.vault.name)),
             bottom: loaderTarget == null || loaderCurrentLoad == null
-                ? null
+                ? (loaderCurrentLoad == -1 ?  const PreferredSize(
+                preferredSize: Size.fromHeight(3),
+                child: LinearProgressIndicator()) : null)
                 : PreferredSize(
                     preferredSize: const Size.fromHeight(3),
                     child: LinearProgressIndicator(
@@ -816,11 +818,16 @@ class FileExplorerState extends State<FileExplorer> {
       List<File> filesToSave = [];
 
       for (File file in selectedFiles) {
-        if (FileExporter.isExportedFile(await file.openRead(0, 32).last)) {
-          filesToDecrypt.add(file);
-        } else {
-          filesToSave.add(file);
+        try {
+          if (FileExporter.isExportedFile(await file.openRead(0, 32).last)) {
+            filesToDecrypt.add(file);
+          } else {
+            filesToSave.add(file);
+          }
+        } on Exception {
+          print('Couldn\'t read file');
         }
+
       }
 
       setState(() {
@@ -901,6 +908,12 @@ class FileExplorerState extends State<FileExplorer> {
         }
         rootFolderPath = pickedFolder.path;
         List<File> selectedFiles = [];
+
+        setState(() {
+          loaderTarget = null;
+          loaderCurrentLoad = -1;
+        });
+
         for (FileSystemEntity entity
             in pickedFolder.listSync(recursive: true)) {
           if (entity is File) {
@@ -921,7 +934,7 @@ class FileExplorerState extends State<FileExplorer> {
           if (FileExporter.isExportedFile(await file.openRead(0, 32).last)) {
             filesToDecrypt.add(file);
           } else {
-            selectedFiles.add(file);
+            filesToSave.add(file);
           }
         }
 
@@ -973,7 +986,7 @@ class FileExplorerState extends State<FileExplorer> {
               widget.vault.encryptionKey!, widget.vault.path, currentLocalPath,
               filesToSave: filesToSave,
               rootFolderPath: rootFolderPath,
-              importedFilesToSave: importedFilesToSave)) {
+              importedFilesToSave: importedFilesToSave ?? [])) {
         savedFiles[savedFile.$1] = savedFile.$2;
         setState(() {
           loaderCurrentLoad = loaderCurrentLoad! + 1;
