@@ -22,7 +22,7 @@ dependencies:
   encrypt: ^5.0.1
   crypto: ^3.0.3
   audio_service: ^0.18.11
-  just_audio: ^0.9.32
+  just_audio: ^0.9.35
   mime: ^1.0.4
   test: ^1.24.1
   rxdart: ^0.27.7
