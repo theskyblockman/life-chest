@@ -1,7 +1,0 @@
-{
-  "cmake.sourceDirectory": "${workspaceFolder}/encryption_library",
-  "files.associations": {
-    "*.ejs": "html",
-    "aes.h": "c"
-  }
-}
