@@ -161,6 +161,8 @@ class SingleThreadedRecovery {
           macReceiver.complete(mac.bytes);
         });
         await fileToCreateSink.addStream(encryptedStream);
+      } on FileSystemException {
+        print('Couldn\'t save file');
       } finally {
         fileToCreateSink.close();
       }
@@ -247,16 +249,25 @@ class SingleThreadedRecovery {
       String? rootFolderPath}) async* {
     if (filesToSave != null) {
       for (File createdFile in filesToSave) {
-        yield (await saveFile(
-            encryptionKey, vaultPath, localPath, rootFolderPath,
-            createdFile: createdFile))!;
+        try {
+          yield (await saveFile(
+              encryptionKey, vaultPath, localPath, rootFolderPath,
+              createdFile: createdFile))!;
+        } on Exception {
+          print('Got error');
+        }
+
       }
     } else {
       for ((Map<String, dynamic> metadata, List<int> data) importedFile
           in importedFilesToSave!) {
-        yield (await saveFile(
-            encryptionKey, vaultPath, localPath, rootFolderPath,
-            importedFile: importedFile))!;
+        try {
+          yield (await saveFile(
+              encryptionKey, vaultPath, localPath, rootFolderPath,
+              importedFile: importedFile))!;
+        } on Exception {
+          print('Got error');
+        }
       }
     }
   }
