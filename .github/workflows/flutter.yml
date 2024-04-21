@@ -6,6 +6,7 @@ on:
   pull_request:
     branches: [master]
 
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -22,6 +23,11 @@ jobs:
           distribution: 'zulu'
           java-version: '12.x'
           cache: 'gradle'
-      - run: .flutter/bin/flutter pub get
-      - run: .flutter/bin/flutter analyze --no-fatal-infos --no-fatal-warnings
-      - run: .flutter/bin/flutter test
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.10.0"
+          channel: 'stable'
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - run: flutter test
