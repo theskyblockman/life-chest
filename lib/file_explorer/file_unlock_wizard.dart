@@ -26,16 +26,13 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
 
   Future<(Map<String, dynamic> metadata, List<int> data)> getOrUnlockFile(
       List<int> fileToUnlock, SecretKey key) async {
-    print(unlockedMap);
     for (List<int> unlockedFile in List.from(unlockedMap.keys)) {
       if (listEquals(fileToUnlock, unlockedFile)) {
         return unlockedMap[unlockedFile]!;
       }
     }
-    print(unlockedMap);
     unlockedMap[fileToUnlock] =
         (await FileExporter.importFile(fileToUnlock, key))!;
-    print(unlockedMap);
     return unlockedMap[fileToUnlock]!;
   }
 
@@ -94,7 +91,7 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
             children: [
               for (List<int> fileGroup in currentStatus.keys)
                 Card(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   child: Column(children: [
                     Card(
                         child: ListTile(
@@ -105,7 +102,8 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
                                   UnlockMechanism.unlockMechanisms)[
                               FileExporter.determineExportedFileUnlockMethod(
                                   currentStatus[fileGroup]!.$1[0])!]!(
-                          (SecretKey key, bool check, UnlockMechanism usedMechanism) =>
+                          (SecretKey key, bool check,
+                                  UnlockMechanism usedMechanism) =>
                               null).getName(context))),
                       trailing: currentStatus[fileGroup]!.$2 == null
                           ? const Icon(Icons.key)
@@ -123,8 +121,10 @@ class FileUnlockWizardState extends State<FileUnlockWizard> {
                                 currentStatus[fileGroup]!.$1[0])!,
                             FileExporter.getAdditionalUnlockData(
                                 currentStatus[fileGroup]!.$1[0])!,
-                            onKeyIssued: (issuedKey, didPushed, usedMechanism) => onKeyIssued(
-                                context, fileGroup, issuedKey, didPushed));
+                            onKeyIssued: (issuedKey, didPushed,
+                                    usedMechanism) =>
+                                onKeyIssued(
+                                    context, fileGroup, issuedKey, didPushed));
 
                         tester.shouldUseChooser(context);
                       },

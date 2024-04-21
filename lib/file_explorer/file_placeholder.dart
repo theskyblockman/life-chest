@@ -136,30 +136,31 @@ class FileThumbnailsPlaceholder {
       this.gridIcon, this.listIcon, this.mimeSignatures, this.invokeData);
 
   /// The data given with the file path should be its first decoded chunk to get its signing bytes
-  static Map<String, FileThumbnailsPlaceholder> getPlaceholderFromFileName(
+  static Map<String, FileThumbnailsPlaceholder> getPlaceholdersFromFileName(
       List<Map<String, dynamic>> files) {
     Map<String, FileThumbnailsPlaceholder> foundResults = {};
 
     for (Map<String, dynamic> fileData in files) {
-      String fileExtension = extension(fileData['name']!);
-      String? mimeType = fileData['type'];
-      bool found = false;
-      for (FileThumbnailsPlaceholder thumbnailType in values) {
-        for (String signature in thumbnailType.mimeSignatures) {
-          if (fileExtension.contains(signature) ||
-              (mimeType == null ? false : mimeType.contains(signature))) {
-            foundResults[fileData['name']!] = thumbnailType;
-            found = true;
-            break;
-          }
-        }
-        if (found) {
-          found = false;
-          break;
-        }
-      }
+      FileThumbnailsPlaceholder placeholder =
+          getPlaceholderFromFileName(fileData);
+      foundResults[fileData['name']!] = placeholder;
     }
 
     return foundResults;
+  }
+
+  static FileThumbnailsPlaceholder getPlaceholderFromFileName(
+      Map<String, dynamic> file) {
+    String fileExtension = extension(file['name']!);
+    String? mimeType = file['type'];
+    for (FileThumbnailsPlaceholder thumbnailType in values) {
+      for (String signature in thumbnailType.mimeSignatures) {
+        if (fileExtension.contains(signature) ||
+            (mimeType == null ? false : mimeType.contains(signature))) {
+          return thumbnailType;
+        }
+      }
+    }
+    return unknown;
   }
 }

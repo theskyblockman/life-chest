@@ -3,42 +3,38 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:document_file_save_plus/document_file_save_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:life_chest/file_explorer/file_unlock_wizard.dart';
-import 'package:life_chest/file_recovery/file_exporter.dart';
-import 'package:life_chest/generated/l10n.dart';
+import 'package:life_chest/file_explorer/explorer_data.dart';
 import 'package:life_chest/file_explorer/file_placeholder.dart';
 import 'package:life_chest/file_explorer/file_sort_methods.dart';
-import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_explorer/file_thumbnail.dart';
+import 'package:life_chest/file_explorer/file_unlock_wizard.dart';
+import 'package:life_chest/file_recovery/file_exporter.dart';
+import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
+import 'package:life_chest/generated/l10n.dart';
+import 'package:life_chest/new_chest.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-typedef FileExportArgs = (
+typedef FileExportArgs = ({
   String thumbnailFilePath,
   List<int> encryptionKey,
-  Map<String, dynamic> data,
-  List<int> fileContent,
+  ThumbnailData data,
+  File encryptedFile,
   String unlockMechanismType,
-  Map<String, dynamic> additionalUnlockData
-);
+  Map<String, dynamic> additionalUnlockData,
+  Uint8List nonce
+});
 
 /// The file reader, this enable the user to see file and to browse between them while keeping a cache of them
 class FileReader extends StatefulWidget {
-  final List<FileThumbnail> Function() thumbnails;
-  final Vault fileVault;
   final int initialThumbnail;
 
-  const FileReader(
-      {super.key,
-      required this.thumbnails,
-      required this.fileVault,
-      required this.initialThumbnail});
+  const FileReader(this.initialThumbnail, {super.key});
 
   @override
   State<StatefulWidget> createState() => FileReaderState();
@@ -46,15 +42,32 @@ class FileReader extends StatefulWidget {
 
 /// The [FileReader]'s state
 class FileReaderState extends State<FileReader> {
-  late final PageController pageViewController;
+  late PageController pageViewController;
   int? oldPage;
   bool isPagingEnabled = true;
+  bool _isFullscreen = false;
+  bool get isFullscreen => _isFullscreen;
+  set isFullscreen(bool newValue) {
+    if (newValue == _isFullscreen) return;
+
+    if (newValue) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    } else {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
+
+    _isFullscreen = newValue;
+
+    update();
+  }
 
   /// Manages the file viewer for a file.
   (Widget, bool, FileViewer) readFile(
-      BuildContext context, FileThumbnail thumbnail, int fileIndex) {
-    FileViewer viewer = thumbnail.placeholder.invokeData(
-        widget.fileVault, thumbnail.file, thumbnail.name, thumbnail.data, this);
+      BuildContext context, ThumbnailData thumbnail, int fileIndex) {
+    var fileVault = ExplorerData.of(context).state.vault;
+
+    FileViewer viewer = thumbnail.placeholder.invokeData(fileVault,
+        thumbnail.getFile(fileVault), thumbnail.name, thumbnail.data, this);
     if (oldPage == null && widget.initialThumbnail == fileIndex) {
       viewer.onFocus();
       oldPage = fileIndex;
@@ -69,60 +82,78 @@ class FileReaderState extends State<FileReader> {
       }
     });
     return (
-      FutureBuilder(
-          future: viewer.load(context),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return viewer.build(context);
-            } else {
-              return Center(
-                  child: Opacity(
-                      opacity: 0.25,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const CircularProgressIndicator(),
-                          Text(
-                            viewer.loadingMessage(context),
-                            textScaleFactor: 2.5,
-                            textAlign: TextAlign.center,
-                          )
-                        ],
-                      )));
-            }
-          }),
+      viewer.loaded
+          ? viewer.build(context)
+          : FutureBuilder(
+              future: viewer.load(context),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return viewer.build(context);
+                } else {
+                  return Center(
+                      child: Opacity(
+                          opacity: 0.25,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const CircularProgressIndicator(),
+                              Text(
+                                viewer.loadingMessage(context),
+                                textScaler: const TextScaler.linear(2.5),
+                                textAlign: TextAlign.center,
+                              )
+                            ],
+                          )));
+                }
+              }),
       viewer.extendBody(),
       viewer
     );
   }
 
+  Map<int, (Widget, bool, FileViewer)> files = {};
+
   /// Build the [FileReader], this code is mostly made for loading times
   @override
   Widget build(BuildContext context) {
-    return PageView.builder(
-        physics: isPagingEnabled
-            ? const PageScrollPhysics()
-            : const NeverScrollableScrollPhysics(),
-        itemBuilder: (context, index) {
-          FileThumbnail currentThumbnail = widget.thumbnails()[index];
-          var fileData = readFile(context, currentThumbnail, index);
-          return Scaffold(
-              appBar: AppBar(
-                  title: Text(currentThumbnail.name),
-                  leading: IconButton(
-                      onPressed: () {
-                        fileData.$3.dispose();
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.arrow_back))),
-              body: fileData.$1,
-              extendBodyBehindAppBar: fileData.$2,
-              extendBody: fileData.$2);
-        },
-        itemCount: widget.thumbnails().length,
-        scrollDirection: Axis.horizontal,
-        controller: pageViewController,
-        allowImplicitScrolling: true);
+    var thumbnails = ExplorerData.of(context).state.thumbnails!;
+
+    return isPagingEnabled
+        ? PageView.builder(
+            physics: const PageScrollPhysics(),
+            itemBuilder: (context, index) {
+              ThumbnailData currentThumbnail = thumbnails[index];
+              files[index] ??= readFile(context, currentThumbnail, index);
+
+              return StatefulBuilder(builder: (context, setState) {
+                return buildPage(currentThumbnail, index, context);
+              });
+            },
+            itemCount: thumbnails.length,
+            scrollDirection: Axis.horizontal,
+            controller: pageViewController,
+            allowImplicitScrolling: true)
+        : buildPage(thumbnails[pageViewController.page!.toInt()],
+            pageViewController.page!.toInt(), context);
+  }
+
+  Scaffold buildPage(
+      ThumbnailData currentThumbnail, int index, BuildContext context) {
+    return Scaffold(
+        backgroundColor: isFullscreen ? Colors.transparent : null,
+        appBar: isFullscreen
+            ? null
+            : AppBar(
+                title: Text(currentThumbnail.name),
+                leading: IconButton(
+                    onPressed: () {
+                      files[index]!.$3.dispose();
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.arrow_back))),
+        body: files[index]!.$1,
+        extendBodyBehindAppBar: files[index]!.$2,
+        extendBody: files[index]!.$2);
   }
 
   @override
@@ -130,7 +161,19 @@ class FileReaderState extends State<FileReader> {
     pageViewController =
         PageController(initialPage: widget.initialThumbnail, keepPage: true);
 
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    super.dispose();
+  }
+
+  void update() {
+    setState(() {});
   }
 }
 
@@ -238,6 +281,80 @@ class FolderCreationWindowState extends State<FolderCreationWindow> {
   }
 }
 
+/// The dialog to show when the user wants to rename an entity
+class ChangeBehaviorWindow extends StatefulWidget {
+  final void Function(int newSecurityLevel) onOkButtonPressed;
+  final VoidCallback onCancelButtonPressed;
+  final int initialSecurityLevel;
+
+  const ChangeBehaviorWindow(
+      {super.key,
+      required this.onOkButtonPressed,
+      required this.onCancelButtonPressed,
+      required this.initialSecurityLevel});
+
+  @override
+  State<StatefulWidget> createState() => ChangeBehaviorWindowState();
+}
+
+/// The [RenameWindow]'s state
+class ChangeBehaviorWindowState extends State<ChangeBehaviorWindow> {
+  late final TextEditingController renameFieldController;
+  bool hasNotChanged = true;
+  late int currentIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    var possibilities = CreateNewChestPageState.onPausePossibilities(context);
+
+    return AlertDialog(
+        title: Text(S.of(context).changeBehavior),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(S.of(context).changeBehaviorSubtitle),
+            ListTile(
+              title: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Wrap(spacing: 5.0, clipBehavior: Clip.none, children: [
+                  ...List<Widget>.generate(3, (index) {
+                    return ChoiceChip(
+                        selectedColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                        label: Text(possibilities[index].$1),
+                        selected: currentIndex == possibilities[index].$2,
+                        onSelected: (value) {
+                          setState(() {
+                            currentIndex = possibilities[index].$2;
+                            hasNotChanged =
+                                currentIndex == widget.initialSecurityLevel;
+                          });
+                        });
+                  })
+                ]),
+              ),
+            )
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: widget.onCancelButtonPressed,
+              child: Text(S.of(context).cancel)),
+          TextButton(
+              onPressed: hasNotChanged
+                  ? null
+                  : () => widget.onOkButtonPressed(currentIndex),
+              child: Text(S.of(context).ok)),
+        ]);
+  }
+
+  @override
+  void initState() {
+    currentIndex = widget.initialSecurityLevel;
+    super.initState();
+  }
+}
+
 /// One of the core UI elements of the app, this file explorer enables the user to see file thumbnails, their name and to play them, its state is [FileExplorerState]
 class FileExplorer extends StatefulWidget {
   final Vault vault;
@@ -251,27 +368,44 @@ class FileExplorer extends StatefulWidget {
 
 /// The [FileExplorer]'s state
 class FileExplorerState extends State<FileExplorer> {
-  late List<FileThumbnail> thumbnails;
+  late ExplorerState state;
+
   Future<void>? thumbnailCollector;
-  double? thumbnailSize;
   late Map<String, dynamic> map;
-  bool isSelectionMode = false;
-  int amountOfFilesSelected = 0;
+  bool get isSelectionMode => state.selectedThumbnails?.isNotEmpty ?? false;
+  int get amountOfFilesSelected => state.selectedThumbnails?.length ?? 0;
   int? loaderTarget;
   int? loaderCurrentLoad;
   static bool isPauseAllowed = false;
   static bool shouldNotificationBeSent = false;
-  String currentLocalPath = '';
+  String _currentLocalPath = '';
+  String get currentLocalPath => _currentLocalPath;
+  set currentLocalPath(String newPath) {
+    _currentLocalPath = newPath;
+    if (newPath.isNotEmpty) {
+      canPop = false;
+    }
+  }
+
   static FileSortMethod currentSortMethod = FileSortMethod.name;
   final ScrollController viewController = ScrollController();
-  bool isGridView = true;
+
+  bool canPop = true;
 
   static Future<void> exportEncryptedThumbnails(
       (SendPort, List<FileExportArgs>) message) async {
     for (FileExportArgs data in message.$2) {
-      List<int> exportedFile = await FileExporter.exportFile(basename(data.$1),
-          SecretKey(data.$2), data.$3, data.$4, data.$5, data.$6);
-      message.$1.send(exportedFile);
+      var target = data.encryptedFile.openWrite();
+      await FileExporter.exportFile(
+          basename(data.thumbnailFilePath),
+          SecretKey(data.encryptionKey),
+          data.data,
+          data.encryptedFile.openRead(),
+          data.encryptedFile.path,
+          data.unlockMechanismType,
+          data.additionalUnlockData,
+          target,
+          data.nonce);
     }
   }
 
@@ -287,23 +421,42 @@ class FileExplorerState extends State<FileExplorer> {
     VaultsManager.loadVaults();
     isPauseAllowed = widget.vault.securityLevel >= 2;
     shouldNotificationBeSent = widget.vault.securityLevel == 1;
+
+    state = (
+      onThumbnailTap: thumbnailTap,
+      onThumbnailLongTap: thumbnailLongTap,
+      vault: widget.vault,
+      isGridView: false,
+      selectedThumbnails: null,
+      thumbnails: null,
+      thumbnailSize: null
+    );
+
+    thumbnailCollector = reloadThumbnails();
   }
 
   /// One of the worst part of my code, this build method essentially powers the full file explorer navigation system
   @override
   Widget build(BuildContext context) {
-    thumbnailSize ??= MediaQuery.of(context).size.width /
-        (MediaQuery.of(context).size.width > MediaQuery.of(context).size.height
-            ? 4
-            : 2);
+    if (state.thumbnailSize == null) {
+      state = state.copyWith(
+          thumbnailSize: MediaQuery.of(context).size.width /
+              (MediaQuery.of(context).size.width >
+                      MediaQuery.of(context).size.height
+                  ? 4
+                  : 2));
+    }
+
     thumbnailCollector ??= reloadThumbnails();
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (currentLocalPath.isEmpty) {
-          return true;
-        } else {
+    return ExplorerData(
+      state: state,
+      child: PopScope(
+        canPop: canPop,
+        onPopInvoked: (didPop) {
           setState(() {
+            if (!viewController.hasClients) return;
+
             viewController.jumpTo(0);
             if (!currentLocalPath.contains('/')) {
               currentLocalPath = '';
@@ -313,484 +466,503 @@ class FileExplorerState extends State<FileExplorer> {
             }
             thumbnailCollector = reloadThumbnails();
           });
-          return false;
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-            actions: [
-              IconButton(
-                  onPressed: () => setState(() {
-                        isGridView = !isGridView;
-                        List<FileThumbnail> newThumbnails = [];
-                        for (FileThumbnail thumbnail in thumbnails) {
-                          newThumbnails
-                              .add(thumbnail.copyWith(isGridView: isGridView));
-                        }
-                        thumbnails = newThumbnails;
-                      }),
-                  icon: Icon(isGridView
-                      ? Icons.view_list_outlined
-                      : Icons.grid_view_outlined)),
-              PopupMenuButton(
-                icon: const Icon(Icons.more_vert),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
-                itemBuilder: (context) {
-                  return [
-                    if (kDebugMode)
+        },
+        child: Scaffold(
+          appBar: AppBar(
+              actions: [
+                IconButton(
+                    onPressed: () => setState(() {
+                          state = state.copyWith(isGridView: !state.isGridView);
+                        }),
+                    icon: Icon(state.isGridView
+                        ? Icons.view_list_outlined
+                        : Icons.grid_view_outlined)),
+                PopupMenuButton(
+                  icon: const Icon(Icons.more_vert),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  itemBuilder: (context) {
+                    return [
+                      if (kDebugMode)
+                        PopupMenuItem(
+                            onTap: () {
+                              debugPrint(jsonEncode(map));
+                            },
+                            child: const Text('Print map')),
+                      PopupMenuItem(
+                          child: Text(S.of(context).sortBy),
+                          onTap: () {
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((timeStamp) {
+                              showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) {
+                                    return Wrap(children: [
+                                      for (FileSortMethod method
+                                          in FileSortMethod.values)
+                                        ListTile(
+                                            title: Text(
+                                                method.getDisplayName(context)),
+                                            onTap: () {
+                                              setSortMethod(method);
+                                              Navigator.of(context).pop();
+                                              setState(() {
+                                                thumbnailCollector =
+                                                    reloadThumbnails();
+                                              });
+                                            })
+                                    ]);
+                                  });
+                            });
+                          }),
                       PopupMenuItem(
                           onTap: () {
-                            debugPrint(jsonEncode(map));
-                          },
-                          child: const Text('Print map')),
-                    PopupMenuItem(
-                        child: Text(S.of(context).sortBy),
-                        onTap: () {
-                          WidgetsBinding.instance
-                              .addPostFrameCallback((timeStamp) {
-                            showModalBottomSheet(
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((timeStamp) {
+                              showDialog<bool>(
                                 context: context,
                                 builder: (context) {
-                                  return Wrap(children: [
-                                    for (FileSortMethod method
-                                        in FileSortMethod.values)
-                                      ListTile(
-                                          title: Text(
-                                              method.getDisplayName(context)),
-                                          onTap: () {
-                                            setSortMethod(method);
-                                            Navigator.of(context).pop();
-                                            setState(() {
-                                              thumbnailCollector =
-                                                  reloadThumbnails();
-                                            });
-                                          })
-                                  ]);
-                                });
-                          });
-                        }),
-                    PopupMenuItem(
-                        onTap: () {
-                          WidgetsBinding.instance
-                              .addPostFrameCallback((timeStamp) {
-                            showDialog<bool>(
-                              context: context,
-                              builder: (context) {
-                                return FolderCreationWindow(
-                                    onCreateButtonPressed: (newName) async {
-                                      if (!newName.contains('/')) {
-                                        map[md5RandomFileName()] = {
-                                          'name':
-                                              join(currentLocalPath, newName),
-                                          'type': 'folder'
-                                        };
-                                      }
-                                      File(join(widget.vault.path, '.map'))
-                                          .writeAsBytesSync(
-                                              (await VaultsManager.encryptMap(
-                                                  widget.vault, map))!);
-                                      isSelectionMode = false;
-                                      setState(() {
-                                        thumbnailCollector = reloadThumbnails();
-                                      });
-                                      if (context.mounted) {
-                                        Navigator.of(context).pop(true);
-                                      }
-                                    },
-                                    onCancelButtonPressed: () {
-                                      Navigator.of(context).pop(false);
-                                    },
-                                    initialName: S.of(context).newFolder);
-                              },
-                            );
-                          });
-                        },
-                        child: Text(S.of(context).createANewFolder)),
-                    PopupMenuItem(
-                        onTap: () {
-                          setState(() {
-                            isSelectionMode = true;
-                            for (FileThumbnail thumbnail
-                                in List.from(thumbnails)) {
-                              if (!thumbnail.isSelected) {
-                                thumbnails[thumbnails.indexOf(thumbnail)] =
-                                    thumbnail.copyWith(
-                                        isSelected: true,
-                                        isGridView: isGridView);
-                              }
-                            }
-                            amountOfFilesSelected = thumbnails.length;
-                          });
-                        },
-                        child: Text(S.of(context).selectAll)),
-                    if (isSelectionMode) ...[
+                                  return FolderCreationWindow(
+                                      onCreateButtonPressed: (newName) async {
+                                        if (!newName.contains('/')) {
+                                          map[md5RandomFileName()] = {
+                                            'name':
+                                                join(currentLocalPath, newName),
+                                            'type': 'folder'
+                                          };
+                                        }
+                                        File(join(widget.vault.path, '.map'))
+                                            .writeAsBytesSync(
+                                                (await VaultsManager.encryptMap(
+                                                    widget.vault, map))!);
+                                        state = state.copyWith(
+                                            selectedThumbnails: {},
+                                            thumbnails: []);
+                                        setState(() {
+                                          thumbnailCollector =
+                                              reloadThumbnails();
+                                        });
+                                        if (context.mounted) {
+                                          Navigator.of(context).pop(true);
+                                        }
+                                      },
+                                      onCancelButtonPressed: () {
+                                        Navigator.of(context).pop(false);
+                                      },
+                                      initialName: S.of(context).newFolder);
+                                },
+                              );
+                            });
+                          },
+                          child: Text(S.of(context).createANewFolder)),
                       PopupMenuItem(
-                          onTap: widget.isEncryptedExportEnabled
-                              ? () async {
-                                  List<FileThumbnail> filesToExport = [];
+                          onTap: () {
+                            if (state.thumbnails == null) return;
 
-                                  for (FileThumbnail thumbnail in thumbnails) {
-                                    if (thumbnail.isSelected) {
-                                      filesToExport.add(thumbnail);
-                                    }
-                                  }
+                            setState(() {
+                              state = state.copyWith(
+                                  selectedThumbnails: state.thumbnails!
+                                      .map(
+                                        (e) => e.localPath,
+                                      )
+                                      .toSet());
+                            });
+                          },
+                          child: Text(S.of(context).selectAll)),
+                      if (isSelectionMode) ...[
+                        PopupMenuItem(
+                            onTap: widget.isEncryptedExportEnabled
+                                ? () async {
+                                    if (state.thumbnails == null) return;
 
-                                  setState(() {
-                                    loaderTarget = filesToExport.length;
-                                    loaderCurrentLoad = 0;
-                                  });
+                                    List<ThumbnailData> filesToExport = state
+                                        .thumbnails!
+                                        .where((element) => state
+                                            .selectedThumbnails!
+                                            .contains(element.localPath))
+                                        .toList();
 
-                                  List<int> encryptionKey = await widget
-                                      .vault.encryptionKey!
-                                      .extractBytes();
-
-                                  final receivePort = ReceivePort();
-
-                                  List<FileExportArgs> dataToExport = [];
-
-                                  for(FileThumbnail fileToExport in filesToExport) {
-                                    String unsafeData = (await VaultsManager.nonceStorage.read(key: fileToExport.localPath))!;
-                                    Map<String, dynamic> unsafeDataClone = Map.from(fileToExport.data);
-                                    unsafeDataClone['nonce'] = unsafeData;
-                                    dataToExport.add((
-                                    fileToExport.localPath,
-                                    encryptionKey,
-                                    unsafeDataClone,
-                                        fileToExport.file.readAsBytesSync(),
-                                        widget.vault.unlockMechanismType,
-                                        widget.vault.additionalUnlockData
-                                    ));
-                                  }
-
-                                  Isolate.spawn(exportEncryptedThumbnails,
-                                      (receivePort.sendPort, dataToExport));
-
-                                  List<Uint8List> decryptedFiles = [];
-
-                                  await for(List<int> decryptedFile in receivePort) {
-                                    decryptedFiles.add(Uint8List.fromList(decryptedFile));
                                     setState(() {
-                                      loaderCurrentLoad = decryptedFiles.length;
+                                      loaderTarget = filesToExport.length;
+                                      loaderCurrentLoad = 0;
                                     });
-                                    if(loaderTarget == loaderCurrentLoad) break;
-                                  }
 
-                                  setState(() {
-                                    loaderTarget = null;
-                                    loaderCurrentLoad = null;
-                                  });
+                                    Directory directory =
+                                        await getDownloadsDirectory() ??
+                                            (await getExternalStorageDirectory())!;
 
-                                  DocumentFileSavePlus().saveMultipleFiles(
-                                      dataList: decryptedFiles,
-                                      fileNameList: [for (FileThumbnail thumbnail in filesToExport) setExtension(basenameWithoutExtension(thumbnail.data['name']), '.lcef')],
-                                      mimeTypeList: List.filled(filesToExport.length, 'plain')
-                                  ).then((value) {
+                                    Directory outDir = Directory(join(
+                                        directory.path,
+                                        'LifeChest-export-${DateTime.now().millisecondsSinceEpoch}'))
+                                      ..createSync();
+
+                                    for (var fileToExport in filesToExport) {
+                                      File targetFile = File(join(
+                                          outDir.path,
+                                          setExtension(
+                                              basenameWithoutExtension(
+                                                  fileToExport.fullLocalPath),
+                                              '.lcef')));
+
+                                      await FileExporter.exportFile(
+                                          basename(fileToExport.localPath),
+                                          widget.vault.encryptionKey!,
+                                          fileToExport,
+                                          fileToExport
+                                              .getFile(widget.vault)
+                                              .openRead(),
+                                          fileToExport
+                                              .getFile(widget.vault)
+                                              .path,
+                                          widget.vault.unlockMechanismType,
+                                          widget.vault.additionalUnlockData,
+                                          targetFile.openWrite(),
+                                          await SingleThreadedRecovery
+                                              .findNonce(fileToExport
+                                                  .getFile(widget.vault)
+                                                  .path));
+
+                                      setState(() {
+                                        loaderCurrentLoad =
+                                            loaderCurrentLoad! + 1;
+                                      });
+                                    }
+
+                                    setState(() {
+                                      loaderTarget = null;
+                                      loaderCurrentLoad = null;
+                                    });
+
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
-                                          content: Text(S
-                                              .of(context)
-                                              .savedToFolderWarning, style: const TextStyle(color: Colors.amber))));
+                                              content: Text(
+                                                  S
+                                                      .of(context)
+                                                      .savedToFolderWarning,
+                                                  style: const TextStyle(
+                                                      color: Colors.amber))));
                                     }
-                                  });
-                                }
-                              : null,
-                          enabled: widget.isEncryptedExportEnabled,
-                          child: Text(S.of(context).exportAsEncrypted)),
-                      PopupMenuItem(
-                          onTap: () async {
-                            List<FileThumbnail> filesToExport = [];
-
-                            for (FileThumbnail thumbnail in thumbnails) {
-                              if (thumbnail.isSelected) {
-                                filesToExport.add(thumbnail);
-                              }
-                            }
-                            String validDirectoryName =
-                                S.of(context).lifeChestBulkSave;
-                            Directory? downloadDirectory;
-                            if (Platform.isIOS) {
-                              downloadDirectory = await getDownloadsDirectory();
-
-                              if (downloadDirectory == null) return;
-                            } else {
-                              downloadDirectory =
-                                  Directory('/storage/emulated/0/Download');
-                              // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
-                              if (!await downloadDirectory.exists()) {
-                                downloadDirectory =
-                                    await getExternalStorageDirectory();
-                              }
-                            }
-
-                            Directory saveLocation = downloadDirectory!;
-
-                            if (filesToExport.length > 1) {
-                              String currentSuffix = '';
-                              int currentDirID = 2;
-                              List<FileSystemEntity> dirFiles =
-                                  downloadDirectory.listSync();
-                              while (dirFiles.any((element) =>
-                                  basename(element.path) ==
-                                  validDirectoryName + currentSuffix)) {
-                                currentSuffix = ' ($currentDirID)';
-                                currentDirID++;
-                              }
-                              validDirectoryName =
-                                  validDirectoryName + currentSuffix;
-
-                              saveLocation = Directory(
-                                  join(saveLocation.path, validDirectoryName));
-                              saveLocation.createSync();
-                            }
-
-                            for (FileThumbnail thumbnail in filesToExport) {
-                              Stream<List<int>> exportedFile =
-                                  await SingleThreadedRecovery.loadAndDecryptFile(
-                                      widget.vault.encryptionKey!,
-                                      thumbnail.file,
-                                      Mac(thumbnail.data['mac']));
-
-                              File fileToSaveTo =
-                                  File(join(saveLocation.path, thumbnail.name));
-                              fileToSaveTo.createSync();
-
-                              fileToSaveTo.openWrite().addStream(exportedFile);
-                            }
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(S.of(context).savedToFolder)));
-                            }
-                          },
-                          child: Text(S.of(context).exportAsCleartext)),
-                      PopupMenuItem(
-                          onTap: () async {
-                            List<FileThumbnail> filesToDelete = [];
-
-                            for (FileThumbnail thumbnail in thumbnails) {
-                              if (thumbnail.isSelected) {
-                                filesToDelete.add(thumbnail);
-                              }
-                            }
-
-                            WidgetsBinding.instance
-                                .addPostFrameCallback((timeStamp) {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                          title: Text(S
-                                              .of(context)
-                                              .areYouSureDeleteFiles(
-                                                  filesToDelete.length)),
-                                          content: Text(S
-                                              .of(context)
-                                              .lostDataContBeRecovered),
-                                          actions: [
-                                            TextButton(
-                                                onPressed: () => Navigator.pop(
-                                                    context, false),
-                                                child: Text(S.of(context).no)),
-                                            TextButton(
-                                                onPressed: () => Navigator.pop(
-                                                    context, true),
-                                                child: Text(S.of(context).yes))
-                                          ])).then((value) async {
-                                if (value == true) {
-                                  for (FileThumbnail thumbnail
-                                      in filesToDelete) {
-                                    if (thumbnail.file.existsSync()) {
-                                      thumbnail.file.deleteSync();
-                                    }
-                                    if (thumbnail.placeholder ==
-                                        FileThumbnailsPlaceholder.folder) {
-                                      for (MapEntry<String,
-                                              dynamic> innerRawThumbnail
-                                          in List.from(map.entries)) {
-                                        if (isWithin(thumbnail.fullLocalPath,
-                                            innerRawThumbnail.value['name'])) {
-                                          File innerRawThumbnailFile = File(
-                                              join(widget.vault.path,
-                                                  innerRawThumbnail.key));
-                                          if (innerRawThumbnailFile
-                                              .existsSync()) {
-                                            innerRawThumbnailFile.deleteSync();
-                                          }
-                                          map.remove(innerRawThumbnail.key);
-                                        }
-                                      }
-                                    }
-                                    map.remove(thumbnail.localPath);
                                   }
-                                  List<int> encryptedMap =
-                                      (await VaultsManager.encryptMap(
-                                          widget.vault, map))!;
-                                  setState(() {
-                                    // TODO: Forensic should be made to see if iOS/Android keeps any of the file data in storage, if yes fill the file with null bytes and then delete it.
-                                    File(join(widget.vault.path, '.map'))
-                                        .writeAsBytesSync(encryptedMap);
-                                    isSelectionMode = false;
-                                    thumbnailCollector = reloadThumbnails();
-                                  });
-                                }
-                              });
-                            });
-                          },
-                          child: Text(S.of(context).delete)),
-                      if (amountOfFilesSelected == 1)
+                                : null,
+                            enabled: widget.isEncryptedExportEnabled,
+                            child: Text(S.of(context).exportAsEncrypted)),
                         PopupMenuItem(
-                            onTap: () {
-                              FileThumbnail selectedThumbnail = thumbnails
-                                  .firstWhere((element) => element.isSelected);
+                            onTap: () async {
+                              if (state.thumbnails == null) return;
+
+                              List<ThumbnailData> filesToExport = state
+                                  .thumbnails!
+                                  .where((element) => state.selectedThumbnails!
+                                      .contains(element.localPath))
+                                  .toList();
+
+                              String validDirectoryName =
+                                  S.of(context).lifeChestBulkSave;
+                              Directory? downloadDirectory;
+                              if (Platform.isIOS) {
+                                downloadDirectory =
+                                    await getDownloadsDirectory();
+
+                                if (downloadDirectory == null) return;
+                              } else {
+                                downloadDirectory =
+                                    Directory('/storage/emulated/0/Download');
+                                // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
+                                if (!await downloadDirectory.exists()) {
+                                  downloadDirectory =
+                                      await getExternalStorageDirectory();
+                                }
+                              }
+
+                              Directory saveLocation = downloadDirectory!;
+
+                              if (filesToExport.length > 1) {
+                                String currentSuffix = '';
+                                int currentDirID = 2;
+                                List<FileSystemEntity> dirFiles =
+                                    downloadDirectory.listSync();
+                                while (dirFiles.any((element) =>
+                                    basename(element.path) ==
+                                    validDirectoryName + currentSuffix)) {
+                                  currentSuffix = ' ($currentDirID)';
+                                  currentDirID++;
+                                }
+                                validDirectoryName =
+                                    validDirectoryName + currentSuffix;
+
+                                saveLocation = Directory(join(
+                                    saveLocation.path, validDirectoryName));
+                                saveLocation.createSync();
+                              }
+
+                              for (var thumbnail in filesToExport) {
+                                Stream<List<int>> exportedFile =
+                                    await SingleThreadedRecovery
+                                        .loadAndDecryptFile(
+                                            widget.vault.encryptionKey!,
+                                            File(join(widget.vault.path,
+                                                thumbnail.localPath)),
+                                            Mac(thumbnail.data['mac']));
+
+                                File fileToSaveTo = File(
+                                    join(saveLocation.path, thumbnail.name));
+                                fileToSaveTo.createSync();
+
+                                fileToSaveTo
+                                    .openWrite()
+                                    .addStream(exportedFile);
+                              }
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text(S.of(context).savedToFolder)));
+                              }
+                            },
+                            child: Text(S.of(context).exportAsCleartext)),
+                        PopupMenuItem(
+                            onTap: () async {
+                              if (state.thumbnails == null) return;
+
+                              List<ThumbnailData> filesToDelete = state
+                                  .thumbnails!
+                                  .where((element) => state.selectedThumbnails!
+                                      .contains(element.key))
+                                  .toList();
+
                               WidgetsBinding.instance
                                   .addPostFrameCallback((timeStamp) {
-                                showDialog<bool>(
-                                  context: context,
-                                  builder: (context) {
-                                    return RenameWindow(
-                                        onOkButtonPressed: (newName) async {
-                                          map[selectedThumbnail.localPath]
-                                              ['name'] = newName;
-                                          File(join(widget.vault.path, '.map'))
-                                              .writeAsBytesSync(
-                                                  (await VaultsManager
-                                                      .encryptMap(
-                                                          widget.vault, map))!);
-                                          isSelectionMode = false;
-                                          thumbnailCollector =
-                                              reloadThumbnails();
-                                          if (context.mounted) {
-                                            Navigator.of(context).pop(true);
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                            title: Text(S
+                                                .of(context)
+                                                .areYouSureDeleteFiles(
+                                                    filesToDelete.length)),
+                                            content: Text(S
+                                                .of(context)
+                                                .lostDataContBeRecovered),
+                                            actions: [
+                                              TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, false),
+                                                  child:
+                                                      Text(S.of(context).no)),
+                                              TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, true),
+                                                  child:
+                                                      Text(S.of(context).yes))
+                                            ])).then((value) async {
+                                  if (value == true) {
+                                    for (var thumbnail in filesToDelete) {
+                                      if (thumbnail
+                                          .getFile(state.vault)
+                                          .existsSync()) {
+                                        thumbnail
+                                            .getFile(state.vault)
+                                            .deleteSync();
+                                      }
+
+                                      if (thumbnail.data['type'] == 'folder') {
+                                        for (ThumbnailData innerRawThumbnail
+                                            in List.from(map.entries)) {
+                                          if (isWithin(
+                                              thumbnail.fullLocalPath,
+                                              innerRawThumbnail
+                                                  .fullLocalPath)) {
+                                            File innerRawThumbnailFile = File(
+                                                join(
+                                                    widget.vault.path,
+                                                    innerRawThumbnail
+                                                        .localPath));
+                                            if (innerRawThumbnailFile
+                                                .existsSync()) {
+                                              innerRawThumbnailFile
+                                                  .deleteSync();
+                                            }
+                                            map.remove(
+                                                innerRawThumbnail.localPath);
                                           }
-                                        },
-                                        onCancelButtonPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                        initialName: selectedThumbnail.name);
-                                  },
-                                );
+                                        }
+                                      }
+                                      map.remove(thumbnail.localPath);
+                                    }
+                                    List<int> encryptedMap =
+                                        (await VaultsManager.encryptMap(
+                                            widget.vault, map))!;
+                                    setState(() {
+                                      File(join(widget.vault.path, '.map'))
+                                          .writeAsBytesSync(encryptedMap);
+                                      state = state.copyWith(
+                                          selectedThumbnails: {},
+                                          thumbnails: []);
+                                      thumbnailCollector = reloadThumbnails();
+                                    });
+                                  }
+                                });
                               });
                             },
-                            child: Text(S.of(context).rename))
-                    ]
-                  ];
-                },
-              )
-            ],
-            leading: IconButton(
-                onPressed: () {
-                  if (isSelectionMode) {
-                    setState(() {
-                      isSelectionMode = false;
+                            child: Text(S.of(context).delete)),
+                        if (amountOfFilesSelected == 1)
+                          PopupMenuItem(
+                              onTap: () {
+                                ThumbnailData selectedThumbnail =
+                                    state.thumbnails!.firstWhere((element) =>
+                                        element.localPath ==
+                                        state.selectedThumbnails!.single);
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((timeStamp) {
+                                  showDialog<bool>(
+                                    context: context,
+                                    builder: (context) {
+                                      return RenameWindow(
+                                          onOkButtonPressed: (newName) async {
+                                            map[selectedThumbnail.localPath]
+                                                ['name'] = newName;
+                                            File(join(
+                                                    widget.vault.path, '.map'))
+                                                .writeAsBytesSync(
+                                                    (await VaultsManager
+                                                        .encryptMap(
+                                                            widget.vault,
+                                                            map))!);
+                                            state = state.copyWith(
+                                                selectedThumbnails: {},
+                                                thumbnails: []);
 
-                      for (FileThumbnail thumbnail in List.from(thumbnails)) {
-                        if (thumbnail.isSelected) {
-                          thumbnails[thumbnails.indexOf(thumbnail)] =
-                              thumbnail.copyWith(
-                                  isSelected: false, isGridView: isGridView);
-                        }
-                      }
-                    });
-                  } else {
-                    isPauseAllowed = false;
-                    shouldNotificationBeSent = false;
-                    if (currentLocalPath.isNotEmpty) {
-                      if (viewController.positions.isNotEmpty) {
-                        viewController.jumpTo(0);
-                      }
+                                            thumbnailCollector =
+                                                reloadThumbnails();
+                                            if (context.mounted) {
+                                              Navigator.of(context).pop(true);
+                                            }
+                                          },
+                                          onCancelButtonPressed: () {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                          initialName: selectedThumbnail.name);
+                                    },
+                                  );
+                                });
+                              },
+                              child: Text(S.of(context).rename))
+                      ]
+                    ];
+                  },
+                )
+              ],
+              leading: IconButton(
+                  onPressed: () {
+                    if (isSelectionMode) {
                       setState(() {
-                        if (!currentLocalPath.contains('/')) {
-                          currentLocalPath = '';
-                        } else {
-                          currentLocalPath = currentLocalPath.substring(
-                              0, currentLocalPath.lastIndexOf('/'));
-                        }
-                        thumbnailCollector = reloadThumbnails();
+                        state = state.copyWith(selectedThumbnails: {});
                       });
                     } else {
-                      Navigator.pop(context);
-                      widget.vault.encryptionKey!.destroy();
+                      isPauseAllowed = false;
+                      shouldNotificationBeSent = false;
+                      if (currentLocalPath.isNotEmpty) {
+                        if (viewController.positions.isNotEmpty) {
+                          viewController.jumpTo(0);
+                        }
+                        setState(() {
+                          if (!currentLocalPath.contains('/')) {
+                            currentLocalPath = '';
+                          } else {
+                            currentLocalPath = currentLocalPath.substring(
+                                0, currentLocalPath.lastIndexOf('/'));
+                          }
+                          thumbnailCollector = reloadThumbnails();
+                        });
+                      } else {
+                        Navigator.pop(context);
+                        widget.vault.encryptionKey!.destroy();
+                      }
                     }
-                  }
+                  },
+                  icon: isSelectionMode
+                      ? const Icon(Icons.close)
+                      : const Icon(Icons.arrow_back)),
+              title: Text(isSelectionMode
+                  ? S.of(context).selected(amountOfFilesSelected)
+                  : (currentLocalPath.isNotEmpty
+                      ? basenameWithoutExtension(currentLocalPath)
+                      : widget.vault.name)),
+              bottom: loaderTarget == null || loaderCurrentLoad == null
+                  ? null
+                  : PreferredSize(
+                      preferredSize: const Size.fromHeight(3),
+                      child: LinearProgressIndicator(
+                          value: loaderCurrentLoad! / loaderTarget!)),
+              backgroundColor: isSelectionMode
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : null),
+          floatingActionButton: GestureDetector(
+            onLongPress: () {
+              saveFolder(context);
+            },
+            child: FloatingActionButton(
+                onPressed: () {
+                  saveFiles(context);
                 },
-                icon: isSelectionMode
-                    ? const Icon(Icons.close)
-                    : const Icon(Icons.arrow_back)),
-            title: Text(isSelectionMode
-                ? S.of(context).selected(amountOfFilesSelected)
-                : (currentLocalPath.isNotEmpty
-                    ? basenameWithoutExtension(currentLocalPath)
-                    : widget.vault.name)),
-            bottom: loaderTarget == null || loaderCurrentLoad == null
-                ? null
-                : PreferredSize(
-                    preferredSize: const Size.fromHeight(3),
-                    child: LinearProgressIndicator(
-                        value: loaderCurrentLoad! / loaderTarget!)),
-            backgroundColor: isSelectionMode
-  ? Theme.of(context).colorScheme.primaryContainer
-      : null),
-        floatingActionButton: GestureDetector(
-          onLongPress: () {
-            saveFolder(context);
-          },
-          child: FloatingActionButton(
-              onPressed: () {
-                saveFiles(context);
-              },
-              child: const Icon(Icons.add)),
-        ),
-        body: FutureBuilder(
-          future: thumbnailCollector,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return thumbnails.isNotEmpty
-                  ? (isGridView
-                      ? GridView.count(
-                          controller: viewController,
-                          mainAxisSpacing: 3,
-                          crossAxisSpacing: 3,
-                          crossAxisCount: MediaQuery.of(context).size.width >
-                                  MediaQuery.of(context).size.height
-                              ? 4
-                              : 2,
-                          children: List.from(thumbnails))
-                      : ListView.separated(
-                          itemBuilder: (BuildContext context, int index) {
-                            return thumbnails[index];
-                          },
-                          separatorBuilder: (context, index) {
-                            return const Divider();
-                          },
-                          controller: viewController,
-                          itemCount: thumbnails.length,
-                        ))
-                  : Center(
-                      child: Text(
-                      S.of(context).noFilesCreatedYet,
-                      textScaleFactor: 2.5,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.outline),
-                    ));
-            } else {
-              return Center(
-                  child: Opacity(
-                      opacity: 0.25,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const CircularProgressIndicator(),
-                          Text(
-                            S.of(context).loadingElements,
-                            textScaleFactor: 2.5,
-                            textAlign: TextAlign.center,
+                child: const Icon(Icons.add)),
+          ),
+          body: FutureBuilder(
+            future: thumbnailCollector,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return state.thumbnails!.isNotEmpty
+                    ? (state.isGridView
+                        ? GridView.builder(
+                            controller: viewController,
+                            itemBuilder: (context, index) {
+                              return FileThumbnail(state.thumbnails![index]);
+                            },
+                            itemCount: state.thumbnails!.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2),
                           )
-                        ],
-                      )));
-            }
-          },
+                        : ListView.separated(
+                            itemBuilder: (BuildContext context, int index) {
+                              ThumbnailData data = state.thumbnails![index];
+
+                              return FileThumbnail(data);
+                            },
+                            separatorBuilder: (context, index) {
+                              return const Divider();
+                            },
+                            controller: viewController,
+                            itemCount: state.thumbnails!.length,
+                          ))
+                    : Center(
+                        child: Text(
+                        S.of(context).noFilesCreatedYet,
+                        textScaler: const TextScaler.linear(2.5),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.outline),
+                      ));
+              } else {
+                return Center(
+                    child: Opacity(
+                        opacity: 0.25,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(),
+                            Text(
+                              S.of(context).loadingElements,
+                              textScaler: const TextScaler.linear(2.5),
+                              textAlign: TextAlign.center,
+                            )
+                          ],
+                        )));
+              }
+            },
+          ),
         ),
       ),
     );
@@ -1007,98 +1179,69 @@ class FileExplorerState extends State<FileExplorer> {
   }
 
   /// Implementation of the sorting system internally, not directly in the UI, this method sorts the entire Vault map
-  static Map<String, dynamic> sortMap(
+  static List<MapEntry<String, dynamic>> sortMap(
       FileSortMethod currentMethod, Map<String, dynamic> currentMap) {
     List<MapEntry<String, dynamic>> sortableMap = List.from(currentMap.entries);
 
-    sortableMap.sort((a, b) {
-      return currentMethod.sort(
-          basename(a.value['name']), basename(b.value['name']));
-    });
-
-    Map<String, dynamic> sortedMap = Map.fromEntries(sortableMap);
-
-    return sortedMap;
+    return currentMethod.sort(sortableMap);
   }
 
   /// Updates the thumbnails internally, not in the UI
-  Future<bool> reloadThumbnails() async {
+  Future<void> reloadThumbnails() async {
     File mapFile = File(join(widget.vault.path, '.map'));
     if (!mapFile.existsSync()) {
-      return false;
+      return;
     }
 
     map = (await VaultsManager.decryptMap(
         widget.vault, mapFile.readAsBytesSync()))!;
-    List<FileThumbnail> createdThumbnails = [];
 
-    Map<String, FileThumbnailsPlaceholder> fileTypes =
-        FileThumbnailsPlaceholder.getPlaceholderFromFileName(
-            List.from(map.values));
-    Map<String, dynamic> sortedMap = sortMap(currentSortMethod, map);
+    map.removeWhere((key, value) =>
+        !shouldThumbnailBeShown(value['name'], currentLocalPath));
+
+    var sortedMap = sortMap(currentSortMethod, map);
+
     assert(sortedMap.length == map.length);
-    for (MapEntry<String, dynamic> mappedFile in sortedMap.entries) {
-      if (shouldThumbnailBeShown(mappedFile.value['name'], currentLocalPath)) {
-        ValueKey<String> thumbnailKey = ValueKey(mappedFile.key);
-        createdThumbnails.add(FileThumbnail(
-            key: thumbnailKey,
-            localPath: mappedFile.key,
-            name: basename(mappedFile.value['name']),
-            fullLocalPath: mappedFile.value['name'],
-            placeholder: fileTypes[mappedFile.value['name']]!,
-            file: File(join(widget.vault.path, mappedFile.key)),
-            vault: widget.vault,
-            onPress: thumbnailTap,
-            onLongPress: thumbnailLongTap,
-            isSelected: false,
-            data: mappedFile.value,
-            isGridView: isGridView));
-      }
-    }
 
-    thumbnails = createdThumbnails;
+    state = state.copyWith(thumbnails: sortedMap, selectedThumbnails: {});
 
-    return true;
-  }
-
-  /// Too keep the thumbnails updated in the [FileReader]
-  List<FileThumbnail> _getThumbnails() {
-    return thumbnails;
+    return;
   }
 
   /// The callback used when the user clicks on a thumbnail
   void thumbnailTap(BuildContext context, FileThumbnail thumbnail) {
     if (!isSelectionMode) {
-      if (thumbnail.placeholder == FileThumbnailsPlaceholder.folder) {
+      if (thumbnail.data.placeholder == FileThumbnailsPlaceholder.folder) {
         viewController.jumpTo(0);
-        currentLocalPath = thumbnail.fullLocalPath;
+        currentLocalPath = thumbnail.data.fullLocalPath;
         setState(() {
+          state = state.copyWith(selectedThumbnails: {}, thumbnails: null);
           thumbnailCollector = reloadThumbnails();
         });
       } else {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => FileReader(
-                    thumbnails: _getThumbnails,
-                    fileVault: widget.vault,
-                    initialThumbnail: thumbnails.indexOf(thumbnail))));
+                builder: (context) => ExplorerData(
+                    state: state,
+                    child: FileReader(
+                        state.thumbnails!.indexOf(thumbnail.data)))));
       }
 
       return;
-    }
-    setState(() {
-      thumbnails[thumbnails.indexOf(thumbnail)] = thumbnail.copyWith(
-          isSelected: !thumbnail.isSelected, isGridView: isGridView);
-      if (!thumbnail.isSelected) {
-        amountOfFilesSelected++;
-      } else {
-        amountOfFilesSelected--;
-        if (amountOfFilesSelected == 0) {
-          isSelectionMode = false;
+    } else {
+      setState(() {
+        if (state.isSelected(thumbnail.data.localPath)) {
+          state = state.copyWith(
+              selectedThumbnails: state.selectedThumbnails!
+                ..remove(thumbnail.data.localPath));
+        } else {
+          state = state.copyWith(
+              selectedThumbnails: state.selectedThumbnails!
+                ..add(thumbnail.data.localPath));
         }
-      }
-    });
+      });
+    }
 
     return;
   }
@@ -1107,13 +1250,13 @@ class FileExplorerState extends State<FileExplorer> {
   void thumbnailLongTap(FileThumbnail thumbnail) {
     setState(() {
       if (!isSelectionMode) {
-        isSelectionMode = true;
-        amountOfFilesSelected = 1;
-      } else if (!thumbnail.isSelected) {
-        amountOfFilesSelected++;
+        state = state.copyWith(selectedThumbnails: {thumbnail.data.localPath});
+      } else if (!state.isSelected(thumbnail.data.localPath)) {
+        state = state.copyWith(selectedThumbnails: {
+          ...state.selectedThumbnails!,
+          thumbnail.data.localPath
+        });
       }
-      thumbnails[thumbnails.indexOf(thumbnail)] =
-          thumbnail.copyWith(isSelected: true, isGridView: isGridView);
     });
   }
 }

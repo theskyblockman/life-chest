@@ -979,6 +979,56 @@ class S {
       args: [],
     );
   }
+
+  /// `Bad chest`
+  String get badChest {
+    return Intl.message(
+      'Bad chest',
+      name: 'badChest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Refresh`
+  String get refresh {
+    return Intl.message(
+      'Refresh',
+      name: 'refresh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Random order`
+  String get randomSortName {
+    return Intl.message(
+      'Random order',
+      name: 'randomSortName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change behavior`
+  String get changeBehavior {
+    return Intl.message(
+      'Change behavior',
+      name: 'changeBehavior',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What to do when the app is put in the background and this vault is opened`
+  String get changeBehaviorSubtitle {
+    return Intl.message(
+      'What to do when the app is put in the background and this vault is opened',
+      name: 'changeBehaviorSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

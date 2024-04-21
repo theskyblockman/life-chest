@@ -134,5 +134,10 @@
   "biometricsAreLocal": "Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable.",
   "linkCopied": "The link has been copied to your clipboard.",
   "subtitles": "Subtitles",
-  "playbackSpeed": "Playback speed"
+  "playbackSpeed": "Playback speed",
+  "badChest": "Bad chest",
+  "refresh": "Refresh",
+  "randomSortName": "Random order",
+  "changeBehavior": "Change behavior",
+  "changeBehaviorSubtitle": "What to do when the app is put in the background and this vault is opened"
 }

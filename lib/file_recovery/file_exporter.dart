@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
+
 import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
+import 'package:life_chest/file_explorer/explorer_data.dart';
+import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/vault.dart';
 
 class FileExporter {
@@ -42,53 +46,69 @@ class FileExporter {
     return result;
   }
 
-  static Future<List<int>> exportFile(
+  static Future<void> exportFile(
       String fileFakeName,
       SecretKey encryptionKey,
-      Map<String, dynamic> fileMapData,
-      List<int> encryptedFileContentToExport,
+      ThumbnailData data,
+      Stream<List<int>> encryptedFile,
+      String? filePath,
       String unlockMethodID,
-      Map<String, dynamic> additionalUnlockData) async {
-    List<int> finalExportedFile = [];
-
+      Map<String, dynamic> additionalUnlockData,
+      StreamSink<List<int>> target,
+      Uint8List? nonce,
+      [bool isTesting = false]) async {
     // Signature
-    finalExportedFile.addAll('Life Chest Encrypted File'.codeUnits);
-    String encodedMetadata = jsonEncode(fileMapData);
+    target.add('Life Chest Encrypted File'.codeUnits);
+    String encodedMetadata = jsonEncode(data.data);
     List<int> encryptedMetadata = (await VaultsManager.secondaryCipher.encrypt(
             utf8.encode(encodedMetadata),
             secretKey: encryptionKey,
             nonce: Uint8List(VaultsManager.secondaryCipher.nonceLength)))
         .cipherText;
     // The hash of the key to check if 2 files were encrypted using the same key (Always 64 chars long)
-    finalExportedFile.addAll(sha256
+    target.add(sha256
         .convert(await encryptionKey.extractBytes())
         .toString()
         .codeUnits);
 
     // The unlock method of the file to use to find its secret key
-    finalExportedFile.addAll(unlockMethodID.codeUnits);
-    finalExportedFile.addAll('|'.codeUnits);
+    target.add(unlockMethodID.codeUnits);
+    target.add('|'.codeUnits);
 
     // The additional unlock data which are required for biometrics for example
-    finalExportedFile.addAll(jsonEncode(additionalUnlockData).codeUnits);
-    finalExportedFile.addAll('|'.codeUnits);
+    target.add(jsonEncode(additionalUnlockData).codeUnits);
+    target.add('|'.codeUnits);
 
     // The file metadata length so that no overflow can be made.
-    finalExportedFile.addAll(encryptedMetadata.length.toString().codeUnits);
-    finalExportedFile.addAll('|'.codeUnits);
+    target.add(encryptedMetadata.length.toString().codeUnits);
+    target.add('|'.codeUnits);
 
     // The file fake name used internally by the app to identify it without giving its clear name, logically this isn't sensitive information so we can give the encrypted and clear file fake name so the app can say if a file is valid or not by detecting the "|" char and dividing the file name length by 2.
-    finalExportedFile.addAll(fileFakeName.codeUnits);
-    finalExportedFile.addAll((await VaultsManager.secondaryCipher.encrypt(
+    target.add(fileFakeName.codeUnits);
+    target.add((await VaultsManager.secondaryCipher.encrypt(
             fileFakeName.codeUnits,
             secretKey: encryptionKey,
             nonce: Uint8List(VaultsManager.cipher.nonceLength)))
         .cipherText);
 
     // The encrypted metadata
-    finalExportedFile.addAll(encryptedMetadata);
+    target.add(encryptedMetadata);
+
+    print('adding stream');
+
+    print('mac: ${data.data['mac']}');
+
+    var stream = (await SingleThreadedRecovery.decryptStream(
+        encryptionKey, encryptedFile, Mac(List<int>.from(data.data['mac'])),
+        filePath: filePath, nonce: nonce, isTesting: isTesting));
+    print('finished loading stream');
+
     // The encrypted data file
-    finalExportedFile.addAll(encryptedFileContentToExport);
+    await target.addStream(stream);
+    print('stream added');
+
+    await target.close();
+    print('stream closed');
     /*
     Im sum, the file structure is:
     - Signature (Life Chest Encrypted File)
@@ -106,8 +126,6 @@ class FileExporter {
 
     This way the file can be securely shared
     */
-
-    return finalExportedFile;
   }
 
   static String? determineExportedFileUnlockMethod(List<int> exportedFile) {
@@ -131,7 +149,8 @@ class FileExporter {
         _splitListBySeparator(exportedFile, '|'.codeUnits[0], 4);
     // No need to round, the length is even whatever happening because of the source multiplication by 2 rule
     SecretBox encryptedName = SecretBox(List.from(elements[3].sublist(32, 64)),
-        nonce: Uint8List(VaultsManager.secondaryCipher.nonceLength), mac: Mac.empty);
+        nonce: Uint8List(VaultsManager.secondaryCipher.nonceLength),
+        mac: Mac.empty);
     return listEquals(
         await VaultsManager.secondaryCipher
             .decrypt(encryptedName, secretKey: encryptionKey),
@@ -159,7 +178,10 @@ class FileExporter {
 
     List<int> fileData = await VaultsManager.cipher.decrypt(
         SecretBox(elements[3].sublist(64 + metadataLength),
-            nonce: metadata.containsKey('nonce') ? base64Decode(metadata['nonce']) : Uint8List(VaultsManager.secondaryCipher.nonceLength), mac: Mac(List.from(metadata['mac']))),
+            nonce: metadata.containsKey('nonce')
+                ? base64Decode(metadata['nonce'])
+                : Uint8List(VaultsManager.secondaryCipher.nonceLength),
+            mac: Mac(List.from(metadata['mac']))),
         secretKey: encryptionKey);
 
     metadata.remove('nonce');

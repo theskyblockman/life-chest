@@ -105,13 +105,11 @@ class SchemeUnlockMechanism extends UnlockMechanism {
 class PatternFormField extends FormField<String> {
   PatternFormField(
       {super.key,
-      FormFieldSetter<String>? onSaved,
-      FormFieldValidator<String>? validator,
+      super.onSaved,
+      super.validator,
       AutovalidateMode autovalidate = AutovalidateMode.disabled,
       void Function(String code)? onCodeCreated})
       : super(
-            onSaved: onSaved,
-            validator: validator,
             autovalidateMode: autovalidate,
             builder: (state) {
               return PatternLock(

@@ -15,6 +15,8 @@ abstract class FileViewer {
   final String fileName;
   final Map<String, dynamic> fileData;
 
+  bool get loaded => false;
+
   const FileViewer(
       {required this.fileVault,
       required this.fileToRead,

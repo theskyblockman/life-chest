@@ -8,10 +8,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:life_chest/color_schemes.g.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
 import 'package:life_chest/file_viewers/audio.dart';
+import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/new_chest.dart';
 import 'package:life_chest/onboarding.dart';
 import 'package:life_chest/unlock_mechanism/unlock_mechanism.dart';
@@ -19,7 +19,6 @@ import 'package:life_chest/unlock_mechanism/unlock_tester.dart';
 import 'package:life_chest/vault.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:life_chest/generated/l10n.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,10 +27,7 @@ void main() async {
   VaultsManager.appFolder = appDocuments.path;
   VaultsManager.mainConfigFile = File('${VaultsManager.appFolder}/.config');
   VaultsManager.packageInfo = await PackageInfo.fromPlatform();
-  VaultsManager.nonceStorage = const FlutterSecureStorage(aOptions: AndroidOptions(
-    encryptedSharedPreferences: true,
-  ), iOptions: IOSOptions(groupId: 'fr.theskyblockman'));
-  bool firstLaunch = !VaultsManager.mainConfigFile.existsSync() || kDebugMode;
+  bool firstLaunch = !VaultsManager.mainConfigFile.existsSync();
   if (firstLaunch) {
     VaultsManager.mainConfigFile.createSync();
 
@@ -101,6 +97,9 @@ class ChestMainPage extends StatefulWidget {
 class ChestMainPageState extends State<ChestMainPage> {
   GlobalKey<AnimatedListState> animatedListState = GlobalKey();
   int currentlySelectedChestID = -1;
+
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -172,15 +171,7 @@ class ChestMainPageState extends State<ChestMainPage> {
                     if (kDebugMode)
                       PopupMenuItem(
                         child: const Text('Debug button'),
-                        onTap: () {
-                          WidgetsBinding.instance
-                              .addPostFrameCallback((timeStamp) async {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const WelcomePage()));
-                          });
-                        },
+                        onTap: () async {},
                       )
                   ];
                 })
@@ -195,50 +186,77 @@ class ChestMainPageState extends State<ChestMainPage> {
                   .then((_) => setState(() => {}));
             },
             child: const Icon(Icons.add)),
-        body: VaultsManager.storedVaults.isEmpty
-            ? Center(
-                child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.lock_outline,
-                      size: 128, color: Theme.of(context).colorScheme.outline),
-                  Text(
-                    S.of(context).noChestsCreatedYet,
-                    textScaleFactor: 2.5,
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.outline),
-                  )
-                ],
-              ))
-            : ListView.builder(
-                itemBuilder: (context, index) {
-                  Vault chest = VaultsManager.storedVaults[index];
-                  return Card(
-                      shadowColor: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          UnlockTester tester = UnlockTester(
-                              chest.unlockMechanismType,
-                              chest.additionalUnlockData,
-                              onKeyIssued:
-                                  (issuedKey, didPushed, mechanismUsed) =>
-                                      onKeyIssued(chest, issuedKey, didPushed,
-                                          mechanismUsed));
-                          if (tester.shouldUseChooser(context)) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => UnlockChooser(
-                                        onKeyIssued: (issuedKey, didPushed,
-                                                mechanismUsed) =>
-                                            onKeyIssued(chest, issuedKey,
-                                                didPushed, mechanismUsed))));
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(15),
-                        child: ListTile(
+        body: RefreshIndicator(
+            key: _refreshIndicatorKey,
+            onRefresh: () {
+              return VaultsManager.detectVaults()
+                  .then((value) => setState(() {}));
+            },
+            child: VaultsManager.storedVaults.isEmpty
+                ? Center(
+                    child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.lock_outline,
+                          size: 128,
+                          color: Theme.of(context).colorScheme.outline),
+                      Text(
+                        S.of(context).noChestsCreatedYet,
+                        textScaler: const TextScaler.linear(2.5),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.outline),
+                      ),
+                      OutlinedButton(
+                          onPressed: () async {
+                            _refreshIndicatorKey.currentState?.show();
+                          },
+                          child: Text(S.of(context).refresh))
+                    ],
+                  ))
+                : ListView.builder(
+                    itemBuilder: (context, index) {
+                      VaultRepresentation chest =
+                          VaultsManager.storedVaults[index];
+
+                      if (chest is BadVault) {
+                        return ListTile(
+                            leading: const Icon(Icons.error),
+                            title: Text(S.of(context).badChest),
+                            subtitle: Text(chest.error),
+                            trailing: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    chest.path.deleteSync(recursive: true);
+                                    VaultsManager.loadVaults();
+                                  });
+                                },
+                                icon: const Icon(Icons.close)));
+                      } else if (chest is Vault) {
+                        return ListTile(
                             title: Text(chest.name),
+                            onTap: () {
+                              UnlockTester tester = UnlockTester(
+                                  chest.unlockMechanismType,
+                                  chest.additionalUnlockData,
+                                  onKeyIssued:
+                                      (issuedKey, didPushed, mechanismUsed) =>
+                                          onKeyIssued(chest, issuedKey,
+                                              didPushed, mechanismUsed));
+                              if (tester.shouldUseChooser(context)) {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => UnlockChooser(
+                                            onKeyIssued: (issuedKey, didPushed,
+                                                    mechanismUsed) =>
+                                                onKeyIssued(
+                                                    chest,
+                                                    issuedKey,
+                                                    didPushed,
+                                                    mechanismUsed))));
+                              }
+                            },
                             trailing: PopupMenuButton(
                                 icon: const Icon(Icons.more_vert),
                                 shape: RoundedRectangleBorder(
@@ -320,12 +338,49 @@ class ChestMainPageState extends State<ChestMainPage> {
                                         });
                                       },
                                       child: Text(S.of(context).rename),
+                                    ),
+                                    PopupMenuItem(
+                                      onTap: () {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((timeStamp) {
+                                          showDialog<bool>(
+                                            context: context,
+                                            builder: (context) {
+                                              return ChangeBehaviorWindow(
+                                                  onOkButtonPressed:
+                                                      (newSecurityLevel) {
+                                                    chest.securityLevel =
+                                                        newSecurityLevel;
+
+                                                    VaultsManager.saveVaults();
+                                                    if (context.mounted) {
+                                                      Navigator.of(context)
+                                                          .pop(true);
+                                                    }
+                                                  },
+                                                  onCancelButtonPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(false);
+                                                  },
+                                                  initialSecurityLevel:
+                                                      chest.securityLevel);
+                                            },
+                                          ).then((value) {
+                                            if (value == true) {
+                                              setState(() {});
+                                            }
+                                          });
+                                        });
+                                      },
+                                      child: Text(S.of(context).changeBehavior),
                                     )
                                   ];
-                                })),
-                      ));
-                },
-                itemCount: VaultsManager.storedVaults.length));
+                                }));
+                      }
+
+                      return null;
+                    },
+                    itemCount: VaultsManager.storedVaults.length)));
   }
 
   void onKeyIssued(Vault chest, SecretKey issuedKey, bool didPush,
@@ -333,20 +388,22 @@ class ChestMainPageState extends State<ChestMainPage> {
     chest.encryptionKey = issuedKey;
     chest.locked = !(await VaultsManager.testVaultKey(chest));
     if (!chest.locked) {
-      if (context.mounted) {
-        if (didPush) {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => FileExplorer(
-                      chest, mechanismUsed.isEncryptedExportAllowed())));
-        } else {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => FileExplorer(
-                      chest, mechanismUsed.isEncryptedExportAllowed())));
-        }
+      if (!context.mounted) return;
+
+      if (didPush) {
+        Navigator.pushReplacement(
+            //ignore:use_build_context_synchronously
+            context,
+            MaterialPageRoute(
+                builder: (context) => FileExplorer(
+                    chest, mechanismUsed.isEncryptedExportAllowed())));
+      } else {
+        Navigator.push(
+            //ignore:use_build_context_synchronously
+            context,
+            MaterialPageRoute(
+                builder: (context) => FileExplorer(
+                    chest, mechanismUsed.isEncryptedExportAllowed())));
       }
     }
   }

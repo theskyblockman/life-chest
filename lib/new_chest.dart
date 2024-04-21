@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/unlock_mechanism/password_unlock_mechanism.dart';
 import 'package:life_chest/unlock_mechanism/unlock_mechanism.dart';
 import 'package:life_chest/vault.dart';
-import 'package:life_chest/generated/l10n.dart';
 
 /// The page to create and parameter a new chest
 class CreateNewChestPage extends StatefulWidget {
@@ -22,15 +22,17 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
   GlobalKey<FormState> formState = GlobalKey();
   TextEditingController timeoutController = TextEditingController();
   UnlockMechanism? currentMechanism;
-  List<(String, int)> onPausePossibilities = [];
-
-  @override
-  Widget build(BuildContext context) {
-    onPausePossibilities = [
+  static List<(String, int)> onPausePossibilities(BuildContext context) {
+    return [
       (S.of(context).doNothing, 0),
       (S.of(context).notify, 1),
       (S.of(context).closeChest, 2)
     ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var possibilities = onPausePossibilities(context);
 
     currentMechanism ??= PasswordUnlockMechanism(
         onKeyRetrieved: (retrievedKey, didPushed, usedMechanism) => null);
@@ -72,8 +74,8 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                     (index) {
                   dynamic mechanismBuilder =
                       List.from(UnlockMechanism.unlockMechanisms.keys)[index]!;
-                  UnlockMechanism mechanism =
-                      mechanismBuilder((retrievedKey, didPushed, unlockMethod) => null);
+                  UnlockMechanism mechanism = mechanismBuilder(
+                      (retrievedKey, didPushed, unlockMethod) => null);
                   if (mechanism.runtimeType == currentMechanism?.runtimeType) {
                     mechanism = currentMechanism!;
                   }
@@ -82,7 +84,8 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
                       future: mechanism.isAvailable(),
                       builder: (context, snapshot) {
                         return ChoiceChip(
-                            selectedColor: Theme.of(context).colorScheme.primaryContainer,
+                            selectedColor:
+                                Theme.of(context).colorScheme.primaryContainer,
                             label: Text(mechanism.getName(context)),
                             selected: mechanism == currentMechanism,
                             onSelected: snapshot.data != null && snapshot.data!
@@ -110,13 +113,13 @@ class CreateNewChestPageState extends State<CreateNewChestPage> {
             child: Wrap(spacing: 5.0, clipBehavior: Clip.none, children: [
               ...List<Widget>.generate(3, (index) {
                 return ChoiceChip(
-                    selectedColor: Theme.of(context).colorScheme.primaryContainer,
-                    label: Text(onPausePossibilities[index].$1),
-                    selected:
-                        policy.securityLevel == onPausePossibilities[index].$2,
+                    selectedColor:
+                        Theme.of(context).colorScheme.primaryContainer,
+                    label: Text(possibilities[index].$1),
+                    selected: policy.securityLevel == possibilities[index].$2,
                     onSelected: (value) {
                       setState(() {
-                        policy.securityLevel = onPausePossibilities[index].$2;
+                        policy.securityLevel = possibilities[index].$2;
                       });
                     });
               })

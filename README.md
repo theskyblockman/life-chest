@@ -27,9 +27,4 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 ## Credits
 - Thanks to Syncfusion for letting us use their software with their Open Source Community License. (NOTE: We are not using their software anymore because of their proprietary license)
 
-## Support
-I develop the Life Chest application in my free time, to support what I am doing, you can buy me a coffee!
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N6N222N)
-  
 :copyright: Haroun El Omri, 2023

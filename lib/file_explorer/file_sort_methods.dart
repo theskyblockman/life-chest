@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:life_chest/file_explorer/explorer_data.dart';
 import 'package:life_chest/generated/l10n.dart';
 
 /// The file sorter class with some util methods
 class FileSortMethod {
   static final FileSortMethod name = FileSortMethod((context) {
     return S.of(context).nameSortName;
-  }, (a, b) {
-    return a.compareTo(b);
-  }, 'by_name');
+  },
+      (oldMap) => oldMap
+        ..sort((a, b) {
+          return a.name.compareTo(b.name);
+        }),
+      'by_name');
 
   static int? _getFirstInteger(String stringToSearchIn) {
     if (!stringToSearchIn.contains(RegExp(r'\d'))) {
@@ -29,11 +33,19 @@ class FileSortMethod {
 
   static final FileSortMethod number = FileSortMethod((context) {
     return S.of(context).numberSortName;
-  }, (a, b) {
-    return (_getFirstInteger(a) ?? -1).compareTo(_getFirstInteger(b) ?? -1);
-  }, 'by_number');
+  },
+      (oldMap) => oldMap
+        ..sort((a, b) {
+          return (_getFirstInteger(a.name) ?? -1)
+              .compareTo(_getFirstInteger(b.name) ?? -1);
+        }),
+      'by_number');
 
-  static final List<FileSortMethod> values = [name, number];
+  static final FileSortMethod random = FileSortMethod((context) {
+    return S.of(context).randomSortName;
+  }, (oldMap) => oldMap..shuffle(), 'randomly');
+
+  static final List<FileSortMethod> values = [name, number, random];
 
   static FileSortMethod? fromID(String id) {
     for (FileSortMethod method in values) {
@@ -45,7 +57,8 @@ class FileSortMethod {
   }
 
   final String Function(BuildContext context) getDisplayName;
-  final int Function(String a, String b) sort;
+  final List<MapEntry<String, dynamic>> Function(
+      List<MapEntry<String, dynamic>> oldMap) sort;
   final String id;
 
   const FileSortMethod(this.getDisplayName, this.sort, this.id);

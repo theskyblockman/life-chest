@@ -47,11 +47,16 @@ class MessageLookup extends MessageLookupByLibrary {
             "Êtes-vous sûr de vouloir supprimer tous les coffres ?"),
         "areYouSureDeleteFiles": m0,
         "areYouSureDeleteVault": m1,
+        "badChest": MessageLookupByLibrary.simpleMessage("Coffre invalide"),
         "biometrics":
             MessageLookupByLibrary.simpleMessage("Empreinte digitale"),
         "biometricsAreLocal": MessageLookupByLibrary.simpleMessage(
             "Les coffres verrouillés par biométrie ne peuvent être déverrouillés que sur l\'appareil sur lequel ils ont été créés. L\'exportation de fichiers chiffrés n\'est pas disponible."),
         "cancel": MessageLookupByLibrary.simpleMessage("Annuler"),
+        "changeBehavior":
+            MessageLookupByLibrary.simpleMessage("Changer le comportement"),
+        "changeBehaviorSubtitle": MessageLookupByLibrary.simpleMessage(
+            "Que faire quand vous quittez l\'application et un coffre est ouvert"),
         "chestName": MessageLookupByLibrary.simpleMessage("Nom du coffre"),
         "chestPassword":
             MessageLookupByLibrary.simpleMessage("Mot de passe du coffre"),
@@ -157,6 +162,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Vitesse de lecture"),
         "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
             "Veuillez utiliser votre empreinte digitale pour déverrouiller le coffre"),
+        "randomSortName": MessageLookupByLibrary.simpleMessage("Aléatoire"),
+        "refresh": MessageLookupByLibrary.simpleMessage("Actualiser"),
         "rename": MessageLookupByLibrary.simpleMessage("Renommer"),
         "savedToFolder": MessageLookupByLibrary.simpleMessage(
             "Nous avons enregistré avec succès le(s) fichier(s)."),

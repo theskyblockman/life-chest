@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:life_chest/file_explorer/file_explorer.dart';
@@ -22,24 +23,33 @@ class PermissionError extends Error {
 
 /// The class that manages the core element of the app: chests (or vault, the name is still to determine)
 class VaultsManager {
-  static List<Vault> storedVaults = [];
+  static List<VaultRepresentation> storedVaults = [];
   static late final String appFolder;
   static late final File mainConfigFile;
   static late final PackageInfo packageInfo;
   static final cipher = Chacha20.poly1305Aead();
-  static final secondaryCipher = Chacha20(macAlgorithm: MacAlgorithm.empty); // Mainly used for file exportation so that no MAC is required.
+  static final secondaryCipher = Chacha20(
+      macAlgorithm: MacAlgorithm
+          .empty); // Mainly used for file exportation so that no MAC is required.
   static bool shouldUpdateVaultList = false;
   static Map<String, dynamic> globalAdditionalUnlockData = {};
-  static late final FlutterSecureStorage nonceStorage;
+  static const FlutterSecureStorage nonceStorage = FlutterSecureStorage(
+      aOptions: AndroidOptions(
+        encryptedSharedPreferences: true,
+      ),
+      iOptions: IOSOptions(groupId: 'fr.theskyblockman'));
 
   static void saveVaults() {
     mainConfigFile.writeAsStringSync(jsonEncode({
-      "chests": [for (Vault vault in storedVaults) vault.toJson()],
+      "chests": storedVaults
+          .whereType<Vault>()
+          .map((vault) => vault.toJson())
+          .toList(),
       "current_sort_method": FileExplorerState.currentSortMethod.id,
       "global_authentication_additional_data": globalAdditionalUnlockData
     }));
 
-    for (Vault vault in storedVaults) {
+    for (Vault vault in storedVaults.whereType<Vault>()) {
       File recognizerFile = File(vault.filesMetadataBankPath);
       recognizerFile.createSync(recursive: true);
       recognizerFile.writeAsStringSync(vault.toRawJson());
@@ -63,8 +73,65 @@ class VaultsManager {
       constructedVaults.add(Vault.fromJson(chest));
     }
     storedVaults = constructedVaults;
-    
-    globalAdditionalUnlockData = chests["global_authentication_additional_data"] ?? {};
+
+    globalAdditionalUnlockData =
+        chests["global_authentication_additional_data"] ?? {};
+  }
+
+  static Future<void> detectVaults() async {
+    List<VaultRepresentation> addedVaults = [];
+
+    await for (var dir in Directory(appFolder).list().where(
+          (event) => p.basename(event.path).startsWith('.'),
+        )) {
+      if (dir is Directory) {
+        if (storedVaults
+            .whereType<Vault>()
+            .any((element) => element.path == dir.path)) {
+          addedVaults.add(storedVaults
+              .whereType<Vault>()
+              .firstWhere((element) => element.path == dir.path));
+          continue;
+        }
+
+        File recognizerFile = File(p.join(dir.path, '.map'));
+        if (recognizerFile.existsSync()) {
+          bool revived = false;
+
+          for (var possibleVault in (dir.listSync(recursive: true)
+                ..sort((a, b) =>
+                    a.statSync().modified.compareTo(b.statSync().modified)))
+              .reversed) {
+            if (possibleVault is File) {
+              try {
+                String content = possibleVault.readAsStringSync();
+
+                Map<String, dynamic> parsedContent = jsonDecode(content);
+
+                Vault vault = Vault.fromJson(parsedContent);
+                addedVaults.add(vault);
+
+                revived = true;
+
+                debugPrint('Revived vault: $vault');
+                break;
+              } catch (e) {
+                // Ignore
+              }
+            }
+          }
+
+          if (!revived) {
+            addedVaults.add(BadVault(
+                'Lost access to vault metadata, click to recreate', dir));
+          }
+        }
+      }
+    }
+
+    storedVaults = addedVaults;
+
+    saveVaults();
   }
 
   static Future<Vault> createVaultFromPolicy(VaultPolicy policy) async {
@@ -80,21 +147,23 @@ class VaultsManager {
         secretKey: cryptKey,
         nonce: Uint8List(cipher.nonceLength));
 
-    await nonceStorage.write(key: keyFile.absolute.path, value: base64Encode(encryptedWitnessFile.mac.bytes));
+    await nonceStorage.write(
+        key: keyFile.absolute.path,
+        value: base64Encode(encryptedWitnessFile.mac.bytes));
 
     File witnessFile = File(p.join(path, '.witness'));
     witnessFile.createSync(recursive: true);
     witnessFile.writeAsBytesSync(encryptedWitnessFile.cipherText);
 
     Vault createdVault = Vault(
-        locked: false,
-        creationDate: DateTime.now(),
-        filesMetadataBankPath: p.join(path, '.${md5RandomFileName()}'),
-        path: path,
-        name: policy.vaultName,
-        securityLevel: policy.securityLevel,
-        encryptionKey: cryptKey,
-        unlockMechanismType: policy.unlockType,
+      locked: false,
+      creationDate: DateTime.now(),
+      filesMetadataBankPath: p.join(path, '.${md5RandomFileName()}'),
+      path: path,
+      name: policy.vaultName,
+      securityLevel: policy.securityLevel,
+      encryptionKey: cryptKey,
+      unlockMechanismType: policy.unlockType,
     );
 
     File mapFile = File(p.join(path, '.map'));
@@ -119,15 +188,22 @@ class VaultsManager {
     File witnessFile = File(p.join(vault.path, '.witness'));
 
     if (vault.encryptionKey == null || !witnessFile.existsSync()) return false;
-    String decryptedWitnessFile = utf8.decode(
-        await cipher.decrypt(
-            SecretBox(witnessFile.readAsBytesSync(),
-                nonce: Uint8List(cipher.nonceLength), mac: Mac(base64Decode((await nonceStorage.read(key: witnessFile.absolute.path))!))),
-            secretKey: vault.encryptionKey!),
-        allowMalformed: true);
-    return decryptedWitnessFile ==
-        await rootBundle.loadString('file_settings/encryption_witness_file',
-            cache: false);
+
+    try {
+      String decryptedWitnessFile = utf8.decode(
+          await cipher.decrypt(
+              SecretBox(witnessFile.readAsBytesSync(),
+                  nonce: Uint8List(cipher.nonceLength),
+                  mac: Mac(base64Decode((await nonceStorage.read(
+                      key: witnessFile.absolute.path))!))),
+              secretKey: vault.encryptionKey!),
+          allowMalformed: true);
+      return decryptedWitnessFile ==
+          await rootBundle.loadString('file_settings/encryption_witness_file',
+              cache: false);
+    } catch (e) {
+      return false;
+    }
   }
 
   static Map<String, dynamic> constructMap(Vault vault,
@@ -157,11 +233,14 @@ class VaultsManager {
       Vault vault, Map<String, dynamic> initialMap) async {
     if (vault.encryptionKey == null) return null;
 
-    SecretBox encryptedMap = (await cipher.encrypt(utf8.encode(jsonEncode(initialMap)),
+    SecretBox encryptedMap = (await cipher.encrypt(
+        utf8.encode(jsonEncode(initialMap)),
         secretKey: vault.encryptionKey!,
         nonce: Uint8List(cipher.nonceLength)));
 
-    await nonceStorage.write(key: vault.filesMetadataBankPath, value: base64Encode(encryptedMap.mac.bytes));
+    await nonceStorage.write(
+        key: vault.filesMetadataBankPath,
+        value: base64Encode(encryptedMap.mac.bytes));
 
     return encryptedMap.cipherText;
   }
@@ -169,10 +248,12 @@ class VaultsManager {
   static Future<Map<String, dynamic>?> decryptMap(
       Vault vault, List<int> encryptedMap) async {
     if (vault.encryptionKey == null) return null;
-    Map<String, dynamic> decryptedMap = jsonDecode(utf8.decode(
-        await cipher.decrypt(
+    Map<String, dynamic> decryptedMap = jsonDecode(utf8.decode(await cipher
+        .decrypt(
             SecretBox(encryptedMap,
-                nonce: Uint8List(cipher.nonceLength), mac: Mac(base64Decode((await nonceStorage.read(key: vault.filesMetadataBankPath))!))),
+                nonce: Uint8List(cipher.nonceLength),
+                mac: Mac(base64Decode((await nonceStorage.read(
+                    key: vault.filesMetadataBankPath))!))),
             secretKey: vault.encryptionKey!)));
 
     return decryptedMap;
@@ -207,8 +288,59 @@ List<int> passwordToCryptKey(String password) {
   return crypto.md5.convert(utf8.encode(password)).toString().codeUnits;
 }
 
+sealed class VaultRepresentation {
+  Map<String, dynamic> _toJson();
+
+  Map<String, dynamic> toJson() {
+    switch (runtimeType) {
+      case Vault v:
+        return v._toJson()..['type'] = 'vault';
+      case BadVault bv:
+        return bv._toJson()..['type'] = 'bad_vault';
+    }
+
+    return _toJson();
+  }
+
+  static VaultRepresentation fromJson(Map<String, dynamic> storedData) {
+    switch (storedData['type']) {
+      case 'vault':
+        return Vault.fromJson(storedData);
+      case 'bad_vault':
+        return BadVault.fromJson(storedData);
+      default:
+        throw const FormatException('Unknown vault type');
+    }
+  }
+}
+
+/// Represents a vault that could not be loaded
+class BadVault extends VaultRepresentation {
+  final String error;
+  final Directory path;
+
+  BadVault(this.error, this.path);
+
+  BadVault.fromJson(Map<String, dynamic> storedData)
+      : error = storedData['error'],
+        path = Directory(storedData['path']);
+
+  @override
+  Map<String, dynamic> _toJson() {
+    return {
+      'error': error,
+      'path': path.path,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'BadVault(error: $error, path: $path)';
+  }
+}
+
 /// Represents a vault data-wise
-class Vault {
+class Vault extends VaultRepresentation {
   Vault(
       {required this.locked,
       required this.path,
@@ -217,7 +349,8 @@ class Vault {
       required this.name,
       required this.securityLevel,
       required this.unlockMechanismType,
-      this.encryptionKey}) : lastVersionCode = int.parse(VaultsManager.packageInfo.buildNumber);
+      this.encryptionKey})
+      : lastVersionCode = int.parse(VaultsManager.packageInfo.buildNumber);
 
   Vault.fromJson(Map<String, dynamic> storedData) {
     locked = storedData['locked'];
@@ -229,7 +362,7 @@ class Vault {
     securityLevel = storedData['security_level'];
     unlockMechanismType = storedData['unlock_mechanism_type'] ?? 'password';
     additionalUnlockData = storedData['additional_unlock_data'] ?? {};
-    if(storedData.containsKey('last_version_code')) {
+    if (storedData.containsKey('last_version_code')) {
       lastVersionCode = storedData['last_version_code'];
     } else {
       PackageInfo.fromPlatform().then((value) {
@@ -238,7 +371,8 @@ class Vault {
     }
   }
 
-  Map<String, dynamic> toJson() {
+  @override
+  Map<String, dynamic> _toJson() {
     return {
       'locked': locked,
       'path': path,
@@ -285,4 +419,17 @@ class Vault {
 
   /// The version code of the app that the chest is currently used, this could bw used to upgrade it to a new security standard.
   late int lastVersionCode;
+
+  @override
+  String toString() {
+    return 'Vault(locked: $locked, '
+        'path: $path, '
+        'creationDate: $creationDate, '
+        'filesMetadataBankPath: $filesMetadataBankPath, '
+        'name: $name, '
+        'securityLevel: $securityLevel, '
+        'unlockMechanismType: $unlockMechanismType, '
+        'additionalUnlockData: $additionalUnlockData, '
+        'lastVersionCode: $lastVersionCode)';
+  }
 }

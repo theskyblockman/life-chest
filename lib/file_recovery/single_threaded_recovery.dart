@@ -17,34 +17,60 @@ import '../file_explorer/file_placeholder.dart';
 class SingleThreadedRecovery {
   /// Loads in memory the full decrypted content of [fileToRead] with [encryptionKey] and returns the decrypted data all at once
   static Future<Uint8List> loadAndDecryptFullFile(
-      SecretKey encryptionKey, File fileToRead, Mac mac, [Chacha20? cipher, bool isTesting = false]) async {
+      SecretKey encryptionKey, File fileToRead, Mac mac,
+      [Chacha20? cipher, bool isTesting = false]) async {
     return Uint8List.fromList(await (cipher ?? VaultsManager.cipher).decrypt(
         SecretBox(fileToRead.readAsBytesSync(),
-            nonce: isTesting ? Uint8List((cipher ?? VaultsManager.cipher).nonceLength) : base64Decode((await VaultsManager.nonceStorage.read(key: basename(fileToRead.path)))!), mac: mac),
+            nonce: isTesting
+                ? Uint8List((cipher ?? VaultsManager.cipher).nonceLength)
+                : base64Decode((await VaultsManager.nonceStorage
+                    .read(key: basename(fileToRead.path)))!),
+            mac: mac),
         secretKey: encryptionKey));
   }
 
   /// Loads in memory the full decrypted content of [fileToRead] with [encryptionKey] and returns the decrypted data incrementally by data chunks
   static Future<Stream<List<int>>> loadAndDecryptFile(
-      SecretKey encryptionKey, File fileToRead, Mac mac, [Chacha20? cipher, bool isTesting = false]) async {
-    return (cipher ?? VaultsManager.cipher).decryptStream(fileToRead.openRead(),
+      SecretKey encryptionKey, File fileToRead, Mac mac,
+      [Chacha20? cipher, bool isTesting = false]) {
+    return decryptStream(encryptionKey, fileToRead.openRead(), mac,
+        cipher: cipher, isTesting: isTesting, filePath: fileToRead.path);
+  }
+
+  static Future<Uint8List> findNonce(String key) async {
+    return base64Decode(
+        (await VaultsManager.nonceStorage.read(key: basename(key)))!);
+  }
+
+  /// Decrypts the stream of [streamToRead] with [encryptionKey] and returns the decrypted data incrementally by data chunks
+  static Future<Stream<List<int>>> decryptStream(
+      SecretKey encryptionKey, Stream<List<int>> streamToRead, Mac mac,
+      {Chacha20? cipher,
+      bool isTesting = false,
+      String? filePath,
+      Uint8List? nonce}) async {
+    return (cipher ?? VaultsManager.cipher).decryptStream(streamToRead,
         secretKey: encryptionKey,
-        nonce: isTesting ? Uint8List((cipher ?? VaultsManager.cipher).nonceLength) : base64Decode((await VaultsManager.nonceStorage.read(key: basename(fileToRead.path)))!),
+        nonce: isTesting
+            ? Uint8List((cipher ?? VaultsManager.cipher).nonceLength)
+            : (nonce ?? await findNonce(filePath ?? '')),
         mac: mac);
   }
 
   /// Selects the portion to decrypt and decrypts it (maybe the file reading part could be worked on)
-  static Stream<List<int>> loadAndDecryptPartialFile(
-      SecretKey encryptionKey,
-      File fileToRead,
-      int startByte,
-      int endByte,
-      Mac mac,
+  static Stream<List<int>> loadAndDecryptPartialFile(SecretKey encryptionKey,
+      File fileToRead, int startByte, int endByte, Mac mac,
       [Chacha20? cipher, bool isTesting = false]) {
     int currentLength = startByte;
     return fileToRead.openRead(startByte, endByte).asyncMap((event) async {
       currentLength += event.length;
-      return (cipher ?? VaultsManager.cipher).decrypt(SecretBox(event, nonce: isTesting ? Uint8List((cipher ?? VaultsManager.cipher).nonceLength) : base64Decode((await VaultsManager.nonceStorage.read(key: basename(fileToRead.path)))!), mac: mac),
+      return (cipher ?? VaultsManager.cipher).decrypt(
+          SecretBox(event,
+              nonce: isTesting
+                  ? Uint8List((cipher ?? VaultsManager.cipher).nonceLength)
+                  : base64Decode((await VaultsManager.nonceStorage
+                      .read(key: basename(fileToRead.path)))!),
+              mac: mac),
           secretKey: encryptionKey,
           keyStreamIndex: currentLength - event.length);
     });
@@ -57,15 +83,18 @@ class SingleThreadedRecovery {
       String localPath,
       String? rootFolderPath,
       {File? createdFile,
-      (Map<String, dynamic> metadata, List<int> data)? importedFile, bool isTesting = false}) async {
+      (Map<String, dynamic> metadata, List<int> data)? importedFile,
+      bool isTesting = false}) async {
     String fileName = md5RandomFileName();
     File fileToCreate = File(join(vaultPath, fileName));
     await fileToCreate.create(recursive: true);
-    Uint8List nonce = Uint8List.fromList(List.generate(VaultsManager.cipher.nonceLength, (index) => SecureRandom.safe.nextInt(256)));
-    if(!isTesting) {
-      await VaultsManager.nonceStorage.write(key: fileName, value: base64Encode(nonce));
+    Uint8List nonce = Uint8List.fromList(List.generate(
+        VaultsManager.cipher.nonceLength,
+        (index) => SecureRandom.safe.nextInt(256)));
+    if (!isTesting) {
+      await VaultsManager.nonceStorage
+          .write(key: fileName, value: base64Encode(nonce));
     }
-
 
     Completer<List<int>> macReceiver = Completer();
 
@@ -90,10 +119,10 @@ class SingleThreadedRecovery {
                 : relative(importedFile!.$1['name'], from: rootFolderPath));
     Map<String, dynamic> finalData = {'name': finalName, 'type': type};
 
-    FileThumbnailsPlaceholder? placeholder = FileThumbnailsPlaceholder.getPlaceholderFromFileName(
-        [finalData])[finalName];
-    if (placeholder ==
-        FileThumbnailsPlaceholder.audio) {
+    FileThumbnailsPlaceholder? placeholder =
+        FileThumbnailsPlaceholder.getPlaceholdersFromFileName(
+            [finalData])[finalName];
+    if (placeholder == FileThumbnailsPlaceholder.audio) {
       if (createdFile != null) {
         Metadata foundData = await MetadataRetriever.fromFile(createdFile);
         finalData['audioData'] = foundData.toJson();
@@ -107,13 +136,16 @@ class SingleThreadedRecovery {
       }
     } else if (placeholder == FileThumbnailsPlaceholder.videos) {
       if (createdFile != null) {
-        VideoData result = (await FlutterVideoInfo().getVideoInfo(createdFile.absolute.path))!;
+        VideoData result =
+            (await FlutterVideoInfo().getVideoInfo(createdFile.absolute.path))!;
         finalData['videoData'] = <String, dynamic>{};
         finalData['videoData']['width'] = result.width!;
         finalData['videoData']['height'] = result.height!;
         finalData['type'] = result.mimetype!;
       } else {
-        finalData['videoData'] = importedFile!.$1.containsKey('videoData') ? importedFile.$1['videoData'] : {};
+        finalData['videoData'] = importedFile!.$1.containsKey('videoData')
+            ? importedFile.$1['videoData']
+            : {};
       }
     }
 
@@ -121,26 +153,28 @@ class SingleThreadedRecovery {
       IOSink fileToCreateSink = fileToCreate.openWrite();
       try {
         final clearTextStream = createdFile.openRead();
-        final encryptedStream = (placeholder == FileThumbnailsPlaceholder.audio ? VaultsManager.secondaryCipher : VaultsManager.cipher).encryptStream(
-            clearTextStream,
-            secretKey: encryptionKey,
-            nonce: nonce,
-            onMac: (Mac mac) async {
-              macReceiver.complete(mac.bytes);
-            });
+        final encryptedStream = (placeholder == FileThumbnailsPlaceholder.audio
+                ? VaultsManager.secondaryCipher
+                : VaultsManager.cipher)
+            .encryptStream(clearTextStream,
+                secretKey: encryptionKey, nonce: nonce, onMac: (Mac mac) async {
+          macReceiver.complete(mac.bytes);
+        });
         await fileToCreateSink.addStream(encryptedStream);
       } finally {
         fileToCreateSink.close();
       }
     } else {
-      SecretBox encryptedData = await (placeholder == FileThumbnailsPlaceholder.audio ? VaultsManager.secondaryCipher : VaultsManager.cipher).encrypt(
+      SecretBox encryptedData =
+          await (placeholder == FileThumbnailsPlaceholder.audio
+                  ? VaultsManager.secondaryCipher
+                  : VaultsManager.cipher)
+              .encrypt(
         importedFile!.$2,
         secretKey: encryptionKey,
         nonce: nonce,
       );
-      fileToCreate.writeAsBytesSync(
-          encryptedData.cipherText
-      );
+      fileToCreate.writeAsBytesSync(encryptedData.cipherText);
       macReceiver.complete(encryptedData.mac.bytes);
     }
 
@@ -193,9 +227,7 @@ class SingleThreadedRecovery {
     FilePickerResult? pickedFiles = await FilePicker.platform
         .pickFiles(allowMultiple: true, dialogTitle: dialogTitle);
 
-    return pickedFiles != null
-        ? [for (PlatformFile file in pickedFiles.files) File(file.path!)]
-        : null;
+    return pickedFiles?.files.map<File>((file) => File(file.path!)).toList();
   }
 
   /// Opens the system dialog to pick a folder to save and probably encrypt (inner files included)

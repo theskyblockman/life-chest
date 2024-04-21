@@ -93,5 +93,10 @@
   "biometricsAreLocal": "Les coffres verrouillés par biométrie ne peuvent être déverrouillés que sur l'appareil sur lequel ils ont été créés. L'exportation de fichiers chiffrés n'est pas disponible.",
   "linkCopied": "Le lien a été copié dans votre presse-papiers.",
   "subtitles": "Sous-titres",
-  "playbackSpeed": "Vitesse de lecture"
+  "playbackSpeed": "Vitesse de lecture",
+  "badChest": "Coffre invalide",
+  "refresh": "Actualiser",
+  "randomSortName": "Aléatoire",
+  "changeBehavior": "Changer le comportement",
+  "changeBehaviorSubtitle": "Que faire quand vous quittez l'application et un coffre est ouvert"
 }

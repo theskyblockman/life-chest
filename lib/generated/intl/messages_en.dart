@@ -46,10 +46,15 @@ class MessageLookup extends MessageLookupByLibrary {
             "Are you sure you want to delete all vaults?"),
         "areYouSureDeleteFiles": m0,
         "areYouSureDeleteVault": m1,
+        "badChest": MessageLookupByLibrary.simpleMessage("Bad chest"),
         "biometrics": MessageLookupByLibrary.simpleMessage("Biometrics"),
         "biometricsAreLocal": MessageLookupByLibrary.simpleMessage(
             "Biometrics-locked chests can only be unlocked on the device it has been created on. Encrypted file export is unavailable."),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+        "changeBehavior":
+            MessageLookupByLibrary.simpleMessage("Change behavior"),
+        "changeBehaviorSubtitle": MessageLookupByLibrary.simpleMessage(
+            "What to do when the app is put in the background and this vault is opened"),
         "chestName": MessageLookupByLibrary.simpleMessage("Chest Name"),
         "chestPassword": MessageLookupByLibrary.simpleMessage("Chest Password"),
         "chestPinCode": MessageLookupByLibrary.simpleMessage("Chest PIN code"),
@@ -150,6 +155,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "playbackSpeed": MessageLookupByLibrary.simpleMessage("Playback speed"),
         "pleaseUseBiometrics": MessageLookupByLibrary.simpleMessage(
             "Please use your biometrics to unlock the chest"),
+        "randomSortName": MessageLookupByLibrary.simpleMessage("Random order"),
+        "refresh": MessageLookupByLibrary.simpleMessage("Refresh"),
         "rename": MessageLookupByLibrary.simpleMessage("Rename"),
         "savedToFolder": MessageLookupByLibrary.simpleMessage(
             "We successfully saved the file(s)"),

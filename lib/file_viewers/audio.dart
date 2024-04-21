@@ -6,12 +6,12 @@ import 'dart:math';
 import 'package:audio_service/audio_service.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:flutter/material.dart';
-import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/file_recovery/single_threaded_recovery.dart';
 import 'package:life_chest/file_viewers/file_viewer.dart';
+import 'package:life_chest/generated/l10n.dart';
 import 'package:life_chest/vault.dart';
 import 'package:path/path.dart' as p;
 import 'package:rxdart/rxdart.dart';
@@ -172,8 +172,11 @@ class AudioListener extends FileViewer {
                           mediaItem?.artHeaders!['artData'] != null
                       ? Column(
                           children: [
-                            Image.memory(base64Decode(
-                                mediaItem!.artHeaders!['artData']!), height: artSize, width: artSize),
+                            Image.memory(
+                                base64Decode(
+                                    mediaItem!.artHeaders!['artData']!),
+                                height: artSize,
+                                width: artSize),
                             const Padding(padding: EdgeInsets.only(top: 15))
                           ],
                         )
@@ -219,7 +222,7 @@ class AudioListener extends FileViewer {
               );
             },
           ),
-          if(kDebugMode)
+          if (kDebugMode)
             StreamBuilder<AudioProcessingState>(
               stream: audioHandler.playbackState
                   .map((state) => state.processingState)
@@ -227,7 +230,7 @@ class AudioListener extends FileViewer {
               builder: (context, snapshot) {
                 final processingState =
                     snapshot.data ?? AudioProcessingState.idle;
-                return Text("Processing state: ${describeEnum(processingState)}");
+                return Text("Processing state: ${processingState.name}");
               },
             ),
         ],
@@ -268,16 +271,15 @@ class AudioListener extends FileViewer {
         iconSize: 48.0,
         onPressed: onPressed,
         style: ButtonStyle(
-            backgroundColor: MaterialStateColor.resolveWith((states) {
+            backgroundColor: WidgetStateColor.resolveWith((states) {
               return Theme.of(context).colorScheme.onTertiary;
             }),
-            iconColor: MaterialStateColor.resolveWith(
+            iconColor: WidgetStateColor.resolveWith(
                 (states) => Theme.of(context).colorScheme.onTertiaryContainer)),
       );
 
   @override
   Future<void> onFocus() async {
-
     Metadata parsedMetadata = Metadata(
         trackName: fileData['audioData']['trackName'],
         trackArtistNames: fileData['audioData']['trackArtistNames'] != null
@@ -319,8 +321,6 @@ class AudioListener extends FileViewer {
                 : null),
         audioSource!);
 
-
-
     audioHandler.play();
   }
 }
@@ -350,9 +350,16 @@ class EncryptedAudioSource extends StreamAudioSource {
         sourceLength: fileByteLength,
         contentLength: (end ?? fileByteLength) - (start ?? 0),
         offset: start ?? 0,
-        stream: start == null && end == null ?
-          await SingleThreadedRecovery.loadAndDecryptFile(encryptionKey, fileToRead, Mac.empty, VaultsManager.secondaryCipher) :
-          SingleThreadedRecovery.loadAndDecryptPartialFile(encryptionKey, fileToRead, start ?? 0, end ?? fileByteLength, Mac.empty, VaultsManager.secondaryCipher),
+        stream: start == null && end == null
+            ? await SingleThreadedRecovery.loadAndDecryptFile(encryptionKey,
+                fileToRead, Mac.empty, VaultsManager.secondaryCipher)
+            : SingleThreadedRecovery.loadAndDecryptPartialFile(
+                encryptionKey,
+                fileToRead,
+                start ?? 0,
+                end ?? fileByteLength,
+                Mac.empty,
+                VaultsManager.secondaryCipher),
         contentType: mimeType,
         rangeRequestsSupported: true);
   }
