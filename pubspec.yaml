@@ -35,7 +35,7 @@ dependencies:
   marquee:
     git: https://github.com/theskyblockman/marquee.git
   flutter_pdfview: ^1.3.1
-  package_info_plus: ^6.0.0
+  package_info_plus: ^7.0.0
   flutter_secure_storage: ^9.0.0
   flutter_video_info:
     git: https://github.com/theskyblockman/flutter_video_info.git
