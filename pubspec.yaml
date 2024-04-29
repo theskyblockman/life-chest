@@ -42,7 +42,7 @@ dependencies:
   video_player: ^2.7.1
   chewie: ^1.8.1
   permission_handler: ^11.3.1
-  archive: ^3.4.10
+  archive: ^3.5.0
 
 dev_dependencies:
   flutter_test:
