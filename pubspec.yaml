@@ -39,7 +39,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   flutter_video_info:
     git: https://github.com/theskyblockman/flutter_video_info.git
-  video_player: ^2.7.1
+  video_player: ^2.9.1
   chewie: ^1.8.1
   permission_handler: ^11.3.1
   archive: ^3.4.10
