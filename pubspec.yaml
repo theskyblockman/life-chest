@@ -27,7 +27,7 @@ dependencies:
   test: ^1.24.1
   rxdart: ^0.27.7
   flutter_media_metadata: ^1.0.0+1
-  local_auth_crypto: ^1.1.0
+  local_auth_crypto: ^1.1.1
   pattern_lock:
     git: https://github.com/theskyblockman/pattern_lock.git
   local_auth: ^2.1.7
